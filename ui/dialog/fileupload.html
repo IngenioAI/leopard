@@ -1,0 +1,102 @@
+<div class="modal fade" tabindex="-1" id="LP_DIALOG_fileupload_dialogbox">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="LP_DIALOG_fileupload_dialogbox_title">대화상자 제목</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="LP_DIALOG_fileupload_dialogbox_text">대화상자 메시지</p>
+          <div class="container">
+            <input type="file" class="form-control" id="LP_DIALOG_fileupload_dialogbox_file">
+          </div>
+          <div class="mt-4"></div>
+          <div class="container">
+            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                <div class="progress-bar" id="LP_DIALOG_progress" style="width: 0%"></div>
+              </div>            
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" id="LP_DIALOG_fileupload_dialogbox_upload">업로드</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+class FileUploadHanlder extends FileUploader {
+  constructor(elementId, progressId) {
+    super(elementId);
+    this.progressId = progressId;
+  }
+
+  setProgress(percent) {
+    getE(this.progressId).setAttribute("style", `width:${percent}%` );
+  }
+
+  send(url, callback) {
+    this.setProgress(0);
+    this.callback = callback;
+    super.send(url);
+  }
+
+  onUploadProgress(event) {
+        const progressPercent = (event.loaded / event.total * 100).toFixed();
+        this.setProgress(progressPercent);
+    }
+
+    onCompleted(event) {
+      if (this.callback) {
+        this.callback(event, this.getFilenames());
+      }
+    }  
+}
+
+class FileUploadDialogBox extends DialogBox {
+  constructor(text, title, storageId, storagePath, callback) {
+    super('LP_DIALOG_fileupload_dialogbox');
+    this.text = text;
+    this.title = title;
+    this.storageId = storageId;
+    this.storagePath = storagePath;
+    this.callback = callback;
+  }
+
+  show() {
+    getE('LP_DIALOG_fileupload_dialogbox_title').innerHTML = this.title;
+    getE('LP_DIALOG_fileupload_dialogbox_text').innerHTML = this.text;
+    getE('LP_DIALOG_fileupload_dialogbox_file').value = "";
+    getE('LP_DIALOG_progress').setAttribute("style", `width: 0%` );
+
+    this.addEvent('LP_DIALOG_fileupload_dialogbox_upload', 'click', this.onUpload.bind(this));
+    super.show();
+  }
+
+  onUpload() {
+    if (getE('LP_DIALOG_fileupload_dialogbox_file').value) {
+      const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_dialogbox_file', 'LP_DIALOG_progress');
+      const url = `/api/storage_file/${this.storageId}` + (this.storagePath ? `/${this.storagePath}` : '/.');
+      uploadHandler.send(url, this.onCompleted.bind(this));
+    }
+    else {
+      showMessageBox("파일을 선택해 주세요", "파일 업로드")
+    }
+  }
+
+  onCompleted(e, filenames) {
+    if (this.callback) {
+      const ret = this.callback(e, filenames);
+      if (ret) {
+        this.hide();
+      }
+    }
+  }
+};
+
+function showFileUploadDialogBox(text, title, storageId, storagePath, callback, autoClose) {
+  const dialogBox = new FileUploadDialogBox(text, title, storageId, storagePath, callback);
+  dialogBox.show();
+}
+</script>

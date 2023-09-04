@@ -1,0 +1,49 @@
+<div class="modal fade" tabindex="-1" id="LP_DIALOG_fileview">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="LP_DIALOG_fileview_title">대화상자 제목</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="LP_DIALOG_fileview_message">대화상자 메시지</p>
+          <div id="LP_DIALOG_fileview_content">파일내용</div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+class FileViewDialogBox extends DialogBox {
+    constructor(dialogId) {
+        super(dialogId);
+    }
+
+    show(storagePath) {
+        if (isImageFile(storagePath)) {
+            const contentDiv = getE('LP_DIALOG_fileview_content');
+            clearE(contentDiv);
+            const image = createE("img", "", {src: `/api/storage_file/${storagePath}`, style: "width:100%; height:100%"});
+            addE(contentDiv, image);
+        }
+        else {
+            const contentDiv = getE('LP_DIALOG_fileview_content');
+            clearE(contentDiv);
+            http_get(`/api/storage_file/${storagePath}`).then((res) => {
+                const text = createE("pre", res, {class: "border p-2 bg-light"});
+                addE(contentDiv, text);
+            });
+        }
+        super.show();
+    }
+}
+function showFileView(message, title, storagePath) {
+  const dialogBox = new FileViewDialogBox('LP_DIALOG_fileview');
+  document.getElementById('LP_DIALOG_fileview_title').innerHTML = title;
+  document.getElementById('LP_DIALOG_fileview_message').innerHTML = message;  
+  dialogBox.show(storagePath);
+}
+</script>

@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leopard</title>
+  <style>
+    #view {
+        background-color: white;
+        max-width: 100%;
+        max-height: 100%;
+        position: relative;
+    }
+    #view canvas {
+        position: absolute;
+        background-color: transparent;
+    }
+  </style>
+  <LP-include-html src="head.html"></LP-include-html>
+  <script src="/js/canvas_utils.js"></script>
+  <script>
+
+    let canvas1, canvas2;
+    let scale = 1.0;
+
+    function uploadFile() {
+        showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/mtcnn/data', (e, filenames)=> {
+            const image_path = "app/mtcnn/data/" + filenames[0];
+            const image_url = "/api/storage_file/0/" + image_path;
+            const image = new Image();
+            image.src = image_url;
+            image.addEventListener('load', () => {
+                canvas1.clear();
+                canvas2.clear();
+                scale = canvas1.drawImageFit(image);
+            });
+            
+            setTimeout(() => {
+                http_get("/api/app/mtcnn/0/" + image_path).then((res) => {
+                    const faceList = JSON.parse(res);
+                    for (const face of faceList) {
+                        console.log(face.box, face.confidence);
+                        canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
+                            face.box[2] * scale, face.box[3] * scale, 3, 'lime');
+                    }
+                })
+            }, 100)
+            
+            return true;
+        })
+    }
+
+    function init() {
+      console.log("init - face_detect");
+      canvas1 = new Canvas('canvas1');
+      canvas1.init(1200, 700);
+      canvas2 = new Canvas('canvas2');
+      canvas2.init(1200, 700);
+    }      
+  </script>
+</head>
+
+<body>
+  <LP-include-html src="bs-script.html"></LP-include-html>
+  <LP-include-html src="topbar.html"></LP-include-html>
+
+  <div class="container-fluid">
+    <div class="row">
+      <LP-include-html src="sidebar.html"></LP-include-html>
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="p-3 bg-body-tertiary" style="width:100%;">
+          <h2>얼굴 검출</h2>
+
+          <div class="container my-4">
+            <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">파일 선택</button>
+          </div>
+
+          <div id="view">
+            <canvas id="canvas1" style="display:none">
+            </canvas>
+            <canvas id="canvas2" style="display:none">
+            </canvas>
+          </div>
+
+        </div>
+      </main>
+    </div>
+  </div>
+  <LP-include-html src="fileupload.html"></LP-include-html>
+  <script>init();</script>
+</body>
+
+</html>

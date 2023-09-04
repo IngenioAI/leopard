@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leopard</title>
+  <LP-include-html src="head.html"></LP-include-html>
+  <script>
+    async function checkBuild(name) {
+      let res = await http_get('/api/image/create/' + name);
+      const create_info = JSON.parse(res);
+      console.log('info', create_info);
+      if (create_info.status != 'exited') {
+        setTimeout(checkBuild, 500, name);
+      }
+      else {
+        http_send("DELETE", "/api/image/create/" + name, null);    // auto remove after getting logs
+      }
+      const outputDiv = document.getElementById('output');
+      outputDiv.innerText = create_info.lines;
+    }
+
+    async function create_image() {
+      const item = createPostItem([
+        ['name', 'image_name'],
+        ['baseImage', 'base_image'],
+        ['aptInstall', 'apt_install'],
+        ['pipInstall', 'pip_install'],
+        ['additionalCommand', 'additional_command']
+      ]);
+      item['update'] = true;
+      res = await http_post('/api/image/create', item);
+      console.log(res);
+      setTimeout(checkBuild, 500, item['name'])
+    }
+
+    function init() {
+      console.log("init - create");
+    }      
+  </script>
+</head>
+
+<body>
+  <LP-include-html src="bs-script.html"></LP-include-html>
+  <LP-include-html src="topbar.html"></LP-include-html>
+
+  <div class="container-fluid">
+    <div class="row">
+      <LP-include-html src="sidebar.html"></LP-include-html>
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="p-3 bg-body-tertiary" style="width:100%;">
+          <h2>이미지 생성</h2>
+          <div class="mb-3">
+            <label for="env_name" class="form-label">이름</label>
+            <input type="text" class="form-control" id="image_name" value="">
+
+            <label for="base_image" class="form-label">기본 이미지</label>
+            <input type="text" class="form-control" id="base_image" value="">
+
+            <label for="apt_install" class="form-label">APT 설치
+            </label>
+            <input type="text" class="form-control" id="apt_install" value="">
+
+            <label for="pip_install" class="form-label">PIP 설치</label>
+            <input type="text" class="form-control" id="pip_install" value="">
+
+
+            <label for="additional_command" class="form-label">추가 명령 실행</label>
+            <input type="text" class="form-control" id="additional_command" value="">
+          </div>
+          <button type="button" class="btn btn-primary" onclick="create_image()">생성</button>
+          <div class="m-2 container">
+            <pre id="output" class="console_like"></pre>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>init();</script>
+</body>
+
+</html>

@@ -1,0 +1,17 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+}
+
+.bi {
+    vertical-align: -.125em;
+    fill: currentColor;
+}
+
+.console_like {
+    font-size: medium;
+    font-family: Consolas, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace;
+    background-color: black;
+    color: lightgray;
+    padding: 1em;
+    white-space: pre-line;
+}
