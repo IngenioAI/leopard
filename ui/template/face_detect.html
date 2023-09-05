@@ -37,7 +37,7 @@
             });
             
             setTimeout(() => {
-                http_get("/api/app/mtcnn/0/" + image_path).then((res) => {
+                http_post("/api/app/mtcnn", {storageId: '0', storagePath: image_path}).then((res) => {
                     const faceList = JSON.parse(res);
                     for (const face of faceList) {
                         console.log(face.box, face.confidence);

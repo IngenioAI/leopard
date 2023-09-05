@@ -8,8 +8,8 @@ def main(args):
     image_path = None
     if os.path.exists(args.input):
         image_path = args.input
-    elif os.path.exists(os.path.join("data", args.input)):
-        image_path = os.path.join("data", args.input)
+    elif os.path.exists(os.path.join("/data/input", args.input)):
+        image_path = os.path.join("/data/input", args.input)
     if image_path is not None:
         img = cv2.cvtColor(cv2.imread(image_path), cv2.COLOR_BGR2RGB)
         detector = MTCNN()
@@ -18,7 +18,7 @@ def main(args):
         print("File not found:", args.input)
         result = []
 
-    with open(os.path.join("output", args.output), "wt") as fp:
+    with open(os.path.join("/data/output", args.output), "wt") as fp:
         json.dump(result, fp)
 
 def parse_arguments():

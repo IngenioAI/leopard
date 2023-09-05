@@ -1,4 +1,4 @@
-import docker
+import docker_runner
 import io
 import time
 from ast import literal_eval
@@ -19,7 +19,7 @@ def server_log(tag, msg):
     print(tag, msg)
 
 def list_images():
-    client = docker.APIClient()
+    client = docker_runner.APIClient()
     images = client.images()
     return images
 
@@ -39,7 +39,7 @@ def build_image(name, base_image="python:3.8", update=True, apt_install=None, pi
             dockerfile_template += "RUN %s\n" % additional_cmd
 
     dockerfile = io.BytesIO(dockerfile_template.encode('utf-8'))
-    client = docker.APIClient()
+    client = docker_runner.APIClient()
     for line in client.build(fileobj=dockerfile, tag=name, rm=True, forcerm=True):
         line_info = literal_eval(line.decode('utf-8'))
         if 'stream' in line_info:
@@ -51,7 +51,7 @@ def build_image(name, base_image="python:3.8", update=True, apt_install=None, pi
             print(line_info)
 
 def exec_python(src_dir, main_src, image, data_dir=None, output_dir=None):
-    client = docker.APIClient()
+    client = docker_runner.APIClient()
     ps_start_time = time.time()
     working_dir = "/app"
     binds = []
@@ -65,7 +65,7 @@ def exec_python(src_dir, main_src, image, data_dir=None, output_dir=None):
                                 working_dir=working_dir,
                                 host_config=client.create_host_config(
                                     auto_remove=True,
-                                    device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
+                                    device_requests=[docker_runner.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
                                     binds=binds
                                 ))
     client.start(container.get('Id'))
@@ -74,7 +74,7 @@ def exec_python(src_dir, main_src, image, data_dir=None, output_dir=None):
 
 
 if __name__ == "__main__":
-    client = docker.APIClient()
+    client = docker_runner.APIClient()
 
     setting = {
         'tag': "my-tf:0.1",
@@ -82,7 +82,7 @@ if __name__ == "__main__":
         'update': True,
         'apt': "libcudnn8=8.2.4.15-1+cuda11.4 libgl1-mesa-glx libglib2.0-0",
         'pip': "opencv-python mtcnn",
-        'src': "/home/hkroh/work/dockrun/mtcnn",
+        'src': "/home/hkroh/work/leopard/mtcnn",
         'main': 'main.py'
     }
 

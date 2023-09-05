@@ -79,9 +79,9 @@ class DockerRunner():
         binds = []
         binds.append('%s:%s' % (src_dir, working_dir))
         if data_dir is not None and data_dir != '':
-            binds.append('%s:%s' % (data_dir, "%s/data" % working_dir))
+            binds.append('%s:%s' % (data_dir, "/data/input"))
         if output_dir is not None and output_dir != '':
-            binds.append('%s:%s' % (output_dir, "%s/output" % working_dir))
+            binds.append('%s:%s' % (output_dir, "/data/output"))
 
         print("Binds:", binds)
         command_list = ["python", main_src]

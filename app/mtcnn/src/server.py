@@ -21,8 +21,8 @@ async def run_app(file_path: str):
     print("run_app:", file_path)
     if os.path.exists(file_path):
         img_path = file_path
-    elif os.path.exists(os.path.join("data", file_path)):
-        img_path = os.path.join("data", file_path)
+    elif os.path.exists(os.path.join("/data/input", file_path)):
+        img_path = os.path.join("/data/input", file_path)
     else:
         img_path = None
     if img_path:

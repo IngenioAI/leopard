@@ -9,9 +9,10 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from starlette.status import HTTP_302_FOUND,HTTP_303_SEE_OTHER
 
-from docker_run import DockerRunner
+import storage_util
+from docker_runner import DockerRunner
 from html_util import process_include_html
-from app import MTCNNApp
+from app.manager import AppManager
 
 tags_metadata = [
     {"name": "File", "description": "Related to static file serving"}
@@ -108,7 +109,6 @@ class ExecutionItem(BaseModel):
 
 @app.post("/api/exec", tags=["Exec"])
 async def create_execution(data: ExecutionItem):
-    print(data)
     containerId = app.docker_runner.exec_python(data.srcPath, data.mainSrc, data.imageTag, data.inputPath, data.outputPath)
     print('execId(containerId):', containerId)
     return JSONResponseHandler({
@@ -145,45 +145,13 @@ async def get_storage_list():
         }
     ])
 
-def get_storage_file_path(storage_id: str, file_path: str):
-    default_path = "storage/%s" % storage_id
-    #default_path = "/home/ingenio/kykim/datasets/FFHQ"
-    if storage_id in ['0', '1']:
-        storage_path = default_path
-        file_path = os.path.normpath(file_path)
-        if file_path.startswith("/") or file_path.startswith(".."):
-            return storage_path     # prevent invalid access to upper directory
-        return os.path.join(storage_path, file_path)
-    return ""
-
-def get_file_list(storage_id: str, file_path: str="."):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
-    if os.path.exists(storage_file_path):
-        file_list = os.listdir(storage_file_path)
-        return file_list
-    return []
-
-def get_file_info(storage_id, file_path, file_list):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
-    file_info_list = []
-    for filename in file_list:
-        filepath = os.path.join(storage_file_path, filename)
-        info = {
-            'name': filename,
-            'is_dir': os.path.isdir(filepath),
-            'size': os.path.getsize(filepath),
-            'mtime': os.path.getmtime(filepath)
-        }
-        file_info_list.append(info)    
-    return file_info_list
-
 @app.get("/api/storage/{storage_id}", tags=["Storage"])
 async def get_storage_file_list(storage_id: str, page:int=0, count:int=0):
-    file_list = get_file_list(storage_id)
+    file_list = storage_util.get_file_list(storage_id)
     total_count = len(file_list)
     if count != 0:
         file_list = file_list[page * count: (page+1) * count]
-    file_info_list = get_file_info(storage_id, ".", file_list)
+    file_info_list = storage_util.get_file_info(storage_id, ".", file_list)
     return JSONResponseHandler({
         'id': storage_id,
         'file_path': '.',
@@ -195,11 +163,11 @@ async def get_storage_file_list(storage_id: str, page:int=0, count:int=0):
 
 @app.get("/api/storage/{storage_id}/{file_path:path}", tags=["Storage"])
 async def get_storage_file_list_with_path(storage_id: str, file_path: str, page:int=0, count:int=0):
-    file_list = get_file_list(storage_id, file_path)
+    file_list = storage_util.get_file_list(storage_id, file_path)
     total_count = len(file_list)
     if count != 0:
         file_list = file_list[page * count: (page+1) * count]
-    file_info_list = get_file_info(storage_id, file_path, file_list)
+    file_info_list = storage_util.get_file_info(storage_id, file_path, file_list)
     return JSONResponseHandler({
         'id': storage_id,
         'file_path': file_path,
@@ -211,7 +179,7 @@ async def get_storage_file_list_with_path(storage_id: str, file_path: str, page:
 
 @app.put("/api/storage/{storage_id}/{file_path:path}", tags=["Storage"])
 async def create_storage_directory(storage_id: str, file_path: str):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
+    storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         raise HTTPException(status_code=403, detail="File already exist")
     os.mkdir(storage_file_path)
@@ -222,14 +190,14 @@ async def create_storage_directory(storage_id: str, file_path: str):
 
 @app.get("/api/storage_file/{storage_id}/{file_path:path}", tags=["Storage"])
 async def get_storage_file(storage_id: str, file_path: str):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
+    storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path) and not os.path.isdir(storage_file_path):
         return FileResponse(storage_file_path)
     raise HTTPException(status_code=404, detail="File not found")
 
 @app.post("/api/storage_file/{storage_id}/{file_path:path}", tags=["Storage"])
 async def post_storage_file(storage_id:str, file_path: str, req: Request):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
+    storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if not os.path.exists(storage_file_path):
         raise HTTPException(status_code=404, detail="Path not found")
     file_list, metadata = await handle_upload(req, storage_file_path)
@@ -240,7 +208,7 @@ async def post_storage_file(storage_id:str, file_path: str, req: Request):
 
 @app.delete("/api/storage/{storage_id}/{file_path:path}", tags=["Storage"])
 async def delete_storage_file(storage_id:str, file_path: str, req: Request):
-    storage_file_path = get_storage_file_path(storage_id, file_path)
+    storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         try:
             if os.path.isdir(storage_file_path):
@@ -255,13 +223,11 @@ async def delete_storage_file(storage_id:str, file_path: str, req: Request):
     else:
         raise HTTPException(status_code=404, detail="File not found")
     
-@app.get("/api/app/mtcnn/{storageId}/{file_path:path}", tags=["App"])
-async def app_mtcnn(storageId: str, file_path: str, req: Request):
-    storage_file_path = get_storage_file_path(storageId, file_path)
-    if os.path.exists(storage_file_path):
-        res = app.mtcnn_server.call_server(storage_file_path)
-        return JSONResponseHandler(res)
-    raise HTTPException(status_code=404, detail="File not found")
+@app.post("/api/app/{module_id}", tags=["App"])
+async def call_app(module_id: str, req: Request):
+    params = await req.json()
+    res = app.app_manager.call(module_id, params)
+    return JSONResponseHandler(res)
 
 
 app.mount("/", StaticFiles(directory="webroot"), name="static")
@@ -269,12 +235,12 @@ app.mount("/", StaticFiles(directory="webroot"), name="static")
 def web_main(args):
     app.args = args
     app.docker_runner = DockerRunner()
-    app.mtcnn_server = MTCNNApp()
-    app.mtcnn_server.run_server()
+    app.app_manager = AppManager()
+    app.app_manager.run()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
     
     print("Cleanup app docker")
-    app.mtcnn_server.stop()
+    app.app_manager.stop()
 
 
 def parse_arguments():

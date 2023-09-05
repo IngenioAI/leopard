@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="ko">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leopard</title>
+  <LP-include-html src="head.html"></LP-include-html>
+  <script>
+    let encrypt_items = null;
+    function analyzeText() {
+        const inputText = document.getElementById("input_text").value;
+        http_post("/api/app/presidio", {
+            type: 'analyze',
+            input: inputText,
+            entities: ["PERSON", "EMAIL_ADDRESS"],
+            language: "en"
+        }).then(res => {
+            document.getElementById("output_text").value = res;
+        })
+    }
+    function anonymizeText(type) {
+        const inputText = document.getElementById("input_text").value;
+
+        if (type == 'replace') {
+            http_post("/api/app/presidio", {
+                type: 'anonymize',
+                input: inputText,
+                entities: ["PERSON", "EMAIL_ADDRESS"],
+                language: "en",
+                operators: {
+                    "PERSON": {
+                        type: "replace",
+                        params: {
+                            new_value: "***개인정보***"
+                        }
+                    },
+                    "EMAIL_ADDRESS": {
+                        type: "replace",
+                        params: {
+                            new_value: "***이메일주소***"
+                        }
+                    }
+                }
+            }).then(res => {
+                const info = JSON.parse(res);
+                console.log(info);
+                document.getElementById("output_text").value = info.text;
+            });
+        }
+        else if (type == 'encrypt') {
+            http_post("/api/app/presidio", {
+                type: 'anonymize',
+                input: inputText,
+                entities: ["PERSON", "EMAIL_ADDRESS"],
+                language: "en",
+                operators: {
+                    "PERSON": {
+                        type: "encrypt",
+                        params: {
+                            key: "temp_leopard_key"
+                        }
+                    },
+                    "EMAIL_ADDRESS": {
+                        type: "encrypt",
+                        params: {
+                            key: "temp_leopard_key"
+                        }
+                    }
+                }
+            }).then(res => {
+                const info = JSON.parse(res);
+                console.log(info);
+                encrypt_items = info.items;
+                document.getElementById("output_text").value = info.text;
+            });            
+        }
+    }
+
+    function deanonymizeText() {
+        if (encrypt_items == null) {
+            showMessageBox("익명암호화를 먼저 수행해야 합니다", "정보");
+            return;
+        }
+        const inputText = document.getElementById("output_text").value;
+        http_post("/api/app/presidio", {
+            type: 'deanonymize',
+            input: inputText,
+            result: encrypt_items,
+            language: "en",
+            operators: {
+                "PERSON": {
+                    type: "decrypt",
+                    params: {
+                        key: "temp_leopard_key"
+                    }
+                },
+                "EMAIL_ADDRESS": {
+                    type: "decrypt",
+                    params: {
+                        key: "temp_leopard_key"
+                    }
+                }
+            }
+        }).then(res => {
+            const info = JSON.parse(res);
+            console.log(info);
+            document.getElementById("restore_text").value = info.text;
+        }); 
+    }
+
+    function redactImageUpload() {
+        showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/presidio/data', (e, filenames)=> {
+            const image_path = "app/presidio/data/" + filenames[0];
+            const image_url = "/api/storage_file/0/" + image_path;
+            const image = new Image();
+            image.src = image_url;
+            document.getElementById("image_view").innerHTML = "";
+            document.getElementById("image_view").appendChild(image);
+            
+            setTimeout(() => {
+                http_post("/api/app/presidio", {type: 'image_redact', storageId: '0', storagePath: image_path, input: filenames[0]}).then((res) => {
+                    console.log(res);
+                    const info = JSON.parse(res);
+                    const redactedImage = new Image();
+                    redactedImage.src = "/api/storage_file/" + info.result_url + '?'+new Date().getTime();
+                    document.getElementById("image_view").appendChild(redactedImage);
+                })
+            }, 100)
+            
+            return true;
+        })        
+    }
+
+    function init() {
+    }      
+  </script>
+</head>
+
+<body>
+  <LP-include-html src="bs-script.html"></LP-include-html>
+  <LP-include-html src="topbar.html"></LP-include-html>
+
+  <div class="container-fluid">
+    <div class="row">
+      <LP-include-html src="sidebar.html"></LP-include-html>
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="p-3 bg-body-tertiary" style="width:100%;">
+          <h2>프레시디오 (Presidio)</h2>
+          <h4>텍스트 분석 및 익명화</h4>
+          <div class="container">
+            <textarea id="input_text"  class="form-control" rows="10"></textarea>
+            <div class="my-2">
+                <button type="button" class="btn btn-primary" onclick="analyzeText()">분석</button>
+                <button type="button" class="btn btn-primary" onclick="anonymizeText('replace')">익명화</button>
+                <button type="button" class="btn btn-primary" onclick="anonymizeText('encrypt')">익명암호화</button>                
+            </div>
+            <textarea id="output_text"  class="form-control" rows="10"></textarea>            
+            <div class="my-2">
+                <button type="button" class="btn btn-primary" onclick="deanonymizeText()">역익명암호화</button>
+            </div>
+            <textarea id="restore_text"  class="form-control" rows="10"></textarea>            
+          </div>
+          <div clas="my-8">&nbsp;</div>
+          <h4>이미지 민감 정보 처리</h4>
+          <div class="container my-4">
+            <button type="button" class="btn btn-primary" onclick="redactImageUpload()">파일 선택</button>
+          </div>
+
+          <div id="image_view" style="max-width: 100%;">       
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <LP-include-html src="fileupload.html"></LP-include-html>
+  <LP-include-html src="messagebox.html"></LP-include-html>
+  <script>init();</script>
+</body>
+
+</html>
