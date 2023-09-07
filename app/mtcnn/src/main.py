@@ -18,7 +18,7 @@ def main(args):
         print("File not found:", args.input)
         result = []
 
-    with open(os.path.join("/data/output", args.output), "wt") as fp:
+    with open(os.path.join("/data/output", args.output), "wt", encoding="UTF-8") as fp:
         json.dump(result, fp)
 
 def parse_arguments():

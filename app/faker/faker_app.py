@@ -2,6 +2,7 @@ import os
 
 from app.base import App
 
+
 class FakerApp(App):
     def __init__(self, name="Faker"):
         super().__init__(name)
@@ -30,7 +31,7 @@ class FakerApp(App):
         self.config['execution']['input'] = os.path.abspath("storage/0/app/faker/data")
         self.config['execution']['output'] = os.path.abspath("storage/0/app/faker/run")
         super().run(wait=True)
-        with open("storage/0/app/faker/run/result.csv", "rt") as fp:
+        with open("storage/0/app/faker/run/result.csv", "rt", encoding="UTF-8") as fp:
             return fp.read()
 
 

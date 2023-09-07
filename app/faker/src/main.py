@@ -6,7 +6,7 @@ from faker import Faker
 def main(args):
     fake = Faker('ko_KR')
 
-    with open('/data/output/%s' % args.output, 'wt') as csvfile:
+    with open('/data/output/%s' % args.output, 'wt', encoding="UTF-8") as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(['name', 'phone', 'address', 'email', 'job', 'company', 'date'])
         for _ in range(args.count):
