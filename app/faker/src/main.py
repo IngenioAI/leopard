@@ -5,12 +5,7 @@ import json
 from faker import Faker
 
 
-def write_csv(args, header: list, count: int, method):
-    with open('/data/output/%s' % args.output, 'wt', encoding="UTF-8") as csvfile:
-        csv_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
-        csv_writer.writerow(header)
-        for _ in range(count):
-            csv_writer.writerow(method())
+# import providers from faker
 
 
 def create_personal_info(args, header: list, count: int):
@@ -33,23 +28,18 @@ def create_personal_info(args, header: list, count: int):
             ])
 
 
-def create_medical_info(args, header: list, count: int):
-    fake = Faker('ko_KR')
+def create_log_info(args, header: list, count: int):
+    fake = Faker('en_US')
 
     with open('/data/output/%s' % args.output, 'wt', encoding="UTF-8") as csvfile:
         csv_writer = csv.writer(csvfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(header)
         for _ in range(count):
             csv_writer.writerow([
-                fake.name(),
-                fake.bothify(text='010-####-####'),
-                fake.address(),
-                fake.email(),
-                fake.job(),
-                fake.company(),
-                fake.date(),
-                # fake.text(),
-                # fake.sentence()
+                fake.ipv4(),
+                fake.ipv4_private(),
+                fake.ascii_company_email(),
+                fake.user_name(),
             ])
 
 
@@ -61,14 +51,13 @@ def main(args):
     if params['type'] == 'personal':
         csv_header = ['name', 'phone', 'address', 'email', 'job', 'company', 'date']
         create_personal_info(args, csv_header, count)
-    elif params['type'] == 'medical':
-        csv_header = []
-        create_medical_info(args, csv_header, count)
+    elif params['type'] == 'log':
+        csv_header = ['IP', 'Private IP', 'E-mail', 'User Name']
+        create_log_info(args, csv_header, count)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    # parser.add_argument("--count", type=int, default=100)
     parser.add_argument("--input", type=str, default="params.json")
     parser.add_argument("--output", type=str, default="result.csv")
     return parser.parse_args()
