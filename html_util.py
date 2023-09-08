@@ -41,7 +41,7 @@ def process_include_html(content, params=None):
         if not os.path.exists(src_file_path):
             src_file_path = "ui/dialog/%s" % parser.get_attr('src')
         if os.path.exists(src_file_path):
-            with open(src_file_path, "rt") as fp:
+            with open(src_file_path, "rt", encoding="UTF-8") as fp:
                 sub_content = fp.read()
             sub_content = process_include_html(sub_content, params)
         if p2 is not None:

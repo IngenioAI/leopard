@@ -1,6 +1,8 @@
 import os
+import json
 
 from app.base import App
+
 
 class FakerApp(App):
     def __init__(self, name="Faker"):
@@ -29,8 +31,10 @@ class FakerApp(App):
         self.config['execution']['src'] = os.path.abspath("app/faker/src")
         self.config['execution']['input'] = os.path.abspath("storage/0/app/faker/data")
         self.config['execution']['output'] = os.path.abspath("storage/0/app/faker/run")
+        with open("storage/0/app/faker/data/params.json", "wt", encoding="UTF-8") as fp:
+            json.dump(params, fp)
         super().run(wait=True)
-        with open("storage/0/app/faker/run/result.csv", "rt") as fp:
+        with open("storage/0/app/faker/run/result.csv", "rt", encoding="UTF-8") as fp:
             return fp.read()
 
 

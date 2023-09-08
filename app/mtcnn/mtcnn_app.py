@@ -6,6 +6,7 @@ import json
 from app.base import App
 import storage_util
 
+
 class MTCNNApp(App):
     def __init__(self, name="MTCNN"):
         super().__init__(name)
@@ -38,7 +39,7 @@ class MTCNNApp(App):
         self.config['execution']['output'] = run_path
         self.config['execution']['command_params'] = ["--input", input_filename]
         super().run()
-        with open(os.path.join(run_path, "result.json"), "rt") as fp:
+        with open(os.path.join(run_path, "result.json"), "rt", encoding="UTF-8") as fp:
             res = json.load(fp)
         return res
 
@@ -50,12 +51,13 @@ class MTCNNApp(App):
         super().run(wait=False)
 
     def call_server(self, params):
-        input_path = storage_util.get_storage_file_path(params['storageId'], params['storagePath'])        
+        input_path = storage_util.get_storage_file_path(params['storageId'], params['storagePath'])
         input_dir, input_filename = os.path.split(input_path)
         run_path = os.path.abspath("storage/0/app/mtcnn/run")
         target_path = os.path.join(run_path, input_filename)
         if input_dir != run_path:
             shutil.copy(input_path, target_path)
-        with urllib.request.urlopen('http://localhost:%s/api/run/%s' % (self.config['execution']['port'], input_filename)) as fp:
+        with urllib.request.urlopen(
+                'http://localhost:%s/api/run/%s' % (self.config['execution']['port'], input_filename)) as fp:
             res = json.load(fp)
         return res

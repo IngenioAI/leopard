@@ -20,14 +20,16 @@ from presidio_image_redactor import ImageRedactorEngine
     }
 '''
 
+
 def result_to_dict(results):
     dict_result = []
     for result in results:
         dict_result.append(result.to_dict())
     return dict_result
 
+
 def main(args):
-    with open("/data/input/%s" % args.input, "rt") as fp:
+    with open("/data/input/%s" % args.input, "rt", encoding="UTF-8") as fp:
         params = json.load(fp)
 
     if 'operators' in params:
@@ -41,10 +43,10 @@ def main(args):
         analyzer = AnalyzerEngine()
         results = analyzer.analyze(text=params['input'], entities=params['entities'], language=params['language'])
         if params['type'] == 'analyze':
-            with open("/data/output/%s" % args.output, "wt") as fp:
+            with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
                 json.dump(result_to_dict(results), fp)
             return
-        
+
         engine = AnonymizerEngine()
 
         result = engine.anonymize(
@@ -52,17 +54,17 @@ def main(args):
             analyzer_results=results,
             operators=operators
         )
-        with open("/data/output/%s" % args.output, "wt") as fp:
+        with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
             json.dump({
                 'text': result.text,
                 'items': result_to_dict(result.items)
-            }, fp)        
+            }, fp)
     elif params['type'] == 'deanonymize':
         engine = DeanonymizeEngine()
 
-        result_entities =[]
+        result_entities = []
         if 'result' in params:
-            for result in  params['result']:
+            for result in params['result']:
                 result_entities.append(OperatorResult(**result))
 
         result = engine.deanonymize(
@@ -71,7 +73,7 @@ def main(args):
             operators=operators
         )
         print(result)
-        with open("/data/output/%s" % args.output, "wt") as fp:
+        with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
             json.dump({
                 'text': result.text
             }, fp)
@@ -81,11 +83,13 @@ def main(args):
         redacted_image = engine.redact(image, (5, 5, 5))
         redacted_image.save("/data/output/result.png")
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, default="params.json")
     parser.add_argument("--output", type=str, default="result.json")
-    return parser.parse_args()            
+    return parser.parse_args()
+
 
 if __name__ == "__main__":
     main(parse_arguments())

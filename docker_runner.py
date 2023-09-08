@@ -5,9 +5,11 @@ from ast import literal_eval
 import re
 import time
 
+
 def escape_ansi(line):
     ansi_escape = re.compile(r'(?:\x1B[@-_]|[\x80-\x9F])[0-?]*[ -/]*[@-~]')
     return ansi_escape.sub('', line)
+
 
 class DockerRunner():
     def __init__(self):
@@ -16,15 +18,20 @@ class DockerRunner():
 
     def list_images(self):
         return self.client.images()
-    
+
     def generator_thread(self, name, gen):
         self.threads[name]['lines'] = ''
         self.threads[name]['status'] = 'running'
-        for line in gen:
-            line_info = literal_eval(line.decode('utf-8'))
-            if 'stream' in line_info:
-                s = self.threads[name]['lines'] + line_info['stream']
-                self.threads[name]['lines'] = escape_ansi(s)
+        for lines in gen:
+            temp = lines.decode('utf-8')
+            temp = temp.split("\n")
+            for line in temp:
+                if line == "":
+                    continue
+                line_info = literal_eval(line)
+                if 'stream' in line_info:
+                    s = self.threads[name]['lines'] + line_info['stream']
+                    self.threads[name]['lines'] = escape_ansi(s)
         self.threads[name]['status'] = 'exited'
 
     def start_create_log(self, name, gen):
@@ -35,11 +42,11 @@ class DockerRunner():
         thread.start()
         self.threads[name]['status'] = 'running'
 
-
-    def create_image(self, name, base_image="python:3.8", update=True, apt_install=None, pip_install=None, additional_cmd=None):
+    def create_image(self, name, base_image="python:3.8", update=True, apt_install=None, pip_install=None,
+                     additional_cmd=None):
         dockerfile_template = "FROM %s\n" % base_image
         if update:
-            #dockerfile_template += "RUN apt-key del 7fa2af80 && apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub && apt update && apt -y upgrade\n"
+            # dockerfile_template += "RUN apt-key del 7fa2af80 && apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub && apt update && apt -y upgrade\n"
             dockerfile_template += "RUN apt update && apt -y upgrade\n"
         if apt_install is not None and apt_install != '':
             dockerfile_template += "RUN apt install -y --allow-downgrades %s\n" % apt_install
@@ -58,7 +65,7 @@ class DockerRunner():
         res = self.client.build(fileobj=dockerfile, tag=name, rm=True, forcerm=True)
         self.start_create_log(name, res)
         return True
-    
+
     def get_create_image_info(self, name):
         if name in self.threads:
             return {
@@ -88,26 +95,27 @@ class DockerRunner():
         if command_params is not None:
             command_list += command_params
         container = self.client.create_container(image, command=command_list,
-                                    working_dir=working_dir,
-                                    ports=[port] if port is not None else [],
-                                    host_config=self.client.create_host_config(
-                                        #auto_remove=True,  # 'auto_remove' cannot get logs after removed
-                                        device_requests=[docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
-                                        binds=binds,
-                                        port_bindings={port: port} if port is not None else {}
-                                    ))
+                                                 working_dir=working_dir,
+                                                 ports=[port] if port is not None else [],
+                                                 host_config=self.client.create_host_config(
+                                                     # auto_remove=True,  # 'auto_remove' cannot get logs after removed
+                                                     device_requests=[
+                                                         docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
+                                                     binds=binds,
+                                                     port_bindings={port: port} if port is not None else {}
+                                                 ))
         self.client.start(container.get('Id'))
         return container.get('Id')
 
     def exec_logs(self, container_id):
         return self.client.logs(container_id).decode('utf-8')
-        #return self.client.logs(container.get('Id'), stream=True, since=ps_start_time)
-    
+        # return self.client.logs(container.get('Id'), stream=True, since=ps_start_time)
+
     def exec_inspect(self, container_id):
         return self.client.inspect_container(container_id)
-    
+
     def exec_stop(self, container_id):
         return self.client.stop(container_id)
-    
+
     def exec_remove(self, container_id):
         self.client.remove_container(container_id)

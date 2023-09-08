@@ -31,13 +31,13 @@ class PresidioApp(App):
         self.config['execution']['src'] = os.path.abspath("app/presidio/src")
         self.config['execution']['input'] = os.path.abspath("storage/0/app/presidio/data")
         self.config['execution']['output'] = os.path.abspath("storage/0/app/presidio/run")
-        with open("storage/0/app/presidio/data/params.json", "wt") as fp:
+        with open("storage/0/app/presidio/data/params.json", "wt", encoding="UTF-8") as fp:
             json.dump(params, fp)
         super().run(wait=True)
         if params['type'] == 'image_redact':
             return { 'result_url': "0/app/presidio/run/result.png"}
         else:
-            with open("storage/0/app/presidio/run/result.json", "rt") as fp:
+            with open("storage/0/app/presidio/run/result.json", "rt", encoding="UTF-8") as fp:
                 return json.load(fp)
 
 if __name__ == "__main__":
