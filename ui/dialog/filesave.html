@@ -1,0 +1,111 @@
+<div class="modal fade" tabindex="-1" id="LP_DIALOG_filesave">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="LP_DIALOG_filesave_title">대화상자 제목</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p id="LP_DIALOG_filesave_message">대화상자 메시지</p>
+          <div class="container my-2">
+            <div class="my-1">현재 위치: <span id="current_dir">/</span></div>
+            <div id="LP_DIALOG_filesave_list" class="list-group overflow-auto border" style="height:230px">
+            </div>
+            <div class="d-flex flex-row align-items-center mt-2">
+                <div class="p-2">파일 이름:</div><div class="flex-grow-1"><input type="text" class="form-control" id="LP_DIALOG_filesave_dialogbox_input"></div>
+            </div>
+            
+          </div>          
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary" id="LP_DIALOG_filesave_dialogbox_OK">저장</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+class FileSaveDialogBox extends DialogBox {
+    constructor(dialogId) {
+        super(dialogId);
+        self.storageId = '1';
+        self.storagePath = '/';
+        self.dirList = [];
+    }
+
+    show(callback, storageId, defaultFilename, defaultStoragePath) {
+        setV('LP_DIALOG_filesave_dialogbox_input', defaultFilename);
+        this.callback = callback;
+        this.addEvent('LP_DIALOG_filesave_dialogbox_OK', 'click', this.onOK.bind(this));
+        this.browse(storageId, defaultStoragePath)
+        super.show();
+    }
+
+    addDirItem(listDiv, fileInfo) {
+        const listItem = createE("a", "", {
+            href:"#",
+            class: "list-group-item list-group-item-action"
+        }, {
+            click: (e) => this.onItemClick(e, fileInfo)
+        });
+        const fileIcon = createE("span", "", {
+            class: getFileIcon(fileInfo)
+        })
+        const textLabel = createE("span", fileInfo.name, {
+            class: "px-2"
+        });
+        addE(listItem, fileIcon);
+        addE(listItem, textLabel);
+        addE(listDiv, listItem);
+    }
+
+    async browse(storageId, storagePath) {
+        this.storageId = storageId;
+        this.storagePath = storagePath;
+        setT('current_dir', this.storagePath);
+        const browseInfo = await getFileList(storageId, storagePath);
+        const listDiv = getE('LP_DIALOG_filesave_list');
+        clearE(listDiv);
+        if (this.storagePath != '/') {
+            this.addDirItem(listDiv, {
+                name: "..",
+                is_dir: true
+            });
+        }
+        for(const fileInfo of browseInfo.items) {
+            if (fileInfo.is_dir) {
+                this.addDirItem(listDiv, fileInfo);
+            }
+        }
+    }
+
+    onItemClick(e, fileInfo) {
+        let currentPath = this.storagePath;
+        if (fileInfo.name == "..") {
+            const p = currentPath.lastIndexOf("/");
+            if (p > 0) {
+                currentPath = currentPath.substr(0, p);
+            }
+            else {
+                currentPath = "/";
+            }
+        }
+        else {
+            currentPath = joinPath(currentPath, fileInfo.name);
+        }
+        this.browse(self.storageId, currentPath);
+    }
+
+    onOK() {
+        this.callback(joinPath(this.storagePath, getV('LP_DIALOG_filesave_dialogbox_input')));
+        this.hide();
+    }
+}
+function showFileSave(callback, storageId='1', defaultFilename=null, defaultStoragePath='/') {
+  const dialogBox = new FileSaveDialogBox('LP_DIALOG_filesave');
+  document.getElementById('LP_DIALOG_filesave_title').innerHTML = "파일 저장";
+  document.getElementById('LP_DIALOG_filesave_message').innerHTML = "파일 저장 위치 선택";  
+  dialogBox.show(callback, storageId, defaultFilename, defaultStoragePath);
+}
+</script>

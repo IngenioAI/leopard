@@ -226,6 +226,18 @@ async def post_storage_file(storage_id: str, file_path: str, req: Request):
         'files': file_list
     })
 
+@app.put("/api/storage_file/{storage_id}/{file_path:path}", tags=["Storage"])
+async def save_storage_file(storage_id:str, file_path: str, req: Request):
+    storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
+    contents = await req.body()
+    if os.path.exists(storage_file_path):
+        raise HTTPException(status_code=403, detail="File already exist")
+    with open(storage_file_path, "wb") as fp:
+        fp.write(contents);
+    
+    return JSONResponseHandler({
+        'success': True
+    })
 
 @app.delete("/api/storage/{storage_id}/{file_path:path}", tags=["Storage"])
 async def delete_storage_file(storage_id: str, file_path: str, req: Request):

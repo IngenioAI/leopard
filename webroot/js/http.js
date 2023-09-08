@@ -77,16 +77,17 @@ function http_get(url) {
 function http_post(url, body, content_type='application/json') {
     if (typeof body == 'object') {
         body = JSON.stringify(body);
-        return http_send('POST', url, body, 'application/json')
+        return http_send('POST', url, body, 'application/json');
     }
     return http_send('POST', url, body, content_type)
 }
 
-function http_put(url, body) {
+function http_put(url, body, content_type='application/json') {
     if (body != null && typeof body == 'object') {
-        body = JSON.stringify(body)
+        body = JSON.stringify(body);
+        return http_send('PUT', url, body, 'application/json');
     }
-    return http_send('PUT', url, body)
+    return http_send('PUT', url, body, content_type)
 }
 
 function http_delete(url, body) {
