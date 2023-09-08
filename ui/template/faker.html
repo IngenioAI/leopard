@@ -2,44 +2,48 @@
 <html lang="ko">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leopard</title>
-  <LP-include-html src="head.html"></LP-include-html>
-  <script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leopard</title>
+    <LP-include-html src="head.html"></LP-include-html>
+    <script>
     function generateData() {
-        http_post("/api/app/faker", {}).then((res) => {
+        http_post("/api/app/faker", {
+                type: 'personal',
+                count: 100
+                }).then((res) => {
           const data = JSON.parse(res);
           document.getElementById("view_csv").innerText = data;
         })
     }
     function init() {
     }      
-  </script>
+
+    </script>
 </head>
 
 <body>
-  <LP-include-html src="bs-script.html"></LP-include-html>
-  <LP-include-html src="topbar.html"></LP-include-html>
+<LP-include-html src="bs-script.html"></LP-include-html>
+<LP-include-html src="topbar.html"></LP-include-html>
 
-  <div class="container-fluid">
+<div class="container-fluid">
     <div class="row">
-      <LP-include-html src="sidebar.html"></LP-include-html>
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="p-3 bg-body-tertiary" style="width:100%;">
-          <h2>페이커 (Faker)</h2>
+        <LP-include-html src="sidebar.html"></LP-include-html>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="p-3 bg-body-tertiary" style="width:100%;">
+                <h2>페이커 (Faker)</h2>
 
-          <div class="container my-4">
-            <button type="button" class="btn btn-primary" onclick="generateData()">데이터 생성</button>
-          </div>
-          <prev class="container" id="view_csv">
+                <div class="container my-4">
+                    <button type="button" class="btn btn-primary" onclick="generateData()">데이터 생성</button>
+                </div>
+                <prev class="container" id="view_csv">
 
-          </prev>
-        </div>
-      </main>
+                </prev>
+            </div>
+        </main>
     </div>
-  </div>
-  <script>init();</script>
+</div>
+<script>init();</script>
 </body>
 
 </html>

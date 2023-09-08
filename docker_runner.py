@@ -28,7 +28,6 @@ class DockerRunner():
             for line in temp:
                 if line == "":
                     continue
-                    #dd
                 line_info = literal_eval(line)
                 if 'stream' in line_info:
                     s = self.threads[name]['lines'] + line_info['stream']
