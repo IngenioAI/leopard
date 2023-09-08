@@ -7,12 +7,13 @@
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
   <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
+  <script src="/js/csv.js"></script>
   <script>
     let csvData = null;
 
     function csvToGrid(gridId, csvData) {
-      const csvLines = csvData.split("\n");
-      const headers = csvLines[0].split(",");
+      const csvLines = CSV.parse(csvData)
+      const headers = csvLines[0];
       const columnDefs = [];
       for (const column of headers) {
         columnDefs.push({field: column, resizable: true})
@@ -20,9 +21,8 @@
       const rowData = [];
       for (let i = 1; i < csvLines.length; i++) {
         const row = {};
-        const dataText = csvLines[i].split(",");
         for (let j = 0; j < headers.length; j++) {
-          row[headers[j]] = dataText[j];
+          row[headers[j]] = csvLines[i][j];
         }
         rowData.push(row)
       }
