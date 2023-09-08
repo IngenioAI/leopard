@@ -28,60 +28,91 @@ def result_to_dict(results):
     return dict_result
 
 
+def analyze(args, params):
+    """
+        개인정보 분석 함수.
+    """
+    analyzer = AnalyzerEngine()
+    results = analyzer.analyze(text=params['input'], entities=params['entities'], language=params['language'])
+    with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
+        json.dump(result_to_dict(results), fp)
+
+
+def anonymize(args, params, operators):
+    """
+        익명화 함수.
+    """
+    analyzer = AnalyzerEngine()
+    results = analyzer.analyze(text=params['input'], entities=params['entities'], language=params['language'])
+
+    engine = AnonymizerEngine()
+
+    result = engine.anonymize(
+        text=params['input'],
+        analyzer_results=results,
+        operators=operators
+    )
+    with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
+        json.dump({
+            'text': result.text,
+            'items': result_to_dict(result.items)
+        }, fp)
+
+
+def de_anonymize(args, params, operators):
+    """
+        역 익명화 함수.
+    """
+    engine = DeanonymizeEngine()
+
+    result_entities = []
+    if 'result' in params:
+        for result in params['result']:
+            result_entities.append(OperatorResult(**result))
+
+    result = engine.deanonymize(
+        text=params['input'],
+        entities=result_entities,
+        operators=operators
+    )
+    print(result)
+    with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
+        json.dump({
+            'text': result.text
+        }, fp)
+
+
+def image_redact(params):
+    image = Image.open("/data/input/%s" % params['input'])
+    engine = ImageRedactorEngine()
+    redacted_image = engine.redact(image, (5, 5, 5))
+    redacted_image.save("/data/output/result.png")
+
+
 def main(args):
     with open("/data/input/%s" % args.input, "rt", encoding="UTF-8") as fp:
         params = json.load(fp)
 
+    f_type = params['type']
+    operators = None
     if 'operators' in params:
         operators = dict()
         for key, config in params['operators'].items():
             operators[key] = OperatorConfig(config['type'], config['params'])
+
+    if f_type == 'analyze':
+        analyze(args, params)
+
+    elif f_type == 'anonymize':
+        anonymize(args, params, operators)
+
+    elif f_type == 'deanonymize':
+        de_anonymize(args, params, operators)
+
+    elif f_type == 'image_redact':
+        image_redact(params)
     else:
-        operators = None
-
-    if params['type'] in ['analyze', 'anonymize']:
-        analyzer = AnalyzerEngine()
-        results = analyzer.analyze(text=params['input'], entities=params['entities'], language=params['language'])
-        if params['type'] == 'analyze':
-            with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
-                json.dump(result_to_dict(results), fp)
-            return
-
-        engine = AnonymizerEngine()
-
-        result = engine.anonymize(
-            text=params['input'],
-            analyzer_results=results,
-            operators=operators
-        )
-        with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
-            json.dump({
-                'text': result.text,
-                'items': result_to_dict(result.items)
-            }, fp)
-    elif params['type'] == 'deanonymize':
-        engine = DeanonymizeEngine()
-
-        result_entities = []
-        if 'result' in params:
-            for result in params['result']:
-                result_entities.append(OperatorResult(**result))
-
-        result = engine.deanonymize(
-            text=params['input'],
-            entities=result_entities,
-            operators=operators
-        )
-        print(result)
-        with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
-            json.dump({
-                'text': result.text
-            }, fp)
-    elif params['type'] == 'image_redact':
-        image = Image.open("/data/input/%s" % params['input'])
-        engine = ImageRedactorEngine()
-        redacted_image = engine.redact(image, (5, 5, 5))
-        redacted_image.save("/data/output/result.png")
+        return
 
 
 def parse_arguments():
