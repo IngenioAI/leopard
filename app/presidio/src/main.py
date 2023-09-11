@@ -2,6 +2,8 @@ import os
 import json
 import argparse
 
+from utils import *
+
 from presidio_analyzer import AnalyzerEngine, PatternRecognizer
 from presidio_anonymizer import AnonymizerEngine, DeanonymizeEngine
 from presidio_anonymizer.entities import RecognizerResult, OperatorConfig, OperatorResult
@@ -28,14 +30,42 @@ def result_to_dict(results):
     return dict_result
 
 
+@deprecated
+def result_replace(params, results):
+    # csv파일로 받고, 내려줄때도 csv파일로 내려서 parsing 작업 예정
+    # 따라서 필요 없음.
+    input_text = params['input']
+
+    result_dict = result_to_dict(results)
+    print(len(result_dict))
+    # FIXME span 과 css 속성 값을 부여할 수도 있음.
+    bold_start = '<b>'
+    bold_end = '</b>'
+    replaced_text = []
+    for i in range(len(result_dict)):
+        res = result_dict[i]
+
+        start = res['start']
+        end = res['end']
+        result_text = input_text[0:start] + bold_start + input_text[start:end] + bold_end + input_text[end:] + '\n'
+        replaced_text.append(result_text)
+
+    return ''.join(replaced_text)
+
+
 def analyze(args, params):
     """
         개인정보 분석 함수.
     """
     analyzer = AnalyzerEngine()
     results = analyzer.analyze(text=params['input'], entities=params['entities'], language=params['language'])
+    result_list = result_to_dict(results)
+
+    # replaced_text = result_replace(params, results)
+
+    # result = {'replaced_text': replaced_text, 'result': result_list}
     with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
-        json.dump(result_to_dict(results), fp)
+        json.dump(result_list, fp)
 
 
 def anonymize(args, params, operators):
