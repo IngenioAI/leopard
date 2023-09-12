@@ -22,17 +22,18 @@ class FileViewDialogBox extends DialogBox {
         super(dialogId);
     }
 
-    show(storagePath) {
+    show(storageId, storagePath) {
         if (isImageFile(storagePath)) {
             const contentDiv = getE('LP_DIALOG_fileview_content');
             clearE(contentDiv);
-            const image = createE("img", "", {src: `/api/storage_file/${storagePath}`, style: "width:100%; height:100%"});
+            const url = createStorageFileURL(storageId, storagePath)
+            const image = createE("img", "", {src: url, style: "width:100%; height:100%"});
             addE(contentDiv, image);
         }
         else {
             const contentDiv = getE('LP_DIALOG_fileview_content');
             clearE(contentDiv);
-            http_get(`/api/storage_file/${storagePath}`).then((res) => {
+            getStorageFileContent(storageId, storagePath).then((res) => {
                 const text = createE("pre", res, {class: "border p-2 bg-light"});
                 addE(contentDiv, text);
             });
@@ -40,10 +41,10 @@ class FileViewDialogBox extends DialogBox {
         super.show();
     }
 }
-function showFileView(message, title, storagePath) {
+function showFileView(message, title, storageId, storagePath) {
   const dialogBox = new FileViewDialogBox('LP_DIALOG_fileview');
   document.getElementById('LP_DIALOG_fileview_title').innerHTML = title;
   document.getElementById('LP_DIALOG_fileview_message').innerHTML = message;  
-  dialogBox.show(storagePath);
+  dialogBox.show(storageId, storagePath);
 }
 </script>

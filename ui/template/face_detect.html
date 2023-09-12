@@ -26,8 +26,8 @@
 
     function uploadFile() {
         showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/mtcnn/data', (e, filenames)=> {
-            const image_path = "app/mtcnn/data/" + filenames[0];
-            const image_url = "/api/storage_file/0/" + image_path;
+            const image_path = joinPath("app/mtcnn/data", filenames[0]);
+            const image_url = createStorageFileURL('0', image_path);
             const image = new Image();
             image.src = image_url;
             image.addEventListener('load', () => {
@@ -36,15 +36,13 @@
                 scale = canvas1.drawImageFit(image);
             });
             
-            setTimeout(() => {
-                http_post("/api/app/mtcnn", {storageId: '0', storagePath: image_path}).then((res) => {
-                    const faceList = JSON.parse(res);
-                    for (const face of faceList) {
-                        console.log(face.box, face.confidence);
-                        canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
-                            face.box[2] * scale, face.box[3] * scale, 3, 'lime');
-                    }
-                })
+            setTimeout(async () => {
+                const faceList = await runApp("mtcnn", {storageId: '0', storagePath: image_path});
+                for (const face of faceList) {
+                    console.log(face.box, face.confidence);
+                    canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
+                        face.box[2] * scale, face.box[3] * scale, 3, 'lime');
+                }
             }, 100)
             
             return true;
@@ -52,7 +50,6 @@
     }
 
     function init() {
-      console.log("init - face_detect");
       canvas1 = new Canvas('canvas1');
       canvas1.init(1200, 700);
       canvas2 = new Canvas('canvas2');

@@ -35,29 +35,33 @@
       new agGrid.Grid(gridDiv, gridOptions);
     }
 
-    function generateData(type) {
-        http_post("/api/app/faker", {
+    async function generateData(type) {
+      // clear previous data
+      document.getElementById("view_csv").innerText = "";
+      document.getElementById("view_csv").style = "display:none";
+      csvToGrid("myGrid", []);
+
+      const dataCount = parseInt(getV('input_count'));
+      csvData = await runApp("faker", {
                 type: type,
-                count: 10
-                }).then((res) => {
-          csvData = JSON.parse(res);
+                count: dataCount
+              })
           
-          csvToGrid("myGrid", csvData);
-        })
+      csvToGrid("myGrid", csvData);
     }
     function showRawData() {
       document.getElementById("view_csv").innerText = csvData;
-      document.getElementById("view_csv").style = "display:block";
+      document.getElementById("view_csv").style = "display:block; max-height:600px";
     }
     function downloadCsv() {
       var a = document.createElement("a");
-      a.href = "/api/storage_file/0/app/faker/run/result.csv";
+      a.href = createStorageFileURL('0', "/app/faker/run/result.csv");
       a.download = "faker_data.csv";
       a.click();
     }
     function saveCsv() {
-      showFileSave((filePath) => {
-        uploadFile('1', filePath, csvData);
+      showFileSave(async (filePath) => {
+        const retVal = await uploadFile('1', filePath, csvData);
       }, '1', 'faker_data.csv')
     }
     function init() {
@@ -79,6 +83,9 @@
             <div class="my-4">
               <button type="button" class="btn btn-primary" onclick="generateData('personal')">개인정보 데이터 생성</button>
               <button type="button" class="btn btn-primary" onclick="generateData('log')">로그 데이터 생성</button>
+            </div>
+            <div class="d-flex flex-row align-items-center my-2">
+              <div class="px-2">생성할 데이터 개수: </div><div class="flex-grow-1"><input type="number" id="input_count" class="form-control" value="10"/></div>
             </div>
             
             <div id="myGrid" class="ag-theme-alpine" style="height: 500px"></div>

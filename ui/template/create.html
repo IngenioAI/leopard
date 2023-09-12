@@ -8,20 +8,18 @@
   <LP-include-html src="head.html"></LP-include-html>
   <script>
     async function checkBuild(name) {
-      let res = await http_get('/api/image/create/' + name);
-      const create_info = JSON.parse(res);
-      console.log('info', create_info);
-      if (create_info.status != 'exited') {
+      const createInfo = await getExecImageCreationInfo(name);
+      if (createInfo.status != 'exited') {
         setTimeout(checkBuild, 500, name);
       }
       else {
-        http_send("DELETE", "/api/image/create/" + name, null);    // auto remove after getting logs
+        await removeExecImageCreationInfo(name);
       }
       const outputDiv = document.getElementById('output');
-      outputDiv.innerText = create_info.lines;
+      outputDiv.innerText = createInfo.lines;
     }
 
-    async function create_image() {
+    async function createImage() {
       const item = createPostItem([
         ['name', 'image_name'],
         ['baseImage', 'base_image'],
@@ -30,13 +28,13 @@
         ['additionalCommand', 'additional_command']
       ]);
       item['update'] = true;
-      res = await http_post('/api/image/create', item);
-      console.log(res);
-      setTimeout(checkBuild, 500, item['name'])
+      const result = await createExecImage(item);
+      if (result.success) {
+        setTimeout(checkBuild, 500, item['name'])
+      }
     }
 
     function init() {
-      console.log("init - create");
     }      
   </script>
 </head>
@@ -69,7 +67,7 @@
             <label for="additional_command" class="form-label">추가 명령 실행</label>
             <input type="text" class="form-control" id="additional_command" value="">
           </div>
-          <button type="button" class="btn btn-primary" onclick="create_image()">생성</button>
+          <button type="button" class="btn btn-primary" onclick="createImage()">생성</button>
           <div class="m-2 container">
             <pre id="output" class="console_like"></pre>
           </div>

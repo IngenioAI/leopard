@@ -13,28 +13,19 @@
     </style>
     <script>
       let currentStorageId = "1";
-      let currentPath = null;
+      let currentPath = "/";
       let lastDropdownId = -1;
+
+      const MENU_ID = {
+        DELETE: 0,
+        DOWNLOAD: 1,
+        VIEW: 2,
+        EDIT: 3
+      };
 
       function onClickFileItem(fileInfo) {
         if (fileInfo.is_dir) {
-          if (currentPath) {
-            if (fileInfo.name == "..") {
-              const p = currentPath.lastIndexOf("/");
-              if (p >= 0) {
-                currentPath = currentPath.substr(0, p);
-              }
-              else {
-                currentPath = null;
-              }
-            }
-            else {
-              currentPath = joinPath(currentPath, fileInfo.name);
-            }
-          }
-          else {
-            currentPath = fileInfo.name;
-          }
+          currentPath = changeStorageDir(currentPath, fileInfo.name);
           browseDirectory(currentStorageId, currentPath);
         }
       }
@@ -51,45 +42,36 @@
         lastDropdownId = fileInfo.fid;
       }
 
-      function onClickMenuItem(menuId, fileInfo) {
-        let storagePath = '';
-        if (currentPath) {
-          storagePath = `${currentStorageId}/${currentPath}/${fileInfo.name}`;
-        }
-        else {
-          storagePath = `${currentStorageId}/${fileInfo.name}`;
-        }
+      async function onClickMenuItem(menuId, fileInfo) {
+        const dropdown = new bootstrap.Dropdown(getE(`LP-FILELIST-FILEITEM-${fileInfo.fid}`));
+        dropdown.hide();
 
-        if (menuId == 0) {
-          // delete
-          const url = `/api/storage/${storagePath}`;
-          http_delete(url).then((res) => {
+        const storagePath = joinPath(currentPath, fileInfo.name);
+
+        if (menuId == MENU_ID.DELETE) {
+          try {
+            const res = await deleteStorageItem(currentStorageId, storagePath);
             browseDirectory(currentStorageId, currentPath);
-          }, (req) => {
-            if (req.status == 400) {
-              const response = JSON.parse(req.response);
+          } catch(e) {
+            if (e.status == 400) {
+              const response = JSON.parse(e.response);
               showMessageBox(response.detail, "삭제 오류");
             }
             else {
-              console.error(req.status, req.response);
+              console.error(e.status, e.response);
             }
-          });
+          }
         }
-        else if (menuId == 1) {
-          // download file
-          const url = `/api/storage_file/${storagePath}`;
+        else if (menuId == MENU_ID.DOWNLOAD) {
+          const url = createStorageFileURL(currentStorageId, storagePath);
           const downloader = new FileDownloader(url, fileInfo.name);
           downloader.download();
         }
-        else if (menuId == 2) {
-          // view file
-          showFileView(fileInfo.name, "파일보기", storagePath);
+        else if (menuId == MENU_ID.VIEW) {
+          showFileView(fileInfo.name, "파일보기", currentStorageId, storagePath);
         }
-        else if (menuId == 3) {
-          // edit file
-        }        
-        const dropdown = new bootstrap.Dropdown(getE(`LP-FILELIST-FILEITEM-${fileInfo.fid}`));
-        dropdown.hide();
+        else if (menuId == MENU_ID.EDIT) {
+        }
       }
 
       function createFileItem(fileInfo) {
@@ -108,7 +90,6 @@
         addE(h5, createT(fileInfo.name));
         addE(div, h5);
 
-        //<button type="button" class="btn">Base class</button>
         const menuButton = createContextMenu(fileInfo);
         addE(div, menuButton);
         addE(item, div);
@@ -123,6 +104,12 @@
         }        
         addE(item, div2);
         return item;
+      }
+
+      function createMenuItem(menuId, title, fileInfo) {
+        let menuLI = createE("li", "");
+        addE(menuLI, createE("a", title, {class: "dropdown-item", href: "#"}, {click: (e)=>onClickMenuItem(menuId, fileInfo)}));
+        return menuLI;
       }
 
       function createContextMenu(fileInfo) {
@@ -143,26 +130,15 @@
         addE(menuDiv, menuButton);
 
         const menuUL = createE("ul", "", {class: "dropdown-menu"});
-        let menuLI = createE("li", "");
-        addE(menuLI, createE("a", "삭제", {class: "dropdown-item", href: "#"}, {click: (e)=>onClickMenuItem(0, fileInfo)}));
-        addE(menuUL, menuLI);
-
+        addE(menuUL, createMenuItem(MENU_ID.DELETE, "삭제", fileInfo));
         if (!fileInfo.is_dir) {
-          menuLI = createE("li", "");
-          addE(menuLI, createE("a", "다운로드", {class: "dropdown-item", href: "#"}, {click: (e)=>onClickMenuItem(1, fileInfo)}));
-          addE(menuUL, menuLI);
+          addE(menuUL, createMenuItem(MENU_ID.DOWNLOAD, "다운로드", fileInfo));
         }
-
         if (isViewableFile(fileInfo)) {
-          menuLI = createE("li", "");
-          addE(menuLI, createE("a", "보기", {class: "dropdown-item", href: "#"}, {click: (e)=>onClickMenuItem(2, fileInfo)}));
-          addE(menuUL, menuLI);
+          addE(menuUL, createMenuItem(MENU_ID.VIEW, "보기", fileInfo));
         }
-
         if (isEditableFile(fileInfo)) {
-          menuLI = createE("li", "");
-          addE(menuLI, createE("a", "편집", {class: "dropdown-item", href: "#"}, {click: (e)=>onClickMenuItem(3, fileInfo)}));
-          addE(menuUL, menuLI);
+          addE(menuUL, createMenuItem(MENU_ID.EDIT, "편집", fileInfo));
         }        
         addE(menuDiv, menuUL);
         return menuDiv;
@@ -172,7 +148,7 @@
         const fileListDiv = getE("file_list");
         clearE(fileListDiv);
         const fileList = await getFileList(storageId, storagePath)
-        if (currentPath) {
+        if (currentPath != "/") {
           addE(fileListDiv, createFileItem({ name: "..", is_dir: true }));
         }
         let fid = 0;
@@ -185,19 +161,17 @@
       }
 
       function createFolder() {
-        showInputDialogBox("생성할 폴더의 이름을 입력합니다.", "새 폴더 생성", (newName) => {
+        showInputDialogBox("생성할 폴더의 이름을 입력합니다.", "새 폴더 생성", async (newName) => {
           if (newName) {
-            let url = "/api/storage/" + currentStorageId + "/" + (currentPath ? (currentPath + "/") : "") + newName;
-            http_put(url).then((res) => {
-              browseDirectory(currentStorageId, currentPath);
-            }, (res) => {
-              if (res.status == 403) {
+            try {
+              const res = await createStorageFolder(currentStorageId, joinPath(currentPath, newName));
+            } catch(e) {
+              if (e.status == 403) {
                 showMessageBox("동일한 이름의 객체가 이미 존재합니다.", "폴더 생성");
+                return false;
               }
-              else {
-                console.error(res);
-              }
-            });
+            }
+            browseDirectory(currentStorageId, currentPath);
             return true;
           }
           else {
@@ -209,8 +183,8 @@
 
       function uploadFile() {
         showFileUploadDialogBox("업로드할 파일을 선택하세요", "파일 업로드", currentStorageId, currentPath, (e)=> {
-          // when it completed, refresh it
           browseDirectory(currentStorageId, currentPath);
+          return true;
         })
       }
 

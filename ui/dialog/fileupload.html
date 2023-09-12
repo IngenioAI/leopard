@@ -77,7 +77,7 @@ class FileUploadDialogBox extends DialogBox {
   onUpload() {
     if (getE('LP_DIALOG_fileupload_dialogbox_file').value) {
       const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_dialogbox_file', 'LP_DIALOG_progress');
-      const url = `/api/storage_file/${this.storageId}` + (this.storagePath ? `/${this.storagePath}` : '/.');
+      const url = createStorageFileURL(this.storageId, this.storagePath);
       uploadHandler.send(url, this.onCompleted.bind(this));
     }
     else {

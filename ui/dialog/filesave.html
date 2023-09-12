@@ -82,18 +82,7 @@ class FileSaveDialogBox extends DialogBox {
 
     onItemClick(e, fileInfo) {
         let currentPath = this.storagePath;
-        if (fileInfo.name == "..") {
-            const p = currentPath.lastIndexOf("/");
-            if (p > 0) {
-                currentPath = currentPath.substr(0, p);
-            }
-            else {
-                currentPath = "/";
-            }
-        }
-        else {
-            currentPath = joinPath(currentPath, fileInfo.name);
-        }
+        currentPath = changeStorageDir(currentPath, fileInfo.name);
         this.browse(self.storageId, currentPath);
     }
 

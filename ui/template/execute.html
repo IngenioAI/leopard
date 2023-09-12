@@ -7,36 +7,29 @@
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
   <script>
-    function refreshImageList() {
-      http_get("/api/image/list").then((res) => {
-        const images = JSON.parse(res);
-        console.log(images);
+    async function refreshImageList() {
+      const imageList = await getExecImageList();
 
-        const selectImages = document.getElementById("select_images");
-        while (selectImages.length > 0) {
-          selectImages.remove(0);
-        }
+      const selectImages = document.getElementById("select_images");
+      while (selectImages.length > 0) {
+        selectImages.remove(0);
+      }
 
-        for (const im of images) {
-          const option = document.createElement("option");
-          option.text = im.RepoTags;
-          selectImages.add(option);
-        }
-      })
+      for (const im of imageList) {
+        const option = document.createElement("option");
+        option.text = im.RepoTags;
+        selectImages.add(option);
+      }
     }
 
     async function checkLogs(info) {
-      let res = await http_get('/api/exec/' + info.exec_id);
-      const inspect_info = JSON.parse(res);
-      console.log('info', inspect_info);
-      res = await http_get('/api/exec/logs/' + info.exec_id);
-      const logs = JSON.parse(res);
-      console.log(logs);
-      if (inspect_info.State.Running) {
+      const inspectInfo = await inspectExec(info.exec_id);
+      const logs = await getExecLogs(info.exec_id);
+      if (inspectInfo.State.Running) {
         setTimeout(checkLogs, 1000, info);
       }
       else {
-        http_send("DELETE", "/api/exec/" + info.exec_id, null);    // auto remove after getting logs
+        removeExec(info.exec_id);    // auto remove after getting logs
       }
       const outputDiv = document.getElementById('output');
       outputDiv.innerText = logs.lines;
@@ -50,14 +43,11 @@
         ['inputPath', 'input_data_path'],
         ['outputPath', 'output_data_path']
       ]);
-      res = await http_post('/api/exec', item);
-      const exec_info = JSON.parse(res);
-      console.log(exec_info);
-      setTimeout(checkLogs, 1000, exec_info);
+      const execInfo = await createExec(item);
+      setTimeout(checkLogs, 1000, execInfo);
     }
 
     function init() {
-      console.log("init");
       refreshImageList();
     }      
   </script>
@@ -82,7 +72,7 @@
             <input type="text" class="form-control" id="input_data_path" value="">
 
             <label for="src_path" class="form-label">소스 코드 경로</label>
-            <input type="text" class="form-control" id="src_path" value="/home/hkroh/work/leopard/test_dl">
+            <input type="text" class="form-control" id="src_path" value="/home/hkroh/work/leopard/storage/1/test_dl">
 
             <label for="main_src" class="form-label">메인 소스 파일</label>
             <input type="text" class="form-control" id="main_src" value="main.py">

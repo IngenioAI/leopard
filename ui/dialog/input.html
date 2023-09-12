@@ -35,11 +35,11 @@ class InputDialogBox extends DialogBox {
     super.show();
   }
 
-  onOK() {
+  async onOK() {
     let handleOK = true;
     if (this.callback) {
       const value = getE('LP_DIALOG_input_dialogbox_input').value;
-      handleOK = this.callback(value);
+      handleOK = await this.callback(value);
     }
     if (handleOK) {
       this.hide();
