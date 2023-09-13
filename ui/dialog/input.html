@@ -2,11 +2,11 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="LP_DIALOG_input_dialogbox_title">대화상자 제목</h5>
+          <h5 class="modal-title" id="LP_DIALOG_input_dialogbox_title">입력</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p id="LP_DIALOG_input_dialogbox_text">대화상자 메시지</p>
+          <p id="LP_DIALOG_input_dialogbox_message">값을 입력하세요</p>
           <div class="container">
             <input type="text" class="form-control" id="LP_DIALOG_input_dialogbox_input">
           </div>
@@ -18,37 +18,4 @@
       </div>
     </div>
 </div>
-
-<script>
-class InputDialogBox extends DialogBox {
-  constructor() {
-    super('LP_DIALOG_input_dialogbox');
-    this.callback = null;
-  }
-
-  show(text, title, callback) {
-    getE('LP_DIALOG_input_dialogbox_title').innerHTML = title;
-    getE('LP_DIALOG_input_dialogbox_text').innerHTML = text;
-    getE('LP_DIALOG_input_dialogbox_input').value = "";
-    this.callback = callback;
-    this.addEvent('LP_DIALOG_input_dialogbox_OK', 'click', this.onOK.bind(this));
-    super.show();
-  }
-
-  async onOK() {
-    let handleOK = true;
-    if (this.callback) {
-      const value = getE('LP_DIALOG_input_dialogbox_input').value;
-      handleOK = await this.callback(value);
-    }
-    if (handleOK) {
-      this.hide();
-    }
-  }
-};
-
-function showInputDialogBox(text, title, callback) {
-  const dialogBox = new InputDialogBox();
-  dialogBox.show(text, title, callback);
-}
-</script>
+<script src="/js/dialog/input.js"></script>

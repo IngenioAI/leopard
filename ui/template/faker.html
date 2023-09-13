@@ -59,10 +59,9 @@
       a.download = "faker_data.csv";
       a.click();
     }
-    function saveCsv() {
-      showFileSave(async (filePath) => {
-        const retVal = await uploadFile('1', filePath, csvData);
-      }, '1', 'faker_data.csv')
+    async function saveCsv() {
+      const filePath = await showFileSave('1', 'faker_data.csv');
+      await uploadFile('1', filePath, csvData);
     }
     function init() {
     }      

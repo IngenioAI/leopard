@@ -7,6 +7,15 @@ function createPostItem(itemSpec) {
     return o;
 }
 
+function HTTPErrorHandler(err) {
+    const response = JSON.parse(err.response);
+    return {
+        success: false,
+        errorCode: err.status,
+        errorMessage: response.detail
+    }
+}
+
 // IMAGE
 async function createExecImage(item) {
     const res = await http_post('/api/image/create', item);
@@ -60,8 +69,12 @@ async function getFileList(storageId, storagePath) {
 
 async function createStorageFolder(storageId, storagePath) {
     const url = joinPath("/api/storage", storageId, storagePath);
-    const res = await http_put(url)
-    return JSON.parse(res);
+    try {
+        const res = await http_put(url)
+        return JSON.parse(res);
+    } catch (err) {
+        return HTTPErrorHandler(err);
+    }
 }
 
 async function getStorageFileContent(storageId, storagePath) {
@@ -71,9 +84,13 @@ async function getStorageFileContent(storageId, storagePath) {
 }
 
 async function deleteStorageItem(storageId, storagePath) {
-    const url = joinPath("/api/storage", storageId, storagePath);
-    const res = await http_delete(url);
-    return JSON.parse(res);
+    try {
+        const url = joinPath("/api/storage", storageId, storagePath);
+        const res = await http_delete(url);
+        return JSON.parse(res);
+    } catch(err) {
+        return HTTPErrorHandler(err);
+    }
 }
 
 async function uploadFile(storageId, storagePath, contents, contentType='application/octet-stream') {
