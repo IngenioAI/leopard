@@ -57,7 +57,12 @@ class MTCNNApp(App):
         target_path = os.path.join(run_path, input_filename)
         if input_dir != run_path:
             shutil.copy(input_path, target_path)
+
+        params['input_filename'] = input_filename
+        with open("storage/0/app/mtcnn/run/params.json", "wt", encoding="UTF-8") as fp:
+            json.dump(params, fp)
+
         with urllib.request.urlopen(
-                'http://localhost:%s/api/run/%s' % (self.config['execution']['port'], input_filename)) as fp:
+                'http://localhost:%s/api/run/%s' % (self.config['execution']['port'], 'params.json')) as fp:
             res = json.load(fp)
         return res

@@ -4,6 +4,7 @@ import os
 import argparse
 import json
 
+
 def main(args):
     image_path = None
     if os.path.exists(args.input):
@@ -21,11 +22,13 @@ def main(args):
     with open(os.path.join("/data/output", args.output), "wt", encoding="UTF-8") as fp:
         json.dump(result, fp)
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, default="test.jpg")
     parser.add_argument("--output", type=str, default="result.json")
     return parser.parse_args()
+
 
 if __name__ == "__main__":
     print("Run MTCNN main on:", os.path.abspath("."))

@@ -23,10 +23,12 @@
 
     let canvas1, canvas2;
     let scale = 1.0;
+    let image_path = undefined;
+    let box_created_bool = true;
 
     function uploadFile() {
         showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/mtcnn/data', (e, filenames)=> {
-            const image_path = "app/mtcnn/data/" + filenames[0];
+            image_path = "app/mtcnn/data/" + filenames[0];
             const image_url = "/api/storage_file/0/" + image_path;
             const image = new Image();
             image.src = image_url;
@@ -35,21 +37,37 @@
                 canvas2.clear();
                 scale = canvas1.drawImageFit(image);
             });
+
+        });
+    }
             
-            setTimeout(() => {
-                http_post("/api/app/mtcnn", {storageId: '0', storagePath: image_path}).then((res) => {
+    function detectFace() {
+                if(!image_path){
+<!--                    TODO exception 처리 필요 -->
+                    return;
+                }
+                http_post("/api/app/mtcnn", {storageId: '0',mode:'detect', storagePath: image_path}).then((res) => {
                     const faceList = JSON.parse(res);
+
                     for (const face of faceList) {
                         console.log(face.box, face.confidence);
                         canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
                             face.box[2] * scale, face.box[3] * scale, 3, 'lime');
                     }
+                    box_created_bool = true;
                 })
-            }, 100)
-            
-            return true;
-        })
     }
+    function anonymizeFace(){
+                if(!box_created_bool){
+<!--                    TODO exception 처리 필요 -->
+                    return;
+                }
+                http_post("/api/app/mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path}).then((res) => {
+                    canvas1.clear();
+
+                })
+    }
+
 
     function init() {
       console.log("init - face_detect");
@@ -73,7 +91,9 @@
           <h2>얼굴 검출</h2>
 
           <div class="container my-4">
-            <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">파일 선택</button>
+            <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">이미지 선택</button>
+            <button type="button" class="btn btn-primary" id="face_get" onclick="detectFace()">얼굴 검출</button>
+            <button type="button" class="btn btn-primary" id="face_blur" onclick="anonymizeFace()">얼굴 비 식별화</button>
           </div>
 
           <div id="view">
