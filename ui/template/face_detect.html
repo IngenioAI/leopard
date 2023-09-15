@@ -22,27 +22,24 @@
   <script>
 
     let canvas1, canvas2;
-    let scale = 1.0;
-    const appStroageId = '0';
+    const appStorageId = '0';
     const mtcnnStoragePath = 'app/mtcnn/data';
 
     async function uploadFile() {
-        const filenames = await showFileUploadDialogBox("파일을 선택하세요", "파일 입력", appStroageId, mtcnnStoragePath); 
+        const filenames = await showFileUploadDialogBox(appStorageId, mtcnnStoragePath); 
         const imagePath = joinPath(mtcnnStoragePath, filenames[0]);
-        const image = new Image();
-        image.src = createStorageFileURL(appStroageId, imagePath);;
-        image.addEventListener('load', async () => {
-            canvas1.clear();
-            canvas2.clear();
-            scale = canvas1.drawImageFit(image);
+        canvas1.clear();
+        canvas2.clear();
 
-            const faceList = await runApp("mtcnn", {storageId: appStroageId, storagePath: imagePath});
-            for (const face of faceList) {
-                console.log(face.box, face.confidence);
-                canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
-                    face.box[2] * scale, face.box[3] * scale, 3, 'lime');
-            }            
-        });
+        const image = await loadImage(createStorageFileURL(appStorageId, imagePath));
+        const scale = canvas1.drawImageFit(image);
+
+        const faceList = await runApp("mtcnn", {storageId: appStorageId, storagePath: imagePath});
+        for (const face of faceList) {
+            console.log(face.box, face.confidence);
+            canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
+                face.box[2] * scale, face.box[3] * scale, 3, 'lime');
+        }
     }
 
     function init() {

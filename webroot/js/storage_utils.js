@@ -120,3 +120,16 @@ function sortFileList(fileList) {
 function createStorageFileURL(storageId, storagePath) {
     return joinPath('/api/storage_file', storageId, storagePath);
 }
+
+function downloadStorageFile(storageId, storagePath, fileName = null) {
+    const a = document.createElement("a");
+    a.href = createStorageFileURL(storageId, storagePath);
+    if (fileName) {
+        a.download = fileName;
+    }
+    else {
+        const paths = storagePath.split('/');
+        a.download = paths[paths.length-1];
+    }
+    a.click();
+}

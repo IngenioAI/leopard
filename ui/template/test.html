@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leopard</title>
+    <LP-include-html src="head.html"></LP-include-html>
+    <script src="/js/canvas_utils.js"></script>
+    <script>
+      async function init() {
+        const image = await loadImage("No.png");
+      }      
+    </script>
+  </head>
+  <body>
+    <LP-include-html src="bs-script.html"></LP-include-html>
+    <LP-include-html src="topbar.html"></LP-include-html>
+
+    <div class="container-fluid">
+      <div class="row">
+        <LP-include-html src="sidebar.html"></LP-include-html>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">    
+          <h1>TEST</h1>
+        </main>
+      </div>
+    </div>
+
+    <script>init();</script>
+  </body>
+</html>

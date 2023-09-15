@@ -6,40 +6,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
-  <script src="https://cdn.jsdelivr.net/npm/ag-grid-community/dist/ag-grid-community.min.js"></script>
-  <script src="/js/csv.js"></script>
+  <LP-include-html src="csv-grid.html"></LP-include-html>
   <script>
     let csvData = null;
-
-    function csvToGrid(gridId, csvData) {
-      const csvLines = CSV.parse(csvData)
-      const headers = csvLines[0];
-      const columnDefs = [];
-      for (const column of headers) {
-        columnDefs.push({field: column, resizable: true})
-      }
-      const rowData = [];
-      for (let i = 1; i < csvLines.length; i++) {
-        const row = {};
-        for (let j = 0; j < headers.length; j++) {
-          row[headers[j]] = csvLines[i][j];
-        }
-        rowData.push(row)
-      }
-      const gridOptions = {
-        columnDefs: columnDefs,
-        rowData, rowData
-      };
-      const gridDiv = document.getElementById(gridId);
-      gridDiv.innerHTML = "";
-      new agGrid.Grid(gridDiv, gridOptions);
-    }
 
     async function generateData(type) {
       // clear previous data
       document.getElementById("view_csv").innerText = "";
       document.getElementById("view_csv").style = "display:none";
-      csvToGrid("myGrid", []);
+      csvToGrid("myGrid", "");
 
       const dataCount = parseInt(getV('input_count'));
       csvData = await runApp("faker", {
@@ -54,10 +29,7 @@
       document.getElementById("view_csv").style = "display:block; max-height:600px";
     }
     function downloadCsv() {
-      var a = document.createElement("a");
-      a.href = createStorageFileURL('0', "/app/faker/run/result.csv");
-      a.download = "faker_data.csv";
-      a.click();
+      downloadStorageFile('0', "/app/faker/run/result.csv", "faker_data.csv");
     }
     async function saveCsv() {
       const filePath = await showFileSave('1', 'faker_data.csv');
