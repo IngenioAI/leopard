@@ -61,3 +61,14 @@ function addE(parent, child) {
 function clearE(elem) {
     getE(elem).replaceChildren();
 }
+
+function createElem(o) {
+    const elem = createE(o.name, o.text, o.attributes, o.events);
+    if ('children' in o) {
+        for (const child of o.children) {
+            const childElem = createElem(child);
+            addE(elem, childElem);
+        }
+    }
+    return elem;
+}

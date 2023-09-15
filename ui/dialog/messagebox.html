@@ -2,11 +2,11 @@
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="LP_DIALOG_messagebox_title">대화상자 제목</h5>
+          <h5 class="modal-title" id="LP_DIALOG_messagebox_title">알림</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <p id="LP_DIALOG_messagebox_message">대화상자 메시지</p>
+          <p id="LP_DIALOG_messagebox_message">메시지</p>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
@@ -14,12 +14,20 @@
       </div>
     </div>
 </div>
-
-<script>
-function showMessageBox(message, title) {
-  const messageBox = new DialogBox('LP_DIALOG_messagebox');
-  document.getElementById('LP_DIALOG_messagebox_title').innerHTML = title;
-  document.getElementById('LP_DIALOG_messagebox_message').innerHTML = message;  
-  messageBox.show();
-}
-</script>
+<div class="modal fade" tabindex="-1" id="LP_DIALOG_ask_messagebox">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="LP_DIALOG_ask_messagebox_title">알림</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p id="LP_DIALOG_ask_messagebox_message">메시지</p>
+      </div>
+      <div id="LP_DIALOG_ask_buttons" class="modal-footer">
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">확인</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="/js/dialog/messagebox.js"></script>

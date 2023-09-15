@@ -43,3 +43,16 @@ class Canvas {
         context.closePath();
     }
 }
+
+function loadImage(url) {
+    return new Promise((resolve, reject) => {
+        const image = new Image();
+        image.addEventListener('load', async () => {
+            resolve(image);
+        });
+        image.addEventListener('error', async () => {
+            reject(`Image load failed: ${url}`);
+        });
+        image.src = url;
+    });
+}

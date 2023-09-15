@@ -1,11 +1,28 @@
 function joinPath(...args) {
+    args = args.filter(item => item != null && item != "")
     return args.map((part, i) => {
-      if (i === 0) {
-        return part.trim().replace(/[\/]*$/g, '')
-      } else {
-        return part.trim().replace(/(^[\/]*|[\/]*$)/g, '')
-      }
-    }).filter(x=>x.length).join('/')
+        if (i === 0) {
+            return part.trim().replace(/[\/]*$/g, '')
+        } else {
+            return part.trim().replace(/(^[\/]*|[\/]*$)/g, '')
+        }
+    }).filter(x => x.length).join('/')
+}
+
+function changeStorageDir(currentPath, dirName) {
+    if (dirName == "..") {
+        const p = currentPath.lastIndexOf("/");
+        if (p > 0) {
+            currentPath = currentPath.substr(0, p);
+        }
+        else {
+            currentPath = "/";
+        }
+    }
+    else {
+        currentPath = joinPath(currentPath, dirName);
+    }
+    return currentPath;
 }
 
 function getFileIcon(fileInfo) {
@@ -44,6 +61,27 @@ function isViewableFile(fileInfo) {
 function isEditableFile(fileInfo) {
     return isTextFile(fileInfo.name);
 }
+
+function isImageFile(filepath) {
+    const imageFileExt = [".jpg", ".jpeg", ".png"]
+    for (const ext of imageFileExt) {
+        if (filepath.endsWith(ext)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isTextFile(filepath) {
+    const textFileExt = [".py", ".txt", ".csv", ".json", ".md"]
+    for (const ext of textFileExt) {
+        if (filepath.endsWith(ext)) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function getFileSizeString(fileSize) {
     if (fileSize > 1024 * 1024 * 1024) {
         return parseInt(fileSize / 1024 / 1024 / 1024) + " GB";
@@ -77,4 +115,21 @@ function sortFileList(fileList) {
         }
         return 0;
     });
+}
+
+function createStorageFileURL(storageId, storagePath) {
+    return joinPath('/api/storage_file', storageId, storagePath);
+}
+
+function downloadStorageFile(storageId, storagePath, fileName = null) {
+    const a = document.createElement("a");
+    a.href = createStorageFileURL(storageId, storagePath);
+    if (fileName) {
+        a.download = fileName;
+    }
+    else {
+        const paths = storagePath.split('/');
+        a.download = paths[paths.length-1];
+    }
+    a.click();
 }

@@ -8,22 +8,22 @@
   <LP-include-html src="head.html"></LP-include-html>
   <script>
     let encrypt_items = null;
-    function analyzeText() {
+
+    async function analyzeText() {
         const inputText = document.getElementById("input_text").value;
-        http_post("/api/app/presidio", {
+        const res = await runApp('presidio', {
             type: 'analyze',
             input: inputText,
             entities: ["PERSON", "EMAIL_ADDRESS"],
             language: "en"
-        }).then(res => {
-            document.getElementById("output_text").value = res;
-        })
+        }, 'text');
+        document.getElementById("output_text").value = res;
     }
-    function anonymizeText(type) {
-        const inputText = document.getElementById("input_text").value;
 
+    async function anonymizeText(type) {
+        const inputText = document.getElementById("input_text").value;
         if (type == 'replace') {
-            http_post("/api/app/presidio", {
+            const info = await runApp('presidio', {
                 type: 'anonymize',
                 input: inputText,
                 entities: ["PERSON", "EMAIL_ADDRESS"],
@@ -42,14 +42,11 @@
                         }
                     }
                 }
-            }).then(res => {
-                const info = JSON.parse(res);
-                console.log(info);
-                document.getElementById("output_text").value = info.text;
             });
+            document.getElementById("output_text").value = info.text;
         }
         else if (type == 'encrypt') {
-            http_post("/api/app/presidio", {
+            const info = await runApp("presidio", {
                 type: 'anonymize',
                 input: inputText,
                 entities: ["PERSON", "EMAIL_ADDRESS"],
@@ -68,22 +65,19 @@
                         }
                     }
                 }
-            }).then(res => {
-                const info = JSON.parse(res);
-                console.log(info);
-                encrypt_items = info.items;
-                document.getElementById("output_text").value = info.text;
-            });            
+            });
+            encrypt_items = info.items;
+            document.getElementById("output_text").value = info.text;
         }
     }
 
-    function deanonymizeText() {
+    async function deanonymizeText() {
         if (encrypt_items == null) {
             showMessageBox("익명암호화를 먼저 수행해야 합니다", "정보");
             return;
         }
         const inputText = document.getElementById("output_text").value;
-        http_post("/api/app/presidio", {
+        const info = await runApp("presidio", {
             type: 'deanonymize',
             input: inputText,
             result: encrypt_items,
@@ -102,34 +96,30 @@
                     }
                 }
             }
-        }).then(res => {
-            const info = JSON.parse(res);
-            console.log(info);
-            document.getElementById("restore_text").value = info.text;
-        }); 
+        });
+        document.getElementById("restore_text").value = info.text;
     }
 
-    function redactImageUpload() {
-        showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/presidio/data', (e, filenames)=> {
-            const image_path = "app/presidio/data/" + filenames[0];
-            const image_url = "/api/storage_file/0/" + image_path;
-            const image = new Image();
-            image.src = image_url;
-            document.getElementById("image_view").innerHTML = "";
-            document.getElementById("image_view").appendChild(image);
-            
-            setTimeout(() => {
-                http_post("/api/app/presidio", {type: 'image_redact', storageId: '0', storagePath: image_path, input: filenames[0]}).then((res) => {
-                    console.log(res);
-                    const info = JSON.parse(res);
-                    const redactedImage = new Image();
-                    redactedImage.src = "/api/storage_file/" + info.result_url + '?'+new Date().getTime();
-                    document.getElementById("image_view").appendChild(redactedImage);
-                })
-            }, 100)
-            
-            return true;
-        })        
+    async function redactImageUpload() {
+        const appStorageId = '0';
+        const presidioStoragePath = 'app/presidio/data';
+        const filenames = await showFileUploadDialogBox("파일을 선택하세요", "파일 입력", appStorageId, presidioStoragePath);
+        const imagePath = joinPath(presidioStoragePath, filenames[0]);
+        const image = new Image();
+        image.src = createStorageFileURL(appStorageId, imagePath);
+        image.addEventListener('load', async () => {
+            const info = await runApp("presidio", {
+                type: 'image_redact', 
+                storageId: appStorageId, 
+                storagePath: imagePath, 
+                input: filenames[0]
+            });
+            const redactedImage = new Image();
+            redactedImage.src = `/api/storage_file/${info.result_url}?${new Date().getTime()}`;
+            document.getElementById("image_view").appendChild(redactedImage);
+        });
+        document.getElementById("image_view").innerHTML = "";
+        document.getElementById("image_view").appendChild(image);
     }
 
     function init() {
