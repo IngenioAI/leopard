@@ -85,14 +85,15 @@ async def run_app(req: Request):
 
     mode = params['mode']
     if image_path:
+        boxes = detect_faces(image_path)
+        # FIXME 추후 response 객채 정의 하여 status 값 및 error message 전달 필요.
+        if len(boxes) <= 0:
+            return JSONResponse({})
         if mode == 'detect':
-            boxes = detect_faces(image_path)
             return JSONResponse(boxes)
         if mode == 'anonymize':
             result = {}
-            box_res = detect_faces(image_path)
-            new_img_name = anonymize_faces(image_path, box_res)
-
+            new_img_name = anonymize_faces(image_path, boxes)
             result["new_image"] = new_img_name
             return JSONResponse(result)
 
