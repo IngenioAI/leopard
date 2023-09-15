@@ -1,5 +1,6 @@
 import importlib
-    
+
+
 class AppManager():
     def __init__(self) -> None:
         self.apps = [

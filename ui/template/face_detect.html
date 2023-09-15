@@ -2,10 +2,10 @@
 <html lang="ko">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leopard</title>
-  <style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leopard</title>
+    <style>
     #view {
         background-color: white;
         max-width: 100%;
@@ -16,31 +16,68 @@
         position: absolute;
         background-color: transparent;
     }
-  </style>
-  <LP-include-html src="head.html"></LP-include-html>
-  <script src="/js/canvas_utils.js"></script>
-  <script>
+
+    </style>
+    <LP-include-html src="head.html"></LP-include-html>
+    <script src="/js/canvas_utils.js"></script>
+    <script>
 
     let canvas1, canvas2;
-    const appStorageId = '0';
-    const mtcnnStoragePath = 'app/mtcnn/data';
+    let scale = 1.0;
+    let image_path = undefined;
 
-    async function uploadFile() {
-        const filenames = await showFileUploadDialogBox(appStorageId, mtcnnStoragePath); 
-        const imagePath = joinPath(mtcnnStoragePath, filenames[0]);
-        canvas1.clear();
-        canvas2.clear();
+    function uploadFile() {
+        showFileUploadDialogBox("파일을 선택하세요", "파일 입력", '0', 'app/mtcnn/data', (e, filenames)=> {
+            image_path = "app/mtcnn/data/" + filenames[0];
+            const image_url = "/api/storage_file/0/" + image_path;
+            const image = new Image();
+            image.src = image_url;
+            image.addEventListener('load', () => {
+                canvas1.clear();
+                canvas2.clear();
+                scale = canvas1.drawImageFit(image);
+            });
 
-        const image = await loadImage(createStorageFileURL(appStorageId, imagePath));
-        const scale = canvas1.drawImageFit(image);
-
-        const faceList = await runApp("mtcnn", {storageId: appStorageId, storagePath: imagePath});
-        for (const face of faceList) {
-            console.log(face.box, face.confidence);
-            canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
-                face.box[2] * scale, face.box[3] * scale, 3, 'lime');
-        }
+        });
     }
+            
+    function detectFace() {
+                if(!image_path){
+<!--                    TODO exception 처리 필요 -->
+                    return;
+                }
+                http_post("/api/app/mtcnn", {storageId: '0',mode:'detect', storagePath: image_path}).then((res) => {
+                    const faceList = JSON.parse(res);
+
+                    for (const face of faceList) {
+                        console.log(face.box, face.confidence);
+                        canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
+                            face.box[2] * scale, face.box[3] * scale, 3, 'lime');
+                    }
+                    box_created_bool = true;
+                })
+    }
+    function anonymizeFace(){
+                if(!image_path){
+<!--                    TODO exception 처리 필요 -->
+                    return;
+                }
+                http_post("/api/app/mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path}).then((res) => {
+
+                    const result = JSON.parse(res);
+                    const img_name = result.new_image;
+                    image_path = "app/mtcnn/data/" + img_name;
+                    const image_url = "/api/storage_file/0/" + image_path;
+                    const image = new Image();
+                    image.src = image_url;
+                    image.addEventListener('load', () => {
+                        canvas1.clear();
+                        scale = canvas1.drawImageFit(image);
+                    });
+
+                })
+    }
+
 
     function init() {
       canvas1 = new Canvas('canvas1');
@@ -48,37 +85,42 @@
       canvas2 = new Canvas('canvas2');
       canvas2.init(1200, 700);
     }      
-  </script>
+
+    </script>
 </head>
 
 <body>
-  <LP-include-html src="bs-script.html"></LP-include-html>
-  <LP-include-html src="topbar.html"></LP-include-html>
+<LP-include-html src="bs-script.html"></LP-include-html>
+<LP-include-html src="topbar.html"></LP-include-html>
 
-  <div class="container-fluid">
+<div class="container-fluid">
     <div class="row">
-      <LP-include-html src="sidebar.html"></LP-include-html>
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="p-3 bg-body-tertiary" style="width:100%;">
-          <h2>얼굴 검출</h2>
+        <LP-include-html src="sidebar.html"></LP-include-html>
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+            <div class="p-3 bg-body-tertiary" style="width:100%;">
+                <h2>얼굴 검출</h2>
 
-          <div class="container my-4">
-            <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">파일 선택</button>
-          </div>
+                <div class="container my-4">
+                    <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">이미지 선택
+                    </button>
+                    <button type="button" class="btn btn-primary" id="face_get" onclick="detectFace()">얼굴 검출</button>
+                    <button type="button" class="btn btn-primary" id="face_blur" onclick="anonymizeFace()">얼굴 비 식별화
+                    </button>
+                </div>
 
-          <div id="view">
-            <canvas id="canvas1" style="display:none">
-            </canvas>
-            <canvas id="canvas2" style="display:none">
-            </canvas>
-          </div>
+                <div id="view">
+                    <canvas id="canvas1" style="display:none">
+                    </canvas>
+                    <canvas id="canvas2" style="display:none">
+                    </canvas>
+                </div>
 
-        </div>
-      </main>
+            </div>
+        </main>
     </div>
-  </div>
-  <LP-include-html src="fileupload.html"></LP-include-html>
-  <script>init();</script>
+</div>
+<LP-include-html src="fileupload.html"></LP-include-html>
+<script>init();</script>
 </body>
 
 </html>
