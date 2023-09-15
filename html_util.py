@@ -25,15 +25,15 @@ def split_html_content(content, tag):
     end = content.find("</%s>" % tag, start) + len("</%s>" % tag)
     if end < 0:
         return content[:start], content[start:], None
-    return content[:start], content[start:end],content[end:]
+    return content[:start], content[start:end], content[end:]
 
 
 def process_include_html(content, params=None):
     p = content.find("<LP-")
     if p < 0:
         return content
-    
-    if content[p+1:].startswith("LP-include-html"):
+
+    if content[p + 1:].startswith("LP-include-html"):
         p1, tag, p2 = split_html_content(content, "LP-include-html")
         parser = HTMLTagParser()
         parser.feed(tag)
@@ -48,7 +48,7 @@ def process_include_html(content, params=None):
             p2 = process_include_html(p2, params)
         else:
             p2 = ''
-    elif content[p+1:].startswith("LP-include-string"):
+    elif content[p + 1:].startswith("LP-include-string"):
         p1, tag, p2 = split_html_content(content, "LP-include-string")
         parser = HTMLTagParser()
         parser.feed(tag)
@@ -63,9 +63,9 @@ def process_include_html(content, params=None):
         else:
             p2 = ''
     else:
-        print("Unknown LP Tag:", content[p:p+32])
+        print("Unknown LP Tag:", content[p:p + 32])
         p1 = content[:p]
         sub_content = ' Content Parse Error: '
-        p2 = content[p:p+32]
+        p2 = content[p:p + 32]
     content = p1 + sub_content + p2
     return content

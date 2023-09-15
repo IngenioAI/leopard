@@ -138,7 +138,7 @@ def main(args):
 
     if f_type == 'analyze':
         analyze(args, params)
-        #analyze_csv(args, params)
+        # analyze_csv(args, params)
 
     elif f_type == 'anonymize':
         anonymize(args, params, operators)
