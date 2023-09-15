@@ -1,10 +1,10 @@
+import json
 import os
 import shutil
-import urllib
-import json
+from urllib import request
 
-from app.base import App
 import storage_util
+from app.base import App
 
 
 class MTCNNApp(App):
@@ -44,10 +44,12 @@ class MTCNNApp(App):
         return res
 
     def run_server(self):
-        run_path = os.path.abspath("storage/0/app/mtcnn/run")
+        run_path_input = os.path.abspath("storage/0/app/mtcnn/data")
+        run_path_output = os.path.abspath("storage/0/app/mtcnn/run")
         self.config['execution']['src'] = os.path.abspath("app/mtcnn/src")
         self.config['execution']['main'] = 'server.py'
-        self.config['execution']['input'] = run_path
+        self.config['execution']['input'] = run_path_input
+        self.config['execution']['output'] = run_path_output
         super().run(wait=False)
 
     def call_server(self, params):
@@ -57,7 +59,9 @@ class MTCNNApp(App):
         target_path = os.path.join(run_path, input_filename)
         if input_dir != run_path:
             shutil.copy(input_path, target_path)
-        with urllib.request.urlopen(
-                'http://localhost:%s/api/run/%s' % (self.config['execution']['port'], input_filename)) as fp:
-            res = json.load(fp)
-        return res
+
+        params['input_filename'] = input_filename
+        req = request.Request('http://localhost:%s/api/run' % (self.config['execution']['port']),
+                              data=json.dumps(params).encode("UTF-8"))
+        resp = request.urlopen(req)
+        return json.load(resp)

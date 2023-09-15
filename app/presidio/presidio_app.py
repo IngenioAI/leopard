@@ -3,6 +3,7 @@ import json
 
 from app.base import App
 
+
 class PresidioApp(App):
     def __init__(self, name="Presidio"):
         super().__init__(name)
@@ -35,10 +36,11 @@ class PresidioApp(App):
             json.dump(params, fp)
         super().run(wait=True)
         if params['type'] == 'image_redact':
-            return { 'result_url': "0/app/presidio/run/result.png"}
+            return {'result_url': "0/app/presidio/run/result.png"}
         else:
             with open("storage/0/app/presidio/run/result.json", "rt", encoding="UTF-8") as fp:
                 return json.load(fp)
+
 
 if __name__ == "__main__":
     app = PresidioApp()
