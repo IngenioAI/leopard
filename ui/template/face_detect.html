@@ -38,7 +38,7 @@
             
     function detectFace() {
                 if(!image_path){
-<!--                    TODO exception 처리 필요 -->
+                    showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
                     return;
                 }
                 http_post("/api/app/mtcnn", {storageId: '0',mode:'detect', storagePath: image_path}).then((res) => {
@@ -54,7 +54,7 @@
     }
     function anonymizeFace(){
                 if(!image_path){
-<!--                    TODO exception 처리 필요 -->
+                    showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
                     return;
                 }
                 http_post("/api/app/mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path}).then((res) => {
@@ -115,6 +115,7 @@
     </div>
 </div>
 <LP-include-html src="fileupload.html"></LP-include-html>
+<LP-include-html src="messagebox.html"></LP-include-html>
 <script>init();</script>
 </body>
 
