@@ -72,3 +72,7 @@ function createElem(o) {
     }
     return elem;
 }
+
+function isJSONEmpty(object) {
+    return JSON.stringify(object) === "{}";
+};
