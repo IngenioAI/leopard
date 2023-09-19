@@ -1,3 +1,11 @@
+function makeQueryString(o) {
+    let s = '?';
+    for (const [key, value] of Object.entries(o)) {
+        s += `${key}=${value}&`;
+    }
+    return s.substring(0, s.length - 1);
+}
+
 // POST object data from form elements
 function createPostItem(itemSpec) {
     const o = new Object();
@@ -59,9 +67,22 @@ async function removeExec(id) {
 }
 
 // STORAGE
-async function getFileList(storageId, storagePath) {
-    const url = joinPath("/api/storage", storageId, storagePath);
-    const res = await http_get(url)
+async function getStorageList() {
+    const res = await http_get("/api/storage");
+    const storageList = JSON.parse(res);
+    return storageList;
+}
+
+async function getFileList(storageId, storagePath, page=0, count=0) {
+    let url = joinPath("/api/storage", storageId, storagePath);
+    const query = makeQueryString({
+        page: page,
+        count: count
+    });
+    if (count > 0) {
+        url = url + query;
+    }
+    const res = await http_get(url);
     const fileList = JSON.parse(res);
     sortFileList(fileList);
     return fileList;
@@ -97,6 +118,13 @@ async function uploadFile(storageId, storagePath, contents, contentType='applica
     const url = createStorageFileURL(storageId, storagePath);
     const res = await http_put(url, contents, contentType);
     return JSON.parse(res);
+}
+
+// DATASET
+async function getDatasetList() {
+    const res = await http_get("/api/dataset");
+    const datasetList = JSON.parse(res);
+    return datasetList;
 }
 
 // APP

@@ -1,5 +1,6 @@
 from typing import Union, List
 import os
+import json
 import argparse
 
 import uvicorn
@@ -10,6 +11,7 @@ from pydantic import BaseModel
 from starlette.status import HTTP_302_FOUND, HTTP_303_SEE_OTHER
 
 import storage_util
+import dataset_util
 from docker_runner import DockerRunner
 from html_util import process_include_html
 from app.manager import AppManager
@@ -54,12 +56,13 @@ async def handle_upload(req: Request, target_dir, with_content=False):
 
 
 @app.get("/ui/{file_path:path}", tags=["UI"])
-async def get_ui_page(file_path: str):
+async def get_ui_page(file_path: str, req: Request):
+    query_param = dict(req.query_params)
     page_path = "ui/template/%s" % file_path
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content)
+        content = process_include_html(content, {'query_param': json.dumps(query_param)})
     else:
         with open("ui/template/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
@@ -153,12 +156,8 @@ async def remove_execution_info(exec_id: str):
 
 @app.get("/api/storage", tags=["Storage"])
 async def get_storage_list():
-    return JSONResponseHandler([
-        {
-            'name': 'default',
-            'id': '1'
-        }
-    ])
+    userStorageList = storage_util.get_storage_info("user")
+    return JSONResponseHandler([{"id": x["id"], "name": x["name"]} for x in userStorageList])
 
 
 @app.get("/api/storage/{storage_id}", tags=["Storage"])
@@ -231,8 +230,6 @@ async def post_storage_file(storage_id: str, file_path: str, req: Request):
 async def save_storage_file(storage_id: str, file_path: str, req: Request):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     contents = await req.body()
-    if os.path.exists(storage_file_path):
-        raise HTTPException(status_code=403, detail="File already exist")
     with open(storage_file_path, "wb") as fp:
         fp.write(contents)
 
@@ -257,6 +254,18 @@ async def delete_storage_file(storage_id: str, file_path: str, req: Request):
             raise HTTPException(status_code=400, detail=str(e))
     else:
         raise HTTPException(status_code=404, detail="File not found")
+
+
+@app.get("/api/dataset", tags=["Dataset"])
+async def get_dataset_list():
+    return JSONResponseHandler(dataset_util.get_dataset_info())
+
+@app.post("/api/dataset", tags=["Dataset"])
+async def post_dataset_list(req: Request):
+    info = await req.json()
+    return JSONResponseHandler({
+        "success": dataset_util.save_dataset_info(info)
+    })
 
 
 @app.post("/api/app/{module_id}", tags=["App"])

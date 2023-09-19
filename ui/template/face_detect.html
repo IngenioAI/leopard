@@ -29,60 +29,51 @@
 
     async function uploadFile() {
         const filenames = await showFileUploadDialogBox('0', 'app/mtcnn/data');
-        image_path = "app/mtcnn/data/" + filenames[0];
-        const image_url = "/api/storage_file/0/" + image_path;
+        image_path = joinPath("app/mtcnn/data", filenames[0]);
+        const image_url = createStorageFileURL("0", image_path);
         const image = await loadImage(image_url);
         canvas1.clear();
         canvas2.clear();
         scale = canvas1.drawImageFit(image);
     }
-            
-    function detectFace() {
-                if(!image_path){
-                    showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
-                    return;
-                }
-                http_post("/api/app/mtcnn", {storageId: '0',mode:'detect', storagePath: image_path}).then((res) => {
-                    const faceList = JSON.parse(res);
 
-                    if (isJSONEmpty(faceList)) {
-                        showMessageBox("검출된 정보가 없습니다.", "정보");
-                        return;
-                    }
+    async function detectFace() {
+        if(!image_path){
+            showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
+            return;
+        }
+        const faceList = await runApp("mtcnn", {storageId: '0',mode:'detect', storagePath: image_path});
 
-                    for (const face of faceList) {
-                        console.log(face.box, face.confidence);
-                        canvas2.drawRect(face.box[0] * scale, face.box[1] * scale, 
-                            face.box[2] * scale, face.box[3] * scale, 3, 'lime');
-                    }
-                    box_created_bool = true;
-                })
+        if (isJSONEmpty(faceList)) {
+            showMessageBox("검출된 정보가 없습니다.", "정보");
+            return;
+        }
+
+        for (const face of faceList) {
+            console.log(face.box, face.confidence);
+            canvas2.drawRect(face.box[0] * scale, face.box[1] * scale,
+                face.box[2] * scale, face.box[3] * scale, 3, 'lime');
+        }
+        box_created_bool = true;
     }
-    function anonymizeFace(){
-                if(!image_path){
-                    showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
-                    return;
-                }
-                http_post("/api/app/mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path}).then((res) => {
+    async function anonymizeFace() {
+        if(!image_path){
+            showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
+            return;
+        }
+        const result = await runApp("mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path});
 
-                    const result = JSON.parse(res);
+        if (isJSONEmpty(result)) {
+            showMessageBox("검출된 정보가 없습니다.", "정보");
+            return;
+        }
 
-                    if (isJSONEmpty(result)) {
-                        showMessageBox("검출된 정보가 없습니다.", "정보");
-                        return;
-                    }
-
-                    const img_name = result.new_image;
-                    image_path = "app/mtcnn/data/" + img_name;
-                    const image_url = "/api/storage_file/0/" + image_path;
-                    const image = new Image();
-                    image.src = image_url;
-                    image.addEventListener('load', () => {
-                        canvas1.clear();
-                        scale = canvas1.drawImageFit(image);
-                    });
-
-                })
+        const img_name = result.new_image;
+        image_path = joinPath("app/mtcnn/data/", img_name);
+        const image_url = createStorageFileURL("0", image_path);
+        const image = await loadImage(image_url);
+        canvas1.clear();
+        scale = canvas1.drawImageFit(image);
     }
 
 
@@ -91,7 +82,7 @@
       canvas1.init(1200, 700);
       canvas2 = new Canvas('canvas2');
       canvas2.init(1200, 700);
-    }      
+    }
 
     </script>
 </head>

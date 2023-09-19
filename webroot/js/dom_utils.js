@@ -73,6 +73,36 @@ function createElem(o) {
     return elem;
 }
 
+function elementToJson(id) {
+    const element = getE(id);
+    const o = {
+        name: element.nodeName.toLowerCase()
+    };
+    if (element.attributes != null) {
+        if (element.attributes.length) {
+            o["attributes"] = {};
+            for (var i = 0; i < element.attributes.length; i++) {
+                o["attributes"][element.attributes[i].nodeName] = element.attributes[i].nodeValue;
+            }
+        }
+    }
+    o['children'] = [];
+    var nodeList = element.childNodes;
+    if (nodeList != null) {
+        if (nodeList.length) {
+            for (var i = 0; i < nodeList.length; i++) {
+                if (nodeList[i].nodeType == 3) {
+                    o['text'] = nodeList[i].nodeValue.trim();
+                } else {
+                    const child = elementToJson(nodeList[i]);
+                    o['children'].push(child);
+                }
+            }
+        }
+    }
+    return o;
+}
+
 function isJSONEmpty(object) {
     return JSON.stringify(object) === "{}";
-};
+}
