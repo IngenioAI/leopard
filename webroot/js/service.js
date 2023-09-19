@@ -128,9 +128,7 @@ async function getDatasetList() {
 }
 
 // APP
-async function runApp(appName, params, returnType="json") {
+async function runApp(appName, params) {
     const res = await http_post(`/api/app/${appName}`, params);
-    if (returnType == "json")
-        return JSON.parse(res);
-    return res;
+    return JSON.parse(res);
 }

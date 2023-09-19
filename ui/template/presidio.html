@@ -11,13 +11,13 @@
 
     async function analyzeText() {
         const inputText = document.getElementById("input_text").value;
-        const res = await runApp('presidio', {
+        const info = await runApp('presidio', {
             type: 'analyze',
             input: inputText,
             entities: ["PERSON", "EMAIL_ADDRESS"],
             language: "en"
-        }, 'text');
-        document.getElementById("output_text").value = res;
+        });
+        document.getElementById("output_text").value = JSON.stringify(info, null, 4);
     }
 
     async function anonymizeText(type) {
@@ -103,6 +103,7 @@
     async function redactImageUpload() {
         const appStorageId = '0';
         const presidioStoragePath = 'app/presidio/data';
+        const presidioOutputPath = 'app/presidio/run';
         const filenames = await showFileUploadDialogBox(appStorageId, presidioStoragePath);
         const imagePath = joinPath(presidioStoragePath, filenames[0]);
         const image = new Image();
@@ -115,7 +116,7 @@
                 input: filenames[0]
             });
             const redactedImage = new Image();
-            redactedImage.src = `/api/storage_file/${info.result_url}?${new Date().getTime()}`;
+            redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.output_filepath}?${new Date().getTime()}`);
             document.getElementById("image_view").appendChild(redactedImage);
         });
         document.getElementById("image_view").innerHTML = "";

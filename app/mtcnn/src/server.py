@@ -72,14 +72,20 @@ def detect_faces(image_path):
     detector = MTCNN()
     return detector.detect_faces(img)
 
+@app.get("/api/ping")
+async def server_ping():
+    return JSONResponse({
+        "success": True
+    })
 
 @app.post("/api/run", tags=["App"])
 async def run_app(req: Request):
     params = await req.json()
-    if os.path.exists(params['input_filename']):
-        image_path = params['input_filename']
-    elif os.path.exists(os.path.join("/data/input", params['input_filename'])):
-        image_path = os.path.join("/data/input", params['input_filename'])
+    _, filename = os.path.split(params['storagePath'])
+    if os.path.exists(filename):
+        image_path = filename
+    elif os.path.exists(os.path.join("/data/input", filename)):
+        image_path = os.path.join("/data/input", filename)
     else:
         image_path = None
 

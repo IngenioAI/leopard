@@ -9,6 +9,7 @@
   <LP-include-html src="csv-grid.html"></LP-include-html>
   <script>
     let csvData = null;
+    let csvFilePath = "";
 
     async function generateData(type) {
       // clear previous data
@@ -17,11 +18,12 @@
       csvToGrid("myGrid", "");
 
       const dataCount = parseInt(getV('input_count'));
-      csvData = await runApp("faker", {
+      const res = await runApp("faker", {
                 type: type,
                 count: dataCount
-              })
-          
+              });
+      csvFilePath = res.output_filepath;
+      csvData = await getStorageFileContent('0', joinPath('/app/faker/run', csvFilePath));
       csvToGrid("myGrid", csvData);
     }
     function showRawData() {
@@ -29,14 +31,14 @@
       document.getElementById("view_csv").style = "display:block; max-height:600px";
     }
     function downloadCsv() {
-      downloadStorageFile('0', "/app/faker/run/result.csv", "faker_data.csv");
+      downloadStorageFile('0', joinPath("/app/faker/run", csvFilePath), "faker_data.csv");
     }
     async function saveCsv() {
       const filePath = await showFileSave('1', 'faker_data.csv');
       await uploadFile('1', filePath, csvData);
     }
     function init() {
-    }      
+    }
 
     </script>
 </head>
@@ -58,9 +60,9 @@
             <div class="d-flex flex-row align-items-center my-2">
               <div class="px-2">생성할 데이터 개수: </div><div class="flex-grow-1"><input type="number" id="input_count" class="form-control" value="10"/></div>
             </div>
-            
+
             <div id="myGrid" class="ag-theme-alpine" style="height: 500px"></div>
-            
+
             <div class="my-4">
               <button type="button" class="btn btn-outline-primary" onclick="showRawData()">원문 보기</button>
               <button type="button" class="btn btn-outline-primary" onclick="downloadCsv()">다운로드</button>

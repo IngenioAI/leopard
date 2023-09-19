@@ -269,9 +269,9 @@ async def post_dataset_list(req: Request):
 
 
 @app.post("/api/app/{module_id}", tags=["App"])
-async def call_app(module_id: str, req: Request):
+async def run_app(module_id: str, req: Request):
     params = await req.json()
-    res = app.app_manager.call(module_id, params)
+    res = app.app_manager.run(module_id, params)
     return JSONResponseHandler(res)
 
 
@@ -282,7 +282,7 @@ def web_main(args):
     app.args = args
     app.docker_runner = DockerRunner()
     app.app_manager = AppManager()
-    app.app_manager.run()
+    app.app_manager.start()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
     print("Cleanup app docker")

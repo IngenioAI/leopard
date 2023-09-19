@@ -1,0 +1,64 @@
+[
+    {
+        "id": "mtcnn",
+        "name": "MTCNN",
+        "type": "server",
+        "image": {
+            "tag": "leopard/mtcnn:latest",
+            "build": {
+                "base": "tensorflow/tensorflow:2.11.0-gpu",
+                "update": true,
+                "apt": "libcudnn8=8.2.4.15-1+cuda11.4 libgl1-mesa-glx libglib2.0-0",
+                "pip": "opencv-python mtcnn fastapi uvicorn"
+            }
+        },
+        "execution": {
+            "src": "app/mtcnn/src",
+            "command_params": [],
+            "input": "storage/0/app/mtcnn/data",
+            "output": "storage/0/app/mtcnn/run",
+            "port": 12710
+        }
+    },
+    {
+        "id": "faker",
+        "name": "Faker",
+        "type": "script",
+        "image": {
+            "tag": "leopard/faker:latest",
+            "build": {
+                "base": "python:3.8",
+                "update": true,
+                "apt": "",
+                "pip": "faker"
+            }
+        },
+        "execution": {
+            "src": "app/faker/src",
+            "command_params": [],
+            "input": "storage/0/app/faker/data",
+            "output": "storage/0/app/faker/run"
+        }
+    },
+    {
+        "id": "presidio",
+        "name": "Presidio",
+        "type": "script",
+        "image": {
+            "tag": "leopard/presidio:latest",
+            "build": {
+                "base": "python:3.8",
+                "update": true,
+                "apt": "tesseract-ocr libtesseract-dev",
+                "pip": "presidio_analyzer presidio_anonymizer presidio_image_redactor Pillow",
+                "additional_command": "python -m spacy download en_core_web_lg"
+            }
+        },
+        "execution": {
+            "src": "app/presidio/src",
+            "command_params": [],
+            "input": "storage/0/app/presidio/data",
+            "output": "storage/0/app/presidio/run"
+        }
+    }
+]
