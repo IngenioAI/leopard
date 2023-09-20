@@ -11,13 +11,13 @@
 
     async function analyzeText() {
         const inputText = document.getElementById("input_text").value;
-        const res = await runApp('presidio', {
+        const info = await runApp('presidio', {
             type: 'analyze',
             input: inputText,
             entities: ["PERSON", "EMAIL_ADDRESS"],
             language: "en"
-        }, 'text');
-        document.getElementById("output_text").value = res;
+        });
+        document.getElementById("output_text").value = JSON.stringify(info, null, 4);
     }
 
     async function anonymizeText(type) {
@@ -103,19 +103,18 @@
     async function redactImageUpload() {
         const appStorageId = '0';
         const presidioStoragePath = 'app/presidio/data';
-        const filenames = await showFileUploadDialogBox("파일을 선택하세요", "파일 입력", appStorageId, presidioStoragePath);
+        const presidioOutputPath = 'app/presidio/run';
+        const filenames = await showFileUploadDialogBox(appStorageId, presidioStoragePath);
         const imagePath = joinPath(presidioStoragePath, filenames[0]);
         const image = new Image();
         image.src = createStorageFileURL(appStorageId, imagePath);
         image.addEventListener('load', async () => {
             const info = await runApp("presidio", {
-                type: 'image_redact', 
-                storageId: appStorageId, 
-                storagePath: imagePath, 
-                input: filenames[0]
+                type: 'image_redact',
+                image_path: filenames[0]
             });
             const redactedImage = new Image();
-            redactedImage.src = `/api/storage_file/${info.result_url}?${new Date().getTime()}`;
+            redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.image_path}`, true);
             document.getElementById("image_view").appendChild(redactedImage);
         });
         document.getElementById("image_view").innerHTML = "";
@@ -123,7 +122,7 @@
     }
 
     function init() {
-    }      
+    }
   </script>
 </head>
 
@@ -143,7 +142,7 @@
             <div class="my-2">
                 <button type="button" class="btn btn-primary" onclick="analyzeText()">분석</button>
                 <button type="button" class="btn btn-primary" onclick="anonymizeText('replace')">익명화</button>
-                <button type="button" class="btn btn-primary" onclick="anonymizeText('encrypt')">익명암호화</button>                
+                <button type="button" class="btn btn-primary" onclick="anonymizeText('encrypt')">익명암호화</button>
             </div>
             <textarea id="output_text"  class="form-control" rows="10"></textarea>
             <div class="my-2">
@@ -157,7 +156,7 @@
             <button type="button" class="btn btn-primary" onclick="redactImageUpload()">파일 선택</button>
           </div>
 
-          <div id="image_view" style="max-width: 100%;">       
+          <div id="image_view" style="max-width: 100%;">
           </div>
         </div>
       </main>

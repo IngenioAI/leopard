@@ -1,3 +1,4 @@
+import os
 import docker
 import io
 import threading
@@ -61,6 +62,7 @@ class DockerRunner():
                 for cmd in commands:
                     dockerfile_template += "RUN %s\n" % cmd
 
+        # print("=====DOCKERFILE\n", dockerfile_template, "\n========")
         dockerfile = io.BytesIO(dockerfile_template.encode('utf-8'))
         res = self.client.build(fileobj=dockerfile, tag=name, rm=True, forcerm=True)
         self.start_create_log(name, res)
@@ -81,17 +83,26 @@ class DockerRunner():
     def remove_create_image_info(self, name):
         del self.threads[name]
 
-    def exec_python(self, src_dir, main_src, image, data_dir=None, output_dir=None, port=None, command_params=None):
+    def list_execs(self):
+        return self.client.containers(all=True)
+
+    def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, port=None, command_params=None):
         working_dir = "/app"
         binds = []
-        binds.append('%s:%s' % (src_dir, working_dir))
+        binds.append('%s:%s' % (os.path.abspath(src_dir), working_dir))
         if data_dir is not None and data_dir != '':
-            binds.append('%s:%s' % (data_dir, "/data/input"))
+            binds.append('%s:%s' % (os.path.abspath(data_dir), "/data/input"))
         if output_dir is not None and output_dir != '':
-            binds.append('%s:%s' % (output_dir, "/data/output"))
+            binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
 
         print("Binds:", binds)
-        command_list = ["python", main_src]
+        if type(command) == str:
+            command_list = [command]
+        elif type(command) == list:
+            command_list = command
+        else:
+            print("Unsupported command type (string or list):", command)
+
         if command_params is not None:
             command_list += command_params
         container = self.client.create_container(image, command=command_list,
@@ -106,6 +117,10 @@ class DockerRunner():
                                                  ))
         self.client.start(container.get('Id'))
         return container.get('Id')
+
+    def exec_python(self, src_dir, main_src, image, data_dir=None, output_dir=None, port=None, command_params=None):
+        return self.exec_command(src_dir, ["python", main_src], image, data_dir, output_dir, port, command_params)
+
 
     def exec_logs(self, container_id):
         return self.client.logs(container_id).decode('utf-8')

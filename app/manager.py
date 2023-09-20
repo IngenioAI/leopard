@@ -1,51 +1,37 @@
+import os
+import json
 import importlib
+from app.base import App
 
 
 class AppManager():
     def __init__(self) -> None:
-        self.apps = [
-            {
-                'id': "mtcnn",
-                'name': "MTCNN",
-                'module': "app.mtcnn.mtcnn_app",
-                'class': "MTCNNApp",
-                'type': 'server'
-            },
-            {
-                'id': "faker",
-                'name': "Faker",
-                'module': "app.faker.faker_app",
-                'class': "FakerApp",
-                'type': 'script'
-            },
-            {
-                'id': "presidio",
-                'name': "Presidio",
-                'module': "app.presidio.presidio_app",
-                'class': "PresidioApp",
-                'type': 'script'
-            }
-        ]
+        with open(os.path.join("app", "appinfo.json"), "rt", encoding="utf-8") as fp:
+            self.app_info = json.load(fp)
+        self.apps = {}
 
-    def run(self):
-        for app_info in self.apps:
-            m = importlib.import_module(app_info['module'])
-            c = getattr(m, app_info['class'])
-            o = c()
-            app_info['object'] = o
-            if app_info['type'] == 'server':
-                o.run_server()
+    def start(self):
+        for info in self.app_info:
+            if 'module' in info and 'class' in info:
+                m = importlib.import_module(info['module'])
+                c = getattr(m, info['class'])
+                o = c(info)
+            else:
+                o = App(info)
+            self.apps[info['id']] = o
+            if info['type'] == 'server':
+                o.run()
 
-    def call(self, module_id, params):
-        for app_info in self.apps:
-            if app_info['id'] == module_id:
-                if app_info['type'] == 'server':
-                    return app_info['object'].call_server(params)
+    def run(self, module_id, params):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                if info['type'] == 'server':
+                    return self.apps[module_id].call_server(params)
                 else:
-                    return app_info['object'].run(params)
+                    return self.apps[module_id].run(params)
         return None
 
     def stop(self):
-        for app_info in self.apps:
-            if app_info['type'] == 'server':
-                app_info['object'].stop()
+        for info in self.app_info:
+            if info['type'] == 'server':
+                self.apps[info['id']].stop()

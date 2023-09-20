@@ -1,3 +1,11 @@
+function makeQueryString(o) {
+    let s = '?';
+    for (const [key, value] of Object.entries(o)) {
+        s += `${key}=${value}&`;
+    }
+    return s.substring(0, s.length - 1);
+}
+
 // POST object data from form elements
 function createPostItem(itemSpec) {
     const o = new Object();
@@ -38,6 +46,11 @@ async function getExecImageList() {
 }
 
 // EXEC
+async function getExecList() {
+    const res = await http_get("/api/exec_list");
+    return JSON.parse(res);
+}
+
 async function createExec(item) {
     const res = await http_post('/api/exec', item);
     return JSON.parse(res);
@@ -59,9 +72,22 @@ async function removeExec(id) {
 }
 
 // STORAGE
-async function getFileList(storageId, storagePath) {
-    const url = joinPath("/api/storage", storageId, storagePath);
-    const res = await http_get(url)
+async function getStorageList() {
+    const res = await http_get("/api/storage");
+    const storageList = JSON.parse(res);
+    return storageList;
+}
+
+async function getFileList(storageId, storagePath, page=0, count=0) {
+    let url = joinPath("/api/storage", storageId, storagePath);
+    const query = makeQueryString({
+        page: page,
+        count: count
+    });
+    if (count > 0) {
+        url = url + query;
+    }
+    const res = await http_get(url);
     const fileList = JSON.parse(res);
     sortFileList(fileList);
     return fileList;
@@ -77,10 +103,14 @@ async function createStorageFolder(storageId, storagePath) {
     }
 }
 
-async function getStorageFileContent(storageId, storagePath) {
-    const url = createStorageFileURL(storageId, storagePath);
-    const res = await http_get(url);
-    return res;
+async function getStorageFileContent(storageId, storagePath, reload=false) {
+    const url = createStorageFileURL(storageId, storagePath, reload);
+    try {
+        const res = await http_get(url);
+        return res;
+    } catch (err) {
+        return JSON.parse(err.response).detail;
+    }
 }
 
 async function deleteStorageItem(storageId, storagePath) {
@@ -99,10 +129,20 @@ async function uploadFile(storageId, storagePath, contents, contentType='applica
     return JSON.parse(res);
 }
 
+// DATASET
+async function getDatasetList() {
+    const res = await http_get("/api/dataset");
+    const datasetList = JSON.parse(res);
+    return datasetList;
+}
+
 // APP
-async function runApp(appName, params, returnType="json") {
+async function getAppList() {
+    const res = await http_get("/api/app_list");
+    return JSON.parse(res);
+}
+
+async function runApp(appName, params) {
     const res = await http_post(`/api/app/${appName}`, params);
-    if (returnType == "json")
-        return JSON.parse(res);
-    return res;
+    return JSON.parse(res);
 }

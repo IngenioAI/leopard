@@ -9,6 +9,17 @@ function joinPath(...args) {
     }).filter(x => x.length).join('/')
 }
 
+function splitStoragePath(path) {
+    const items = [];
+    if (path.startsWith("storage/")) {
+        path = path.substr("storage/".length)
+    }
+    const p = path.indexOf("/")
+    items.push(path.substr(0, p));
+    items.push(path.substr(p+1));
+    return items;
+  }
+
 function changeStorageDir(currentPath, dirName) {
     if (dirName == "..") {
         const p = currentPath.lastIndexOf("/");
@@ -117,8 +128,12 @@ function sortFileList(fileList) {
     });
 }
 
-function createStorageFileURL(storageId, storagePath) {
-    return joinPath('/api/storage_file', storageId, storagePath);
+function createStorageFileURL(storageId, storagePath, reload=false) {
+    let url = joinPath('/api/storage_file', storageId, storagePath);
+    if (reload) {
+        url += `?${new Date().getTime()}`;
+    }
+    return url;
 }
 
 function downloadStorageFile(storageId, storagePath, fileName = null) {

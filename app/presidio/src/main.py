@@ -118,11 +118,16 @@ def de_anonymize(args, params, operators):
         }, fp)
 
 
-def image_redact(params):
-    image = Image.open("/data/input/%s" % params['input'])
+def image_redact(args, params):
+    output_path = "result.png"
+    image = Image.open("/data/input/%s" % params['image_path'])
     engine = ImageRedactorEngine()
     redacted_image = engine.redact(image, (5, 5, 5))
-    redacted_image.save("/data/output/result.png")
+    redacted_image.save("/data/output/%s" % output_path)
+    with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
+        json.dump({
+            'image_path': output_path
+        }, fp)
 
 
 def main(args):
@@ -147,7 +152,7 @@ def main(args):
         de_anonymize(args, params, operators)
 
     elif f_type == 'image_redact':
-        image_redact(params)
+        image_redact(args, params)
     else:
         return
 

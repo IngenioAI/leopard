@@ -53,7 +53,7 @@ def process_include_html(content, params=None):
         parser = HTMLTagParser()
         parser.feed(tag)
         var_name = parser.get_attr('var')
-        if params is not None:
+        if params is not None and var_name in params:
             sub_content = params[var_name]
             sub_content = process_include_html(sub_content, params)
         else:

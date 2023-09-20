@@ -1,5 +1,6 @@
 from typing import Union, List
 import os
+import json
 import argparse
 
 import uvicorn
@@ -10,6 +11,7 @@ from pydantic import BaseModel
 from starlette.status import HTTP_302_FOUND, HTTP_303_SEE_OTHER
 
 import storage_util
+import dataset_util
 from docker_runner import DockerRunner
 from html_util import process_include_html
 from app.manager import AppManager
@@ -54,12 +56,13 @@ async def handle_upload(req: Request, target_dir, with_content=False):
 
 
 @app.get("/ui/{file_path:path}", tags=["UI"])
-async def get_ui_page(file_path: str):
+async def get_ui_page(file_path: str, req: Request):
+    query_param = dict(req.query_params)
     page_path = "ui/template/%s" % file_path
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content)
+        content = process_include_html(content, {'query_param': json.dumps(query_param)})
     else:
         with open("ui/template/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
@@ -109,6 +112,10 @@ async def get_image_list():
     return JSONResponseHandler(app.docker_runner.list_images())
 
 
+@app.get("/api/exec_list", tags=["Exec"])
+async def get_exec_list():
+    return JSONResponseHandler(app.docker_runner.list_execs())
+
 class ExecutionItem(BaseModel):
     srcPath: str
     mainSrc: str
@@ -153,12 +160,8 @@ async def remove_execution_info(exec_id: str):
 
 @app.get("/api/storage", tags=["Storage"])
 async def get_storage_list():
-    return JSONResponseHandler([
-        {
-            'name': 'default',
-            'id': '1'
-        }
-    ])
+    userStorageList = storage_util.get_storage_info("user")
+    return JSONResponseHandler([{"id": x["id"], "name": x["name"]} for x in userStorageList])
 
 
 @app.get("/api/storage/{storage_id}", tags=["Storage"])
@@ -211,7 +214,10 @@ async def create_storage_directory(storage_id: str, file_path: str):
 async def get_storage_file(storage_id: str, file_path: str):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path) and not os.path.isdir(storage_file_path):
-        return FileResponse(storage_file_path)
+        if os.access(storage_file_path, os.R_OK):
+            return FileResponse(storage_file_path)
+        else:
+            raise HTTPException(status_code=503, detail="File access not allowed")
     raise HTTPException(status_code=404, detail="File not found")
 
 
@@ -231,8 +237,6 @@ async def post_storage_file(storage_id: str, file_path: str, req: Request):
 async def save_storage_file(storage_id: str, file_path: str, req: Request):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     contents = await req.body()
-    if os.path.exists(storage_file_path):
-        raise HTTPException(status_code=403, detail="File already exist")
     with open(storage_file_path, "wb") as fp:
         fp.write(contents)
 
@@ -259,10 +263,25 @@ async def delete_storage_file(storage_id: str, file_path: str, req: Request):
         raise HTTPException(status_code=404, detail="File not found")
 
 
+@app.get("/api/dataset", tags=["Dataset"])
+async def get_dataset_list():
+    return JSONResponseHandler(dataset_util.get_dataset_info())
+
+@app.post("/api/dataset", tags=["Dataset"])
+async def post_dataset_list(req: Request):
+    info = await req.json()
+    return JSONResponseHandler({
+        "success": dataset_util.save_dataset_info(info)
+    })
+
+@app.get("/api/app_list", tags=["App"])
+async def get_app_list():
+    return JSONResponseHandler(app.app_manager.app_info)
+
 @app.post("/api/app/{module_id}", tags=["App"])
-async def call_app(module_id: str, req: Request):
+async def run_app(module_id: str, req: Request):
     params = await req.json()
-    res = app.app_manager.call(module_id, params)
+    res = app.app_manager.run(module_id, params)
     return JSONResponseHandler(res)
 
 
@@ -273,7 +292,7 @@ def web_main(args):
     app.args = args
     app.docker_runner = DockerRunner()
     app.app_manager = AppManager()
-    app.app_manager.run()
+    app.app_manager.start()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
     print("Cleanup app docker")
