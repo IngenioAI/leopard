@@ -29,7 +29,7 @@ def create_personal_info(args, header: list, count: int):
             ])
     with open(os.path.join("/data/output", args.output), "wt", encoding="utf-8") as fp:
         json.dump({
-            "output_filepath": csv_filepath
+            "text_path": csv_filepath
         }, fp)
 
 
@@ -48,7 +48,7 @@ def create_log_info(args, header: list, count: int):
             ])
     with open(os.path.join("/data/output", args.output), "wt", encoding="utf-8") as fp:
         json.dump({
-            "output_filepath": csv_filepath
+            "text_path": csv_filepath
         }, fp)
 
 def main(args):

@@ -46,6 +46,11 @@ async function getExecImageList() {
 }
 
 // EXEC
+async function getExecList() {
+    const res = await http_get("/api/exec_list");
+    return JSON.parse(res);
+}
+
 async function createExec(item) {
     const res = await http_post('/api/exec', item);
     return JSON.parse(res);
@@ -98,10 +103,14 @@ async function createStorageFolder(storageId, storagePath) {
     }
 }
 
-async function getStorageFileContent(storageId, storagePath) {
-    const url = createStorageFileURL(storageId, storagePath);
-    const res = await http_get(url);
-    return res;
+async function getStorageFileContent(storageId, storagePath, reload=false) {
+    const url = createStorageFileURL(storageId, storagePath, reload);
+    try {
+        const res = await http_get(url);
+        return res;
+    } catch (err) {
+        return JSON.parse(err.response).detail;
+    }
 }
 
 async function deleteStorageItem(storageId, storagePath) {
@@ -128,6 +137,11 @@ async function getDatasetList() {
 }
 
 // APP
+async function getAppList() {
+    const res = await http_get("/api/app_list");
+    return JSON.parse(res);
+}
+
 async function runApp(appName, params) {
     const res = await http_post(`/api/app/${appName}`, params);
     return JSON.parse(res);

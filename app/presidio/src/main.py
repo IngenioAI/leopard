@@ -120,13 +120,13 @@ def de_anonymize(args, params, operators):
 
 def image_redact(args, params):
     output_path = "result.png"
-    image = Image.open("/data/input/%s" % params['input'])
+    image = Image.open("/data/input/%s" % params['image_path'])
     engine = ImageRedactorEngine()
     redacted_image = engine.redact(image, (5, 5, 5))
     redacted_image.save("/data/output/%s" % output_path)
     with open("/data/output/%s" % args.output, "wt", encoding="UTF-8") as fp:
         json.dump({
-            'output_filepath': output_path
+            'image_path': output_path
         }, fp)
 
 

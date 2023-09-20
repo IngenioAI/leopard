@@ -112,6 +112,10 @@ async def get_image_list():
     return JSONResponseHandler(app.docker_runner.list_images())
 
 
+@app.get("/api/exec_list", tags=["Exec"])
+async def get_exec_list():
+    return JSONResponseHandler(app.docker_runner.list_execs())
+
 class ExecutionItem(BaseModel):
     srcPath: str
     mainSrc: str
@@ -210,7 +214,10 @@ async def create_storage_directory(storage_id: str, file_path: str):
 async def get_storage_file(storage_id: str, file_path: str):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path) and not os.path.isdir(storage_file_path):
-        return FileResponse(storage_file_path)
+        if os.access(storage_file_path, os.R_OK):
+            return FileResponse(storage_file_path)
+        else:
+            raise HTTPException(status_code=503, detail="File access not allowed")
     raise HTTPException(status_code=404, detail="File not found")
 
 
@@ -267,6 +274,9 @@ async def post_dataset_list(req: Request):
         "success": dataset_util.save_dataset_info(info)
     })
 
+@app.get("/api/app_list", tags=["App"])
+async def get_app_list():
+    return JSONResponseHandler(app.app_manager.app_info)
 
 @app.post("/api/app/{module_id}", tags=["App"])
 async def run_app(module_id: str, req: Request):

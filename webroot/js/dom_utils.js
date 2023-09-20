@@ -55,7 +55,7 @@ function createT(text) {
 }
 
 function addE(parent, child) {
-    parent.appendChild(child);
+    getE(parent).appendChild(child);
 }
 
 function clearE(elem) {

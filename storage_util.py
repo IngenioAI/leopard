@@ -66,3 +66,7 @@ def get_file_info(storage_id, file_path, file_list):
         }
         file_info_list.append(info)
     return file_info_list
+
+def ensure_path(path):
+    if not os.path.exists(path):
+        os.makedirs(path)

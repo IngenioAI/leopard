@@ -14,12 +14,13 @@ import uvicorn
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 from mtcnn import MTCNN
+import tensorflow as tf
 
 app = FastAPI()
 
 
 def average_filter(mat, channels_first=True, alpha=False):
-    print("before average", mat)
+    # print("before average", mat)
     if channels_first:
         ch = 0
         new_mat = np.ones_like(mat, dtype=mat.dtype)
@@ -37,7 +38,7 @@ def average_filter(mat, channels_first=True, alpha=False):
             else:
                 new_mat[:, :, i] = np.ones_like(mat[:, :, i], dtype=mat.dtype) * np.mean(mat[:, :, i])
 
-    print("after average", new_mat)
+    # print("after average", new_mat)
     return new_mat
 
 
@@ -61,8 +62,8 @@ def anonymize_faces(image_path, boxes, channels_first=False, alpha=False):
 
     new_img = cv2.cvtColor(new_mat, cv2.COLOR_RGB2BGR)
     new_img_name = "blurred_img.png"
-    new_img_path = '/data/input/' + new_img_name
-    cv2.imwrite(new_img_path, new_img)
+    cv2.imwrite(os.path.join('/data/input', new_img_name), new_img)
+    cv2.imwrite(os.path.join('/data/output', new_img_name), new_img)
 
     return new_img_name
 
@@ -81,13 +82,10 @@ async def server_ping():
 @app.post("/api/run", tags=["App"])
 async def run_app(req: Request):
     params = await req.json()
-    _, filename = os.path.split(params['storagePath'])
-    if os.path.exists(filename):
-        image_path = filename
-    elif os.path.exists(os.path.join("/data/input", filename)):
-        image_path = os.path.join("/data/input", filename)
-    else:
-        image_path = None
+    print(params)
+    image_path = params['image_path']
+    if not os.path.exists(image_path) and os.path.exists(os.path.join("/data/input", image_path)):
+        image_path = os.path.join("/data/input", image_path)
 
     mode = params['mode']
     if image_path:
@@ -100,7 +98,7 @@ async def run_app(req: Request):
         if mode == 'anonymize':
             result = {}
             new_img_name = anonymize_faces(image_path, boxes)
-            result["new_image"] = new_img_name
+            result["image_path"] = new_img_name
             return JSONResponse(result)
 
         return JSONResponse({})
@@ -109,7 +107,6 @@ async def run_app(req: Request):
 
 def web_main(args):
     app.args = args
-    app.mtcnn = MTCNN()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 
@@ -120,4 +117,10 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
+    try:
+        for gpu in tf.config.experimental.list_physical_devices('GPU'):
+            tf.config.experimental.set_memory_growth(gpu, True)
+    except RuntimeError as e:
+        print(e)
+
     web_main(parse_arguments())

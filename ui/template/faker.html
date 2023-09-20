@@ -22,7 +22,7 @@
                 type: type,
                 count: dataCount
               });
-      csvFilePath = res.output_filepath;
+      csvFilePath = res.text_path;
       csvData = await getStorageFileContent('0', joinPath('/app/faker/run', csvFilePath));
       csvToGrid("myGrid", csvData);
     }

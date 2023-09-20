@@ -29,8 +29,8 @@
 
     async function uploadFile() {
         const filenames = await showFileUploadDialogBox('0', 'app/mtcnn/data');
-        image_path = joinPath("app/mtcnn/data", filenames[0]);
-        const image_url = createStorageFileURL("0", image_path);
+        image_path = filenames[0];
+        const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data", image_path));
         const image = await loadImage(image_url);
         canvas1.clear();
         canvas2.clear();
@@ -42,7 +42,7 @@
             showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
             return;
         }
-        const faceList = await runApp("mtcnn", {storageId: '0',mode:'detect', storagePath: image_path});
+        const faceList = await runApp("mtcnn", { mode:'detect', image_path: image_path});
 
         if (isJSONEmpty(faceList)) {
             showMessageBox("검출된 정보가 없습니다.", "정보");
@@ -61,16 +61,16 @@
             showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
             return;
         }
-        const result = await runApp("mtcnn", {storageId: '0',mode:'anonymize', storagePath: image_path});
+        const result = await runApp("mtcnn", { mode:'anonymize', image_path: image_path});
 
         if (isJSONEmpty(result)) {
             showMessageBox("검출된 정보가 없습니다.", "정보");
             return;
         }
 
-        const img_name = result.new_image;
-        image_path = joinPath("app/mtcnn/data/", img_name);
-        const image_url = createStorageFileURL("0", image_path);
+        const img_name = result.image_path;
+        image_path = img_name;
+        const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data/", img_name));
         const image = await loadImage(image_url);
         canvas1.clear();
         scale = canvas1.drawImageFit(image);

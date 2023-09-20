@@ -1,10 +1,10 @@
 [
     {
         "id": "mtcnn",
-        "name": "MTCNN",
+        "name": "얼굴검출 (MTCNN)",
         "type": "server",
         "image": {
-            "tag": "leopard/mtcnn:latest",
+            "tag": "leopard/mtcnn:1.0.1",
             "build": {
                 "base": "tensorflow/tensorflow:2.11.0-gpu",
                 "update": true,
@@ -22,10 +22,10 @@
     },
     {
         "id": "faker",
-        "name": "Faker",
+        "name": "페이커 (Faker) 데이터 생성기",
         "type": "script",
         "image": {
-            "tag": "leopard/faker:latest",
+            "tag": "leopard/faker:1.0.1",
             "build": {
                 "base": "python:3.8",
                 "update": true,
@@ -42,10 +42,10 @@
     },
     {
         "id": "presidio",
-        "name": "Presidio",
+        "name": "프레시디오 (Presidio) 개인정보 도구",
         "type": "script",
         "image": {
-            "tag": "leopard/presidio:latest",
+            "tag": "leopard/presidio:1.0.1",
             "build": {
                 "base": "python:3.8",
                 "update": true,
@@ -59,6 +59,29 @@
             "command_params": [],
             "input": "storage/0/app/presidio/data",
             "output": "storage/0/app/presidio/run"
+        }
+    },
+    {
+        "id": "diffusers",
+        "name": "Stable Diffusion 이미지 생성",
+        "type": "script",
+        "image": {
+            "tag": "leopard/diffusers:1.0.1",
+            "build": {
+                "base": "pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime",
+                "update": true,
+                "apt": "",
+                "pip": "diffusers accelerate transformers safetensors",
+                "additional_command": [
+                    "echo 'import torch\\nfrom diffusers import StableDiffusionPipeline\\npipe = StableDiffusionPipeline.from_pretrained(\"CompVis/stable-diffusion-v1-4\", revision=\"fp16\", torch_dtype=torch.float16)' > init.py",
+                    "python init.py"
+                ]
+            }
+        },
+        "execution": {
+            "src": "app/diffusers/src",
+            "input": "storage/0/app/diffusers/data",
+            "output": "storage/0/app/diffusers/run"
         }
     }
 ]

@@ -1,3 +1,4 @@
+import os
 import docker
 import io
 import threading
@@ -61,6 +62,7 @@ class DockerRunner():
                 for cmd in commands:
                     dockerfile_template += "RUN %s\n" % cmd
 
+        # print("=====DOCKERFILE\n", dockerfile_template, "\n========")
         dockerfile = io.BytesIO(dockerfile_template.encode('utf-8'))
         res = self.client.build(fileobj=dockerfile, tag=name, rm=True, forcerm=True)
         self.start_create_log(name, res)
@@ -81,14 +83,17 @@ class DockerRunner():
     def remove_create_image_info(self, name):
         del self.threads[name]
 
+    def list_execs(self):
+        return self.client.containers(all=True)
+
     def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, port=None, command_params=None):
         working_dir = "/app"
         binds = []
-        binds.append('%s:%s' % (src_dir, working_dir))
+        binds.append('%s:%s' % (os.path.abspath(src_dir), working_dir))
         if data_dir is not None and data_dir != '':
-            binds.append('%s:%s' % (data_dir, "/data/input"))
+            binds.append('%s:%s' % (os.path.abspath(data_dir), "/data/input"))
         if output_dir is not None and output_dir != '':
-            binds.append('%s:%s' % (output_dir, "/data/output"))
+            binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
 
         print("Binds:", binds)
         if type(command) == str:

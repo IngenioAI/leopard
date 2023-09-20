@@ -111,12 +111,10 @@
         image.addEventListener('load', async () => {
             const info = await runApp("presidio", {
                 type: 'image_redact',
-                storageId: appStorageId,
-                storagePath: imagePath,
-                input: filenames[0]
+                image_path: filenames[0]
             });
             const redactedImage = new Image();
-            redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.output_filepath}?${new Date().getTime()}`);
+            redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.image_path}`, true);
             document.getElementById("image_view").appendChild(redactedImage);
         });
         document.getElementById("image_view").innerHTML = "";

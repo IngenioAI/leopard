@@ -2,6 +2,7 @@ import os
 import json
 from urllib import request
 from docker_runner import DockerRunner
+import storage_util
 import time
 
 
@@ -10,9 +11,6 @@ class App():
         self.config = config
         self.docker = DockerRunner()
         self.exec_id = None
-        self.config['execution']['src'] = os.path.abspath(self.config['execution']['src'])
-        self.config['execution']['input'] = os.path.abspath(self.config['execution']['input'])
-        self.config['execution']['output'] = os.path.abspath(self.config['execution']['output'])
 
     def build_image(self, wait=True):
         build_info = self.config['image']['build']
@@ -52,10 +50,6 @@ class App():
             else:
                 exec_info['main'] = 'main.py'
 
-        if params is not None:
-            with open(os.path.join(self.config['execution']['input'], "params.json"), "wt", encoding="UTF-8") as fp:
-                json.dump(params, fp)
-
         images = self.docker.list_images()
         targetImage = None
         for image in images:
@@ -64,6 +58,11 @@ class App():
                 break
         if targetImage is None:
             self.build_image(wait=True)
+
+        if params is not None:
+            storage_util.ensure_path(self.config['execution']['input'])
+            with open(os.path.join(self.config['execution']['input'], "params.json"), "wt", encoding="UTF-8") as fp:
+                json.dump(params, fp)
 
         if 'command' in exec_info:
             exec_id = self.docker.exec_command(exec_info['src'], exec_info['main'], self.config['image']['tag'],
@@ -88,8 +87,13 @@ class App():
                     last_line = len(logs)
                 status = info['State']['Running']
             self.docker.exec_remove(exec_id)
-            with open(os.path.join(self.config['execution']['output'], "result.json"), "rt", encoding="UTF-8") as fp:
-                return json.load(fp)
+
+            output_data_path = os.path.join(self.config['execution']['output'], "result.json")
+            if os.path.exists(output_data_path):
+                with open(output_data_path, "rt", encoding="UTF-8") as fp:
+                    return json.load(fp)
+            else:
+                return { "success": False, "error_message": "output file not found"}
         else:
             self.exec_id = exec_id
             return self.exec_id
