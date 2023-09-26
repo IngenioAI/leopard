@@ -26,22 +26,27 @@ function HTTPErrorHandler(err) {
 
 // IMAGE
 async function createExecImage(item) {
-    const res = await http_post('/api/image/create', item);
+    const res = await http_post('/api/image_create', item);
     return JSON.parse(res);
 }
 
 async function getExecImageCreationInfo(tagName) {
-    const res = await http_get(`/api/image/create/${tagName}`);
+    const res = await http_get(`/api/image_create/${tagName}`);
     return JSON.parse(res);
 }
 
 async function removeExecImageCreationInfo(tagName) {
-    const res = await http_delete(`/api/image/create/${tagName}`, null);
+    const res = await http_delete(`/api/image_create/${tagName}`, null);
     return JSON.parse(res);
 }
 
 async function getExecImageList() {
     const res = await http_get("/api/image/list");
+    return JSON.parse(res);
+}
+
+async function removeExecImage(tagName) {
+    const res = await http_delete(`/api/image/${tagName}`);
     return JSON.parse(res);
 }
 
@@ -126,6 +131,12 @@ async function deleteStorageItem(storageId, storagePath) {
 async function uploadFile(storageId, storagePath, contents, contentType='application/octet-stream') {
     const url = createStorageFileURL(storageId, storagePath);
     const res = await http_put(url, contents, contentType);
+    return JSON.parse(res);
+}
+
+async function removeUploadItem(uploadId) {
+    const url = `/api/upload_item/${uploadId}`;
+    const res = await http_delete(url)
     return JSON.parse(res);
 }
 

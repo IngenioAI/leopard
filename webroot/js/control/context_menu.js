@@ -24,7 +24,7 @@ class ContextMenu {
                         children: [{
                             name: "a",
                             text: item.title,
-                            attributes: { class: "dropdown-item", href: "#" }, 
+                            attributes: { class: "dropdown-item", href: "#" },
                             events: { click: (e) => this.onClickMenuItem(item.id, item.info) }
                         }]
                     }

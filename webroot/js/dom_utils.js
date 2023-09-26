@@ -39,7 +39,8 @@ function createE(tagName, text=null, attributes=null, events=null) {
     }
     if (attributes) {
         for (let key in attributes) {
-            elem.setAttribute(key, attributes[key]);
+            if (attributes[key] != null)
+                elem.setAttribute(key, attributes[key]);
         }
     }
     if (events) {

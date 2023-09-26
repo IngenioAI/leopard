@@ -104,21 +104,23 @@
         const appStorageId = '0';
         const presidioStoragePath = 'app/presidio/data';
         const presidioOutputPath = 'app/presidio/run';
-        const filenames = await showFileUploadDialogBox(appStorageId, presidioStoragePath);
-        const imagePath = joinPath(presidioStoragePath, filenames[0]);
-        const image = new Image();
-        image.src = createStorageFileURL(appStorageId, imagePath);
-        image.addEventListener('load', async () => {
-            const info = await runApp("presidio", {
-                type: 'image_redact',
-                image_path: filenames[0]
+        const res = await showFileUploadDialogBox(appStorageId, presidioStoragePath);
+        if (res.success) {
+            const imagePath = joinPath(presidioStoragePath, res.files[0]);
+            const image = new Image();
+            image.src = createStorageFileURL(appStorageId, imagePath);
+            image.addEventListener('load', async () => {
+                const info = await runApp("presidio", {
+                    type: 'image_redact',
+                    image_path: res.files[0]
+                });
+                const redactedImage = new Image();
+                redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.image_path}`, true);
+                document.getElementById("image_view").appendChild(redactedImage);
             });
-            const redactedImage = new Image();
-            redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.image_path}`, true);
-            document.getElementById("image_view").appendChild(redactedImage);
-        });
-        document.getElementById("image_view").innerHTML = "";
-        document.getElementById("image_view").appendChild(image);
+            document.getElementById("image_view").innerHTML = "";
+            document.getElementById("image_view").appendChild(image);
+        }
     }
 
     function init() {

@@ -78,6 +78,7 @@ class App():
         if wait:
             status = True
             last_line = 0
+            logs = ""
             while status:
                 time.sleep(0.5)
                 info = self.docker.exec_inspect(exec_id)
@@ -91,9 +92,12 @@ class App():
             output_data_path = os.path.join(self.config['execution']['output'], "result.json")
             if os.path.exists(output_data_path):
                 with open(output_data_path, "rt", encoding="UTF-8") as fp:
-                    return json.load(fp)
+                    result = json.load(fp)
+                if params is not None and "with_log" in params and params["with_log"]:
+                    result["log"] = logs
+                return result
             else:
-                return { "success": False, "error_message": "output file not found"}
+                return { "success": False, "error_message": "output file not found", "log": logs}
         else:
             self.exec_id = exec_id
             return self.exec_id

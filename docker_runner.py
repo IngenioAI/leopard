@@ -83,6 +83,9 @@ class DockerRunner():
     def remove_create_image_info(self, name):
         del self.threads[name]
 
+    def remove_image(self, name):
+        self.client.remove_image(name);
+
     def list_execs(self):
         return self.client.containers(all=True)
 
@@ -97,7 +100,7 @@ class DockerRunner():
 
         print("Binds:", binds)
         if type(command) == str:
-            command_list = [command]
+            command_list = command.split(" ")
         elif type(command) == list:
             command_list = command
         else:

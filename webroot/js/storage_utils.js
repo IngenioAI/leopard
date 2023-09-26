@@ -94,20 +94,51 @@ function isTextFile(filepath) {
 }
 
 function getFileSizeString(fileSize) {
-    if (fileSize > 1024 * 1024 * 1024) {
-        return parseInt(fileSize / 1024 / 1024 / 1024) + " GB";
+    const units = [" bytes", "KB", "MB", "GB", "TB"]
+    let value = fileSize;
+    let unitIndex = 0;
+    while (value > 1024) {
+        value /= 1024;
+        unitIndex += 1;
+        if (unitIndex == units.length - 1) {
+            break;
+        }
     }
-    else if (fileSize > 1024 * 1024) {
-        return parseInt(fileSize / 1024 / 1024) + " MB";
+    if (value > 100) {
+        value = value.toFixed(0);
     }
-    else if (fileSize > 1024) {
-        return parseInt(fileSize / 1024) + " KB";
+    else if (value > 10) {
+        value = value.toFixed(1);
     }
-    return fileSize + " bytes";
+    else {
+        value = value.toFixed(2);
+    }
+    return `${value}${units[unitIndex]}`;
 }
 
 function getDateString(date) {
     return date.toLocaleString();
+}
+
+function getElapsedTimeString(date) {
+    const start = new Date(date);
+    const end = new Date();
+    const diff = (end - start) / 1000;
+    const times = [
+        { name: '년', milliSeconds: 60 * 60 * 24 * 365 },
+        { name: '개월', milliSeconds: 60 * 60 * 24 * 30 },
+        { name: '일', milliSeconds: 60 * 60 * 24 },
+        { name: '시간', milliSeconds: 60 * 60 },
+        { name: '분', milliSeconds: 60 },
+    ];
+
+    for (const t of times) {
+        const betweenTime = Math.floor(diff / t.milliSeconds);
+        if (betweenTime > 0) {
+        return `${betweenTime}${t.name} 전`;
+        }
+    }
+    return '방금 전';
 }
 
 function sortFileList(fileList) {

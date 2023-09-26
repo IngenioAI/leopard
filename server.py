@@ -2,6 +2,9 @@ from typing import Union, List
 import os
 import json
 import argparse
+import time
+import zipfile, tarfile
+import shutil
 
 import uvicorn
 from fastapi import FastAPI, File, UploadFile, Request, Response, Form, HTTPException
@@ -84,7 +87,7 @@ class CreateImageItem(BaseModel):
     additionalCommand: Union[str, None] = None
 
 
-@app.post("/api/image/create", tags=["Image"])
+@app.post("/api/image_create", tags=["Image"])
 async def create_image(data: CreateImageItem):
     ret = app.docker_runner.create_image(data.name, data.baseImage, data.update, data.aptInstall, data.pipInstall,
                                          data.additionalCommand)
@@ -93,13 +96,13 @@ async def create_image(data: CreateImageItem):
     })
 
 
-@app.get("/api/image/create/{name}", tags=["Image"])
+@app.get("/api/image_create/{name:path}", tags=["Image"])
 async def get_image_creation_info(name: str):
     info = app.docker_runner.get_create_image_info(name)
     return JSONResponseHandler(info)
 
 
-@app.delete("/api/image/create/{name}", tags=["Image"])
+@app.delete("/api/image_create/{name:path}", tags=["Image"])
 async def remove_image_creation_info(name: str):
     app.docker_runner.remove_create_image_info(name)
     return JSONResponse({
@@ -112,21 +115,49 @@ async def get_image_list():
     return JSONResponseHandler(app.docker_runner.list_images())
 
 
+@app.delete("/api/image/{name:path}", tags=["Image"])
+async def delete_image(name: str):
+    app.docker_runner.remove_image(name)
+    return JSONResponse({
+        "success": True
+    })
+
+
 @app.get("/api/exec_list", tags=["Exec"])
 async def get_exec_list():
     return JSONResponseHandler(app.docker_runner.list_execs())
 
 class ExecutionItem(BaseModel):
+    id: str
     srcPath: str
-    mainSrc: str
+    command: str
     imageTag: str
     inputPath: Union[str, None] = None
     outputPath: Union[str, None] = None
+    uploadId: Union[str, None] = None
 
 
 @app.post("/api/exec", tags=["Exec"])
 async def create_execution(data: ExecutionItem):
-    containerId = app.docker_runner.exec_python(data.srcPath, data.mainSrc, data.imageTag, data.inputPath,
+    if data.uploadId is not None:
+        upload_path = os.path.join("storage", "upload", data.uploadId)
+        if os.path.exists(upload_path):
+            run_path = os.path.join("storage", "run", data.id)
+            if os.path.exists(run_path):
+                shutil.rmtree(run_path)
+            else:
+                storage_util.ensure_path(os.path.join("storage", "run"))
+            shutil.copytree(upload_path, run_path)
+            zip_path = os.path.join(run_path, data.srcPath)
+            ext = os.path.splitext(data.srcPath)[1]
+            if ext == ".zip":
+                with zipfile.ZipFile(zip_path) as zf:
+                    zf.extractall(run_path)
+            source_path = run_path
+    else:
+        source_path = data.srcPath
+
+    containerId = app.docker_runner.exec_command(source_path, data.command, data.imageTag, data.inputPath,
                                                 data.outputPath)
     print('execId(containerId):', containerId)
     return JSONResponseHandler({
@@ -242,6 +273,50 @@ async def save_storage_file(storage_id: str, file_path: str, req: Request):
 
     return JSONResponseHandler({
         'success': True
+    })
+
+@app.post("/api/upload_item", tags=["Storage"])
+async def upload_item(req: Request):
+    upload_id = str(int(time.time() * 10000000))
+    target_dir = os.path.join("storage", "upload", upload_id)
+
+    # check conflict
+    while os.path.exists(target_dir):
+        upload_id = str(int(time.time() * 10000000))
+        target_dir = os.path.join("storage", "upload", upload_id)
+
+    storage_util.ensure_path(target_dir)
+    file_list, metadata = await handle_upload(req, target_dir)
+    unzip_file_list = []
+    if "unzip" in metadata and metadata["unzip"]:
+        for file in file_list:
+            ext = os.path.splitext(file)[1]
+            try:
+                if ext == ".zip":
+                    with zipfile.ZipFile(os.path.join(target_dir, file)) as zf:
+                        unzip_file_list += zf.namelist()
+                elif ext in [".gz", ".tar", "tgz"]:
+                    with tarfile.TarFile(os.path.join(target_dir, file)) as zf:
+                        unzip_file_list += zf.getnames()
+            except:
+                print("Invalid zip file:", file)
+    return JSONResponseHandler({
+        "success": True,
+        "files": file_list,
+        "unzip_files": unzip_file_list,
+        "upload_id": upload_id
+    })
+
+@app.delete("/api/upload_item/{upload_id}", tags=["Storage"])
+async def delete_upload_item(upload_id: str):
+    target_dir = os.path.join("storage", "upload", upload_id)
+    if os.path.exists(target_dir):
+        try:
+            shutil.rmtree(target_dir)
+        except:
+            pass
+    return JSONResponse({
+        "success": True
     })
 
 
