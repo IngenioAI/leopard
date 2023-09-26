@@ -48,8 +48,9 @@ def get_storage_file_path(storage_id: str, file_path: str):
 def get_file_list(storage_id: str, file_path: str = "."):
     storage_file_path = get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
-        file_list = os.listdir(storage_file_path)
-        return file_list
+        if os.access(storage_file_path, os.R_OK):
+            file_list = os.listdir(storage_file_path)
+            return file_list
     return []
 
 

@@ -8,10 +8,10 @@ class FileUploadHanlder extends FileUploader {
         getE(this.progressId).setAttribute("style", `width:${percent}%`);
     }
 
-    send(url, callback) {
+    send(url, callback, metadata=null) {
         this.setProgress(0);
         this.callback = callback;
-        super.send(url);
+        super.send(url, metadata);
     }
 
     onUploadProgress(event) {
@@ -21,13 +21,13 @@ class FileUploadHanlder extends FileUploader {
 
     onCompleted(event) {
         if (this.callback) {
-            this.callback(event, this.getFilenames());
+            this.callback(event, JSON.parse(this.response));
         }
     }
 }
 
 class FileUploadDialogBox extends ModalDialogBox {
-    constructor(storageId, storagePath) {
+    constructor(storageId=null, storagePath="/") {
         super('LP_DIALOG_fileupload_dialogbox');
         this.storageId = storageId;
         this.storagePath = storagePath;
@@ -42,17 +42,22 @@ class FileUploadDialogBox extends ModalDialogBox {
     onUpload() {
         if (getE('LP_DIALOG_fileupload_dialogbox_file').value) {
             const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_dialogbox_file', 'LP_DIALOG_progress');
-            const url = createStorageFileURL(this.storageId, this.storagePath);
-            uploadHandler.send(url, this.onCompleted.bind(this));
+            if (this.storageId == null) {
+                uploadHandler.send("/api/upload_item", this.onCompleted.bind(this), { unzip: true});
+            }
+            else {
+                const url = createStorageFileURL(this.storageId, this.storagePath);
+                uploadHandler.send(url, this.onCompleted.bind(this));
+            }
         }
         else {
             showMessageBox("파일을 먼저 선택해 주세요", "파일 업로드");
         }
     }
 
-    onCompleted(e, filenames) {
+    onCompleted(e, response) {
         if (this.resolve) {
-            this.resolve(filenames);
+            this.resolve(response);
         }
         this.hide();
     }

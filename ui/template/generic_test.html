@@ -5,27 +5,48 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Leopard</title>
     <LP-include-html src="head.html"></LP-include-html>
+    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
+    <script src="/js/control/tab.js"></script>
     <script>
       let appInfo;
 
       async function run() {
-        clearE("output_div");
+        clearE("output_data");
+        clearE("output_log");
         setV("output_text", "");
 
+        let automaticLog = false;
         const outputPath = splitStoragePath(appInfo.execution.output);
 
         const data = JSON.parse(getV("input_text"));
+        if (!("with_log" in data)) {
+          data["with_log"] = true;
+          automaticLog = true;
+        }
         const res = await runApp(appInfo.id, data)
+        if ("log" in res) {
+          //setT("output_log", res.log);
+          const term = new Terminal({convertEol: true});
+          term.open(getE("output_log"));
+          term.resize(120, 25);
+          term.write(res.log);
+          if (automaticLog) {
+            delete res['log'];
+          }
+        }
         setV("output_text", JSON.stringify(res));
         if (res.image_path) {
           const image = new Image();
           image.src = createStorageFileURL(outputPath[0], `${outputPath[1]}/${res.image_path}`, true);
-          addE("output_div", image);
+          addE("output_data", image);
         }
         else if (res.text_path) {
           const contents = await getStorageFileContent(outputPath[0], `${outputPath[1]}/${res.text_path}`, true);
-          addE("output_div", createE("pre", contents));
+          addE("output_data", createE("pre", contents));
         }
+
+        showTab("output");
       }
 
       async function uploadFile() {
@@ -33,26 +54,34 @@
 
         const inputPath = splitStoragePath(appInfo.execution.input);
 
-        const filenames = await showFileUploadDialogBox(inputPath[0], inputPath[1]);
-        image_path = joinPath(inputPath[1], filenames[0]);
-        const image_url = createStorageFileURL(inputPath[0], image_path);
-        const image = new Image();
-        image.src = image_url;
-        addE("input_data", createE("div", `"image_path": "${filenames[0]}"`));
-        addE("input_data", image);
+        const res = await showFileUploadDialogBox(inputPath[0], inputPath[1]);
+        if (res.success) {
+          image_path = joinPath(inputPath[1], res.files[0]);
+          const image_url = createStorageFileURL(inputPath[0], image_path);
+          const image = new Image();
+          image.src = image_url;
+          addE("input_data", createE("div", `"image_path": "${res.files[0]}"`));
+          addE("input_data", image);
+        }
       }
 
       async function init() {
         const queryParam = getQueryParam();
         appId = queryParam.app_id;
-        setT("app_title", appId);
         const appList = await getAppList();
         for (const app of appList) {
           if (app.id == appId) {
             appInfo = app;
+            setT("app_title", appInfo.name);
             break;
           }
         }
+        const tab = createTab([
+          { id: "input", text: "입력 데이터"},
+          { id: "log", text: "출력 로그"},
+          { id: "output", text: "출력 데이터"}
+        ]);
+        addE("tab_div", tab);
       }
     </script>
   </head>
@@ -77,21 +106,24 @@
                 <button class="btn btn-outline-secondary" onclick="uploadFile()">파일 입력 추가</button>
               </div>
 
-              <div id="input_data"></div>
-
               <div class="my-4">
                 <button class="btn btn-primary" onclick="run()">Run</button>
               </div>
 
-              <div>
-                출력 데이터
-                <textarea id="output_text"  class="form-control" rows="6"></textarea>
-              </div>
-              <div>
-              연결 데이터
-              </div>
-              <div id="output_div">
+              <div id="tab_div"></div>
+              <div class="tab-content">
+                <div class="tab-pane fade show active" id="input" role="tabpanel">
+                  <div id="input_data"></div>
+                </div>
 
+                <div class="tab-pane fade" id="log" role="tabpanel" >
+                  <div id="output_log" class="console_like"></div>
+                </div>
+
+                <div class="tab-pane fade" id="output" role="tabpanel">
+                  <div><textarea id="output_text"  class="form-control" rows="6"></textarea></div>
+                  <div id="output_data"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -103,3 +135,5 @@
     <script>init();</script>
   </body>
 </html>
+
+

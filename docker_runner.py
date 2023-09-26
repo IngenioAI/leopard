@@ -83,13 +83,17 @@ class DockerRunner():
     def remove_create_image_info(self, name):
         del self.threads[name]
 
+    def remove_image(self, name):
+        self.client.remove_image(name);
+
     def list_execs(self):
         return self.client.containers(all=True)
 
     def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, port=None, command_params=None):
         working_dir = "/app"
         binds = []
-        binds.append('%s:%s' % (os.path.abspath(src_dir), working_dir))
+        if src_dir != '':
+            binds.append('%s:%s' % (os.path.abspath(src_dir), working_dir))
         if data_dir is not None and data_dir != '':
             binds.append('%s:%s' % (os.path.abspath(data_dir), "/data/input"))
         if output_dir is not None and output_dir != '':
@@ -97,7 +101,7 @@ class DockerRunner():
 
         print("Binds:", binds)
         if type(command) == str:
-            command_list = [command]
+            command_list = command.split(" ")
         elif type(command) == list:
             command_list = command
         else:

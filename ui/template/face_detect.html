@@ -28,13 +28,15 @@
     let image_path = undefined;
 
     async function uploadFile() {
-        const filenames = await showFileUploadDialogBox('0', 'app/mtcnn/data');
-        image_path = filenames[0];
-        const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data", image_path));
-        const image = await loadImage(image_url);
-        canvas1.clear();
-        canvas2.clear();
-        scale = canvas1.drawImageFit(image);
+        const res = await showFileUploadDialogBox('0', 'app/mtcnn/data');
+        if (res.success) {
+            image_path = res.files[0];
+            const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data", image_path));
+            const image = await loadImage(image_url);
+            canvas1.clear();
+            canvas2.clear();
+            scale = canvas1.drawImageFit(image);
+        }
     }
 
     async function detectFace() {

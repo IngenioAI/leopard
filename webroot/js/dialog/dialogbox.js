@@ -7,8 +7,9 @@ class ElementEventItem {
 };
 
 class DialogBox {
-    constructor(dialogBoxId) {
+    constructor(dialogBoxId, options=null) {
         this.dialogBoxId = dialogBoxId;
+        this.options = options;
         this.modal = null;
         this.eventHandlers = [];
     }
@@ -41,6 +42,9 @@ class DialogBox {
             this.addEvent(this.dialogBoxId, "shown.bs.modal", this.onShow.bind(this));
             this.addEvent(this.dialogBoxId, "hide.bs.modal", this.onHide.bind(this));
             this.addEvent(this.dialogBoxId, "hidden.bs.modal", this.onHidden.bind(this));
+            if (this.options && "dialog_size" in this.options) {
+                dialogElement.firstElementChild.classList.add("modal-" + this.options["dialog_size"]);
+            }
             await this.init();
             this.modal.show();
         }
@@ -97,8 +101,8 @@ class DialogBox {
 }
 
 class ModalDialogBox extends DialogBox {
-    constructor(dialogBoxId) {
-        super(dialogBoxId);
+    constructor(dialogBoxId, options=null) {
+        super(dialogBoxId, options);
         this.resolve = null;
         this.reject = null;
     }
@@ -110,7 +114,7 @@ class ModalDialogBox extends DialogBox {
             this.show(args);
         });
     }
-    
+
     close(...args) {
         this.resolve(...args);
         this.hide();

@@ -100,6 +100,7 @@ function http_delete(url, body) {
 class FileUploader {
     constructor(input_name) {
         this.data_files = document.getElementById(input_name).files;
+        this.response = '';
     }
 
     send(url, metadata=null) {
@@ -151,7 +152,7 @@ class FileUploader {
     }
 
     onDone(responseText) {
-        //console.log(responseText);
+        this.response = responseText;
     }
 }
 

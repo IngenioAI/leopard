@@ -7,12 +7,9 @@
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
   <style>
-    .LP-menu-button {
-      padding-top: 0px !important;
-      padding-bottom: 0px !important;
-    }
   </style>
   <script src="/js/control/context_menu.js"></script>
+  <script src="/js/control/list_group.js"></script>
   <LP-include-html src="get-query-param.html"></LP-include-html>
   <script>
     let currentStorageId = "";
@@ -27,40 +24,23 @@
     }
 
     function createFileItem(fileInfo) {
-      const item = createElem({
-        name: "div", attributes: { class: "list-group-item list-group-item-action", 'aria-current': "true" }
-      });
-      const div = createElem({
-        name: "div", attributes: { class: "d-flex w-100 justify-content-between" },
-        children: [{
-          name: "div", attributes: { class: "w-100" },
-          events: {
-            click: (e) => {
-              if (fileInfo.is_dir) {
-                newPath = changeStorageDir(currentPath, fileInfo.name);
-                browseDirectory(currentStorageId, newPath);
-              }
-            }
-          },
-          children: [{
-            name: "h5", attributes: { class: "mb-1" },
-            children: [
-              { name: "span", attributes: { class: getFileIcon(fileInfo), style: "padding-right: 0.2em" } },
-              { name: "span", text: fileInfo.name }
-            ]
-          }, {
-            name: "div",
-            attributes: { class: "d-flex w-100 justify-content-between" },
-            children: [
-              { name: "small", text: (fileInfo.is_dir ? "폴더" : getFileSizeString(fileInfo.size)) },
-              { name: "small", text: fileInfo.mtime ? getDateString(new Date(fileInfo.mtime * 1000)) : '' }
-            ]
-          }]
-        }]
-      });
+      const menu = createContextMenu(fileInfo);
+      const item = createListGroupItem([
+        { name: "h5", attributes: { class: "mb-1" }, children: [
+          { name: "span", attributes: { class: getFileIcon(fileInfo), style: "padding-right: 0.2em" }},
+          { name: "span", text: fileInfo.name }
+        ]},
+        { name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
+          { name: "small", text: (fileInfo.is_dir ? "폴더" : getFileSizeString(fileInfo.size)) },
+          { name: "small", text: fileInfo.mtime ? getDateString(new Date(fileInfo.mtime * 1000)) : '' }
+        ]}],
+        (e) => {
+          if (fileInfo.is_dir) {
+            newPath = changeStorageDir(currentPath, fileInfo.name);
+            browseDirectory(currentStorageId, newPath);
+          }
+        }, menu);
 
-      addE(div, createContextMenu(fileInfo));
-      addE(item, div);
       return item;
     }
 
@@ -76,11 +56,11 @@
         EDIT: 3
       };
       const contextMenu = new ContextMenu([
-        { id: MENU_ID.DELETE, title: "삭제", info: fileInfo },
-        { id: MENU_ID.DOWNLOAD, title: "다운로드", info: fileInfo, condition: (info) => !info.is_dir },
-        { id: MENU_ID.VIEW, title: "보기", info: fileInfo, condition: (info) => isViewableFile(info) },
-        { id: MENU_ID.EDIT, title: "편집", info: fileInfo, condition: (info) => isEditableFile(fileInfo) }
-      ],
+          { id: MENU_ID.DELETE, title: "삭제", info: fileInfo },
+          { id: MENU_ID.DOWNLOAD, title: "다운로드", info: fileInfo, condition: (info) => !info.is_dir },
+          { id: MENU_ID.VIEW, title: "보기", info: fileInfo, condition: (info) => isViewableFile(info) },
+          { id: MENU_ID.EDIT, title: "편집", info: fileInfo, condition: (info) => isEditableFile(fileInfo) }
+        ],
         async (menuId, info) => {
           const storagePath = joinPath(currentPath, info.name);
           if (menuId == MENU_ID.DELETE) {
@@ -88,7 +68,7 @@
             if (answer.index == 0) {
               const res = await deleteStorageItem(currentStorageId, storagePath);
               if (res.success) {
-                browseDirectory(currentStorageId, storagePath);
+                browseDirectory(currentStorageId, currentPath);
               }
               else {
                 showMessageBox(`${res.errorCode}: ${res.errorMessage}`, "삭제 오류");
@@ -150,8 +130,10 @@
     }
 
     async function uploadFile() {
-      await showFileUploadDialogBox(currentStorageId, currentPath);
-      browseDirectory(currentStorageId, currentPath);
+      const res = await showFileUploadDialogBox(currentStorageId, currentPath);
+      if (res.success) {
+        browseDirectory(currentStorageId, currentPath);
+      }
     }
 
     async function init() {
@@ -184,19 +166,20 @@
     <div class="row">
       <LP-include-html src="sidebar.html"></LP-include-html>
       <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <h1>스토리지</h1>
-        <div class="mb-3">
-          <label for="select_storage" class="form-label">스토리지</label>
-          <select class="form-select" id="select_storage" onchange="onChangeStorage();">
-          </select>
-        </div>
-        <div>경로: <span id="current_path"></span></div>
-        <div class="p-1">
-          <button type="button" class="btn btn-primary btn-sm" onclick="createFolder();">새 폴더</button>
-          <button type="button" class="btn btn-primary btn-sm" onclick="uploadFile();">파일 업로드</button>
-        </div>
-        <div class="list-group" id="file_list">
+        <div class="p-3 bg-body-tertiary" style="width:100%;">
+          <h2>스토리지</h2>
+          <div class="mb-3">
+            <select class="form-select" id="select_storage" onchange="onChangeStorage();">
+            </select>
+          </div>
+          <div class="my-2">경로: <span id="current_path"></span></div>
+          <div class="p-1">
+            <button type="button" class="btn btn-primary btn-sm" onclick="createFolder();">새 폴더</button>
+            <button type="button" class="btn btn-primary btn-sm" onclick="uploadFile();">파일 업로드</button>
+          </div>
+          <div class="list-group" id="file_list">
 
+          </div>
         </div>
       </main>
     </div>
