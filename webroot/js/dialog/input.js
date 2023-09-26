@@ -4,9 +4,14 @@ class InputDialogBox extends ModalDialogBox {
         this.validator = validator;
     }
 
-    onShow(e) {
+    init() {
         getE('LP_DIALOG_input_dialogbox_input').value = "";
+    }
+
+    onShow(e) {
         this.addEvent('LP_DIALOG_input_dialogbox_OK', 'click', this.onOK.bind(this));
+        this.addEvent('LP_DIALOG_input_dialogbox_input', 'keypress', this.onKeyPress.bind(this));
+        getE('LP_DIALOG_input_dialogbox_input').focus();
     }
 
     async onOK() {
@@ -18,6 +23,12 @@ class InputDialogBox extends ModalDialogBox {
         if (handleOK) {
             this.resolve(value);
             this.hide();
+        }
+    }
+
+    async onKeyPress(e) {
+        if (e.key == "Enter") {
+            this.onOK();
         }
     }
 };

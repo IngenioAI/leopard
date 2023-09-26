@@ -17,7 +17,9 @@ import storage_util
 import dataset_util
 from docker_runner import DockerRunner
 from html_util import process_include_html
+import upload_util
 from app.manager import AppManager
+
 
 tags_metadata = [
     {"name": "File", "description": "Related to static file serving"}
@@ -33,29 +35,6 @@ def JSONResponseHandler(data):
         print(e)
         print(data)
         return {}
-
-
-async def handle_upload(req: Request, target_dir, with_content=False):
-    data = await req.form()
-    file_list = []
-    meta_data = {}
-    content_list = []
-    for filename in data:
-        if filename[0] == '/':
-            meta_data[filename[1:]] = data[filename]
-        else:
-            content = await data[filename].read()
-            print('FILE', filename)
-            file_path = os.path.join(target_dir, filename)
-            with open(file_path, "wb") as fp:
-                fp.write(content)
-            file_list.append(filename)
-            if with_content:
-                content_list.append(content)
-
-    if with_content:
-        return file_list, content_list, meta_data
-    return file_list, meta_data
 
 
 @app.get("/ui/{file_path:path}", tags=["UI"])
@@ -140,20 +119,7 @@ class ExecutionItem(BaseModel):
 @app.post("/api/exec", tags=["Exec"])
 async def create_execution(data: ExecutionItem):
     if data.uploadId is not None:
-        upload_path = os.path.join("storage", "upload", data.uploadId)
-        if os.path.exists(upload_path):
-            run_path = os.path.join("storage", "run", data.id)
-            if os.path.exists(run_path):
-                shutil.rmtree(run_path)
-            else:
-                storage_util.ensure_path(os.path.join("storage", "run"))
-            shutil.copytree(upload_path, run_path)
-            zip_path = os.path.join(run_path, data.srcPath)
-            ext = os.path.splitext(data.srcPath)[1]
-            if ext == ".zip":
-                with zipfile.ZipFile(zip_path) as zf:
-                    zf.extractall(run_path)
-            source_path = run_path
+        source_path = upload_util.process_upload_item(data.uploadId, data.id, data.srcPath)
     else:
         source_path = data.srcPath
 
@@ -257,7 +223,7 @@ async def post_storage_file(storage_id: str, file_path: str, req: Request):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if not os.path.exists(storage_file_path):
         raise HTTPException(status_code=404, detail="Path not found")
-    file_list, metadata = await handle_upload(req, storage_file_path)
+    file_list, metadata = await upload_util.handle_upload(req, storage_file_path)
     return JSONResponseHandler({
         'success': True,
         'files': file_list
@@ -277,29 +243,13 @@ async def save_storage_file(storage_id: str, file_path: str, req: Request):
 
 @app.post("/api/upload_item", tags=["Storage"])
 async def upload_item(req: Request):
-    upload_id = str(int(time.time() * 10000000))
-    target_dir = os.path.join("storage", "upload", upload_id)
-
-    # check conflict
-    while os.path.exists(target_dir):
-        upload_id = str(int(time.time() * 10000000))
-        target_dir = os.path.join("storage", "upload", upload_id)
-
+    target_dir, upload_id = upload_util.get_upload_item_dir()
     storage_util.ensure_path(target_dir)
-    file_list, metadata = await handle_upload(req, target_dir)
+    file_list, metadata = await upload_util.handle_upload(req, target_dir)
     unzip_file_list = []
     if "unzip" in metadata and metadata["unzip"]:
         for file in file_list:
-            ext = os.path.splitext(file)[1]
-            try:
-                if ext == ".zip":
-                    with zipfile.ZipFile(os.path.join(target_dir, file)) as zf:
-                        unzip_file_list += zf.namelist()
-                elif ext in [".gz", ".tar", "tgz"]:
-                    with tarfile.TarFile(os.path.join(target_dir, file)) as zf:
-                        unzip_file_list += zf.getnames()
-            except:
-                print("Invalid zip file:", file)
+            unzip_file_list += upload_util.get_compressed_filelist(os.path.join(target_dir, file))
     return JSONResponseHandler({
         "success": True,
         "files": file_list,

@@ -5,8 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Leopard</title>
     <LP-include-html src="head.html"></LP-include-html>
+    <script src="/js/control/list_group.js"></script>
+    <script src="/js/control/tab.js"></script>
     <script>
       let sourceUploadInfo = null;
+      let currentLog = null;
+      let logWindow = null;
+
+      function createExecItem(itemInfo, execInfo) {
+        return createListGroupItem(
+          [
+            { name: "h5", attributes: { class: "mb-1" }, children: [
+              { name: "span", attributes: { class: "", style: "padding-right: 0.2em" } },
+              { name: "span", text: itemInfo.id }
+            ]},
+            { name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
+              { name: "small", text: itemInfo.command },
+              { name: "small", text: itemInfo.imageTag }
+            ]},
+            { name: "div", text: "running", attributes: { id: `state_${itemInfo.id}`} }
+          ],
+          (e) => {
+            logWindow = showLogView(`${itemInfo.command} on ${itemInfo.imageTag}`, `실행 로그 - ${itemInfo.id}`);
+            if (currentLog) {
+              logWindow.setLog(currentLog);
+            }
+          });
+      }
 
       async function createExecution() {
         const item = createPostItem([
@@ -17,13 +42,20 @@
           ['inputPath', 'input_data_path'],
           ['outputPath', 'output_data_path']
         ]);
+        if (item["id"] == "") {
+          showMessageBox("실험 ID를 입력해야 합니다.", "실행");
+          return;
+        }
         if (sourceUploadInfo && sourceUploadInfo.success) {
           item['uploadId'] = sourceUploadInfo.upload_id;
         }
-        console.log(item)
         const execInfo = await createExec(item);
-        console.log(execInfo)
+        execInfo.id = item['id'];
         setTimeout(checkLogs, 1000, execInfo);
+
+        const elem = getE("exec_list");
+        addE(elem, createExecItem(item, execInfo));
+        showTab("current_exec");
       }
 
       async function checkLogs(info) {
@@ -31,12 +63,21 @@
         const logs = await getExecLogs(info.exec_id);
         if (inspectInfo.State.Running) {
           setTimeout(checkLogs, 1000, info);
+          setT(`state_${info.id}`, "running");
         }
         else {
           removeExec(info.exec_id);    // auto remove after getting logs
+          setT(`state_${info.id}`, "exited");
         }
-        const outputDiv = document.getElementById('output');
-        outputDiv.innerText = logs.lines;
+        currentLog = logs.lines;
+        if (logWindow) {
+          logWindow.setLog(currentLog);
+        }
+      }
+
+      async function setInputPath() {
+        const filepath = await showFileSave('1', '');
+        console.log(filepath)
       }
 
       async function setSourceCode() {
@@ -48,6 +89,11 @@
         }
         sourceUploadInfo = res;
         setV("src_path", sourceUploadInfo.files[0]);
+      }
+
+      async function setCommandLine() {
+        const command = await showInputDialogBox("커맨드 라인 입력", "입력");
+        setV("command_line", command);
       }
 
       async function refreshImageList() {
@@ -66,6 +112,12 @@
       }
 
       async function init() {
+        const tab = createTab([
+          {id: "new_exec", text: "새 실험/실행"},
+          {id: "current_exec", text: "실행 중"},
+          {id: "completed_exec", text: "실행 완료"}]);
+        addE("tab_div", tab);
+
         refreshImageList();
 
         window.addEventListener("beforeunload", (e) => {
@@ -87,17 +139,7 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
           <div class="p-3 bg-body-tertiary" style="width:100%;">
             <h2>실험/실행</h2>
-            <ul class="nav nav-tabs my-2">
-              <li class="nav-item">
-                <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#new_exec">새 실험/실행</button>
-              </li>
-              <li class="nav-item">
-                <button class="nav-link" data-bs-toggle="tab" data-bs-target="#current_exec">실행 중</button>
-              </li>
-              <li class="nav-item">
-                <button class="nav-link" id="btn_output" data-bs-toggle="tab" data-bs-target="#completed_exec">실행 완료</button>
-              </li>
-            </ul>
+            <div id="tab_div" class="my-2"></div>
             <div class="tab-content">
               <div class="tab-pane fade show active" id="new_exec" role="tabpanel">
                 <div>
@@ -142,7 +184,7 @@
                       <input type="text" class="form-control" id="input_data_path" value="" readonly>
                     </div>
                     <div class="col-sm-2">
-                      <button class="btn btn-outline-primary">설정</button>
+                      <button class="btn btn-outline-primary" onclick="setInputPath()">설정</button>
                     </div>
                   </div>
 
@@ -170,10 +212,10 @@
                   <div class="row mb-2">
                     <label for="command_line" class="col-sm-2 col-form-label">커맨드 라인</label>
                     <div class="col-sm-7">
-                      <input type="text" class="form-control" id="command_line" value="python main.py" readonly>
+                      <input type="text" class="form-control" id="command_line" value="python main.py" readonly onclick="setCommandLine()">
                     </div>
                     <div class="col-sm-2">
-                      <button class="btn btn-outline-primary">설정</button>
+                      <button class="btn btn-outline-primary" onclick="setCommandLine()">설정</button>
                     </div>
                   </div>
 
@@ -206,7 +248,7 @@
               </div>
 
               <div class="tab-pane fade" id="current_exec" role="tabpanel" >
-                <pre id="output" class="console_like"></pre>
+                <div class="list-group" id="exec_list"></div>
               </div>
 
               <div class="tab-pane fade" id="completed_exec" role="tabpanel">
@@ -217,6 +259,10 @@
       </div>
     </div>
     <LP-include-html src="fileupload.html"></LP-include-html>
+    <LP-include-html src="input.html"></LP-include-html>
+    <LP-include-html src="logview.html"></LP-include-html>
+    <LP-include-html src="filesave.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
     <script>init();</script>
   </body>
 </html>

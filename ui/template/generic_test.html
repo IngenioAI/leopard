@@ -7,6 +7,7 @@
     <LP-include-html src="head.html"></LP-include-html>
     <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
+    <script src="/js/control/tab.js"></script>
     <script>
       let appInfo;
 
@@ -45,13 +46,7 @@
           addE("output_data", createE("pre", contents));
         }
 
-        const buttonOutput = document.getElementById("btn_output");
-        let tabOutput = bootstrap.Tab.getInstance(buttonOutput)
-        if (tabOutput == null)
-          tabOutput = new bootstrap.Tab(buttonOutput)
-        else
-          console.log('tab is already exist')
-        tabOutput.show();
+        showTab("output");
       }
 
       async function uploadFile() {
@@ -81,6 +76,12 @@
             break;
           }
         }
+        const tab = createTab([
+          { id: "input", text: "입력 데이터"},
+          { id: "log", text: "출력 로그"},
+          { id: "output", text: "출력 데이터"}
+        ]);
+        addE("tab_div", tab);
       }
     </script>
   </head>
@@ -109,34 +110,19 @@
                 <button class="btn btn-primary" onclick="run()">Run</button>
               </div>
 
-              <ul class="nav nav-tabs">
-                <li class="nav-item">
-                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#input_div">입력 데이터</button>
-                </li>
-                <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#output_log_div">출력 로그</button>
-                </li>
-                <li class="nav-item">
-                  <button class="nav-link" id="btn_output" data-bs-toggle="tab" data-bs-target="#output_div">출력 데이터</button>
-                </li>
-              </ul>
+              <div id="tab_div"></div>
               <div class="tab-content">
-                <div class="tab-pane fade show active" id="input_div" role="tabpanel">
+                <div class="tab-pane fade show active" id="input" role="tabpanel">
                   <div id="input_data"></div>
                 </div>
 
-                <div class="tab-pane fade" id="output_log_div" role="tabpanel" >
+                <div class="tab-pane fade" id="log" role="tabpanel" >
                   <div id="output_log" class="console_like"></div>
                 </div>
 
-                <div class="tab-pane fade" id="output_div" role="tabpanel">
-                  <div>
-                    <textarea id="output_text"  class="form-control" rows="6"></textarea>
-                  </div>
-                  <div>
-                  </div>
-                  <div id="output_data">
-                  </div>
+                <div class="tab-pane fade" id="output" role="tabpanel">
+                  <div><textarea id="output_text"  class="form-control" rows="6"></textarea></div>
+                  <div id="output_data"></div>
                 </div>
               </div>
             </div>

@@ -9,6 +9,7 @@
   <style>
   </style>
   <script src="/js/control/context_menu.js"></script>
+  <script src="/js/control/list_group.js"></script>
   <LP-include-html src="get-query-param.html"></LP-include-html>
   <script>
     let currentStorageId = "";
@@ -23,40 +24,23 @@
     }
 
     function createFileItem(fileInfo) {
-      const item = createElem({
-        name: "div", attributes: { class: "list-group-item list-group-item-action", 'aria-current': "true" }
-      });
-      const div = createElem({
-        name: "div", attributes: { class: "d-flex w-100 justify-content-between" },
-        children: [{
-          name: "div", attributes: { class: "w-100" },
-          events: {
-            click: (e) => {
-              if (fileInfo.is_dir) {
-                newPath = changeStorageDir(currentPath, fileInfo.name);
-                browseDirectory(currentStorageId, newPath);
-              }
-            }
-          },
-          children: [{
-            name: "h5", attributes: { class: "mb-1" },
-            children: [
-              { name: "span", attributes: { class: getFileIcon(fileInfo), style: "padding-right: 0.2em" } },
-              { name: "span", text: fileInfo.name }
-            ]
-          }, {
-            name: "div",
-            attributes: { class: "d-flex w-100 justify-content-between" },
-            children: [
-              { name: "small", text: (fileInfo.is_dir ? "폴더" : getFileSizeString(fileInfo.size)) },
-              { name: "small", text: fileInfo.mtime ? getDateString(new Date(fileInfo.mtime * 1000)) : '' }
-            ]
-          }]
-        }]
-      });
+      const menu = createContextMenu(fileInfo);
+      const item = createListGroupItem([
+        { name: "h5", attributes: { class: "mb-1" }, children: [
+          { name: "span", attributes: { class: getFileIcon(fileInfo), style: "padding-right: 0.2em" }},
+          { name: "span", text: fileInfo.name }
+        ]},
+        { name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
+          { name: "small", text: (fileInfo.is_dir ? "폴더" : getFileSizeString(fileInfo.size)) },
+          { name: "small", text: fileInfo.mtime ? getDateString(new Date(fileInfo.mtime * 1000)) : '' }
+        ]}],
+        (e) => {
+          if (fileInfo.is_dir) {
+            newPath = changeStorageDir(currentPath, fileInfo.name);
+            browseDirectory(currentStorageId, newPath);
+          }
+        }, menu);
 
-      addE(div, createContextMenu(fileInfo));
-      addE(item, div);
       return item;
     }
 
