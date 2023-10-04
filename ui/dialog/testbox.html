@@ -1,0 +1,12 @@
+<LP-template use="dialog" />
+<LP-param name="id" value="testbox" />
+
+<LP-content name="dialog_script">
+    <script>
+        function showTestBox(message, title) {
+            const messageBox = new DialogBox("LP_DIALOG_testbox");
+            messageBox.setText(message, title);
+            messageBox.show();
+        }
+    </script>
+</LP-content>

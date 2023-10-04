@@ -2,8 +2,6 @@ from typing import Union, List
 import os
 import json
 import argparse
-import time
-import zipfile, tarfile
 import shutil
 
 import uvicorn
@@ -40,13 +38,13 @@ def JSONResponseHandler(data):
 @app.get("/ui/{file_path:path}", tags=["UI"])
 async def get_ui_page(file_path: str, req: Request):
     query_param = dict(req.query_params)
-    page_path = "ui/template/%s" % file_path
+    page_path = "ui/page/%s" % file_path
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
         content = process_include_html(content, {'query_param': json.dumps(query_param)})
     else:
-        with open("ui/template/error.html", "rt", encoding="UTF-8") as fp:
+        with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
         content = process_include_html(content, {'error_message': "Page not found: %s" % file_path})
     return HTMLResponse(content, status_code=200)

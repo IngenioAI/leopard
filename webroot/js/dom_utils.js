@@ -104,6 +104,11 @@ function elementToJson(id) {
     return o;
 }
 
+function elementToString(id) {
+    const element = getE(id);
+    return element.outerHTML;
+}
+
 function isJSONEmpty(object) {
     return JSON.stringify(object) === "{}";
 }

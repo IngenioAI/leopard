@@ -24,14 +24,15 @@ class DialogBox {
             if (titleDiv)
                 titleDiv.innerHTML = title;
             else
-                console.error("title div not found:", this.dialogBoxId + '_title');
+                console.warn("title div not found:", this.dialogBoxId + '_title');
         }
         if (message) {
             const messageDiv = document.getElementById(this.dialogBoxId + '_message');
             if (messageDiv)
                 messageDiv.innerHTML = message;
-            else
-                console.error("text div not found:", this.dialogBoxId + '_message');
+            else {
+                console.warn("text div not found:", this.dialogBoxId + '_message');
+            }
         }
     }
 
