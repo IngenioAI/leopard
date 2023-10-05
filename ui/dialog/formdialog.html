@@ -1,20 +1,11 @@
-<div class="modal fade" tabindex="-1" id="LP_DIALOG_form_dialogbox">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="LP_DIALOG_form_dialogbox_title">입력</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p id="LP_DIALOG_form_dialogbox_message">값을 입력하세요</p>
-          <div id="LP_DIALOG_form_dialogbox_formgroup" class="container">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary px-4" id="LP_DIALOG_form_dialogbox_OK">확인</button>
-          <button type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal">취소</button>
-        </div>
-      </div>
+<LP-template use="dialog" />
+<LP-param name="id" value="formdialog" />
+
+<LP-content name="dialog_main">
+    <div id="LP_DIALOG_formdialog_formgroup" class="container">
     </div>
-</div>
-<script src="/js/dialog/formdialog.js"></script>
+</LP-content>
+<LP-content name="dialog_footer">
+    <button type="button" class="btn btn-primary px-4" id="LP_DIALOG_formdialog_OK">확인</button>
+    <button type="button" class="btn btn-outline-primary px-4" data-bs-dismiss="modal">취소</button>
+</LP-content>

@@ -1,0 +1,135 @@
+<LP-template use="basepage" />
+
+<LP-content name="head">
+    <script src="/js/control/list_group.js"></script>
+    <script src="/js/control/tab.js"></script>
+</LP-content>
+
+<LP-content name="main">
+    <h2>실험/실행</h2>
+    <div id="tab_div" class="my-2"></div>
+    <div class="tab-content">
+        <div class="tab-pane fade show active" id="new_exec" role="tabpanel">
+            <div>
+                <h5 class="mt-2">기본정보</h5>
+                <div class="row mb-2">
+                    <label for="input_exp_id" class="col-sm-2 col-form-label">실험 ID</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="input_exp_id" value="">
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label for="input_exec_id" class="col-sm-2 col-form-label">설명</label>
+                    <div class="col-sm-7">
+                        <textarea class="form-control" id="input_exec_desc" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label for="input_exec_id" class="col-sm-2 col-form-label">실행 ID</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="input_exec_id" value="">
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary">자동 생성</button>
+                    </div>
+                </div>
+
+                <h5 class="mt-2">환경</h5>
+                <div class="row mb-2">
+                    <label for="select_images" class="col-sm-2 col-form-label">이미지</label>
+                    <div class="col-sm-7">
+                        <select class="form-select" id="select_images" aria-label="Default select example">
+                        </select>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary">새로 생성</button>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label for="input_data_path" class="col-sm-2 col-form-label">입력 데이터 경로</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="input_data_path" value="" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary" onclick="setInputPath()">설정</button>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label for="output_data_path" class="col-sm-2 col-form-label">출력 데이터 경로</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="output_data_path" value="" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary">설정</button>
+                    </div>
+                </div>
+
+                <h5 class="mt-2">실행 코드</h5>
+                <div class="row mb-2">
+                    <label for="src_path" class="col-sm-2 col-form-label">소스 코드</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="src_path" value="" readonly>
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary" onclick="setSourceCode()">설정</button>
+                    </div>
+                </div>
+
+                <div class="row mb-2">
+                    <label for="command_line" class="col-sm-2 col-form-label">커맨드 라인</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" id="command_line" value="python main.py" readonly
+                            onclick="setCommandLine()">
+                    </div>
+                    <div class="col-sm-2">
+                        <button class="btn btn-outline-primary" onclick="setCommandLine()">설정</button>
+                    </div>
+                </div>
+
+                <h5 class="mt-2">사용 자원</h5>
+                <div class="row mb-2">
+                    <div class="col-sm-2">
+                        GPU
+                    </div>
+                    <div class="col-sm-7">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="resource" id="resource_cpu_only">
+                            <label class="form-check-label" for="resource_cpu_only">
+                                CPU 단독
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="resource" id="resource_gpu" checked>
+                            <label class="form-check-label" for="resource_gpu">
+                                GPU 사용
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="text-center">
+                <button type="button" class="btn btn-primary p-4" style="width: 34%"
+                    onclick="createExecution()">실행</button>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="current_exec" role="tabpanel">
+            <div class="list-group" id="exec_list"></div>
+        </div>
+
+        <div class="tab-pane fade" id="completed_exec" role="tabpanel">
+        </div>
+    </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="fileupload.html"></LP-include-html>
+    <LP-include-html src="input.html"></LP-include-html>
+    <LP-include-html src="logview.html"></LP-include-html>
+    <LP-include-html src="filesave.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
+</LP-content>

@@ -8,7 +8,12 @@ class ElementEventItem {
 
 class DialogBox {
     constructor(dialogBoxId, options=null) {
-        this.dialogBoxId = dialogBoxId;
+        if (dialogBoxId.indexOf("LP_DIALOG_") == 0) {
+            this.dialogBoxId = dialogBoxId;
+        }
+        else {
+            this.dialogBoxId = "LP_DIALOG_" + dialogBoxId;
+        }
         this.options = options;
         this.modal = null;
         this.eventHandlers = [];
@@ -23,15 +28,11 @@ class DialogBox {
             const titleDiv = document.getElementById(this.dialogBoxId + '_title');
             if (titleDiv)
                 titleDiv.innerHTML = title;
-            else
-                console.error("title div not found:", this.dialogBoxId + '_title');
         }
         if (message) {
             const messageDiv = document.getElementById(this.dialogBoxId + '_message');
             if (messageDiv)
                 messageDiv.innerHTML = message;
-            else
-                console.error("text div not found:", this.dialogBoxId + '_message');
         }
     }
 

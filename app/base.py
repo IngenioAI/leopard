@@ -1,6 +1,6 @@
 import os
 import json
-from urllib import request
+from urllib import request, error
 from docker_runner import DockerRunner
 import storage_util
 import time
@@ -105,8 +105,24 @@ class App():
     def call_server(self, params):
         req = request.Request('http://localhost:%s/api/run' % (self.config['execution']['port']),
                               data=json.dumps(params).encode("UTF-8"))
-        resp = request.urlopen(req)
-        return json.load(resp)
+        try:
+            resp = request.urlopen(req)
+            return json.load(resp)
+        except error.HTTPError as e:
+            print(e)
+            logs = self.docker.exec_logs(self.exec_id)
+            return {
+                "success": False,
+                "error_message": e.reason,
+                "log": logs
+            }
+        except error.URLLError as e:
+            print(e)
+            return {
+                "success": False,
+                "error_message": e.reason
+            }
+
 
     def stop(self, remove=True):
         self.docker.exec_stop(self.exec_id)

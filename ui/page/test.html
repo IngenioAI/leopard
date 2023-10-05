@@ -1,0 +1,26 @@
+<LP-template use="basepage" />
+<LP-content name="head">
+    <script>
+        async function onTest() {
+            //window.open("/ui/storage.html?storage_id=1&storage_path=dataset 12")
+            showMessageBox("테스트", "테스트제목");
+        }
+    </script>
+</LP-content>
+
+<LP-content name="main">
+    <h1>TEST</h1>
+    <h4 class="d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
+        <span>API 테스트</span>
+        <a class="link-secondary" href="#" aria-label="Add a new report">
+            <svg class="bi">
+                <use xlink:href="#plus-circle" />
+            </svg>
+        </a>
+    </h4>
+    <button class="btn btn-primary" onclick="onTest()">테스트</button>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="messagebox.html"></LP-include-html>
+</LP-content>

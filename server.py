@@ -2,8 +2,6 @@ from typing import Union, List
 import os
 import json
 import argparse
-import time
-import zipfile, tarfile
 import shutil
 
 import uvicorn
@@ -40,15 +38,15 @@ def JSONResponseHandler(data):
 @app.get("/ui/{file_path:path}", tags=["UI"])
 async def get_ui_page(file_path: str, req: Request):
     query_param = dict(req.query_params)
-    page_path = "ui/template/%s" % file_path
+    page_path = "ui/page/%s" % file_path
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'query_param': json.dumps(query_param)})
+        content = process_include_html(content, {'query_param': json.dumps(query_param)}, {"file_path": file_path})
     else:
-        with open("ui/template/error.html", "rt", encoding="UTF-8") as fp:
+        with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'error_message': "Page not found: %s" % file_path})
+        content = process_include_html(content, {'error_message': "Page not found: %s" % file_path}, {"file_path": file_path})
     return HTMLResponse(content, status_code=200)
 
 
@@ -134,14 +132,12 @@ async def create_execution(data: ExecutionItem):
 @app.get("/api/exec/{exec_id}", tags=["Exec"])
 async def get_execution_info(exec_id: str):
     info = app.docker_runner.exec_inspect(exec_id)
-    print('inspect', info)
     return JSONResponseHandler(info)
 
 
 @app.get("/api/exec/logs/{exec_id}", tags=["Exec"])
 async def get_execution_logs(exec_id: str):
     logs = app.docker_runner.exec_logs(exec_id)
-    print('logs', logs)
     return JSONResponseHandler({
         'lines': logs
     })

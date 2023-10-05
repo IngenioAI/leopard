@@ -1,6 +1,6 @@
 class FileViewDialogBox extends DialogBox {
     constructor(storageId, storagePath) {
-        super('LP_DIALOG_fileview');
+        super("fileview", {dialog_size: "xl"});
         this.storageId = storageId;
         this.storagePath = storagePath;
     }
