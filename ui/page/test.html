@@ -3,10 +3,7 @@
     <script>
         async function onTest() {
             //window.open("/ui/storage.html?storage_id=1&storage_path=dataset 12")
-            showTestBox("테스트", "테스트제목");
-        }
-        async function init() {
-            console.log("Init with param:", getQueryParam());
+            showMessageBox("테스트", "테스트제목");
         }
     </script>
 </LP-content>
@@ -25,5 +22,5 @@
 </LP-content>
 
 <LP-content name="dialog">
-    <LP-include-html src="testbox.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
 </LP-content>

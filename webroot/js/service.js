@@ -154,6 +154,10 @@ async function getAppList() {
 }
 
 async function runApp(appName, params) {
-    const res = await http_post(`/api/app/${appName}`, params);
-    return JSON.parse(res);
+    try {
+        const res = await http_post(`/api/app/${appName}`, params);
+        return JSON.parse(res);
+    } catch(err) {
+        return HTTPErrorHandler(err);
+    }
 }

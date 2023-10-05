@@ -1,5 +1,5 @@
 <div class="modal fade" tabindex="-1" id="LP_DIALOG_<!LP-include-string var='id' />">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog <!LP-include-string var='size' default='' /> modal-dialog-centered modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
           <LP-include-content name="dialog_header">
@@ -10,6 +10,7 @@
         <div class="modal-body">
           <LP-include-content name="dialog_body">
             <p id="LP_DIALOG_<!LP-include-string var='id' />_message">메시지</p>
+            <LP-include-content name="dialog_main"> </LP-include-content>
           </LP-include-content>
         </div>
         <div class="modal-footer">
@@ -22,5 +23,5 @@
 </div>
 
 <LP-include-content name="dialog_script">
-  <script src="/js/dialog/<!LP-include-string var='id'/>"></script>
+  <script src="/js/dialog/<!LP-include-string var='id'/>.js"></script>
 </LP-include-content>

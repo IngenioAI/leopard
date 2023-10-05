@@ -1,12 +1,6 @@
-function showMessageBox(message, title) {
-    const messageBox = new DialogBox('LP_DIALOG_messagebox');
-    messageBox.setText(message, title);
-    messageBox.show();
-}
-
 class AskMessageBox extends ModalDialogBox {
     constructor(buttons) {
-        super('LP_DIALOG_ask_messagebox');
+        super('ask_messagebox');
         this.buttons = buttons;
     }
 
@@ -17,7 +11,7 @@ class AskMessageBox extends ModalDialogBox {
             const buttonLabel = this.buttons[i];
             const btn = createE("button", buttonLabel, {
                 type: "button",
-                class: "btn btn-primary"
+                class: "btn btn-primary mx-2"
             }, {
                 click: (e) => this.onClick(i, buttonLabel)
             });

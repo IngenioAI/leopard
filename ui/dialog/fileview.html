@@ -1,18 +1,6 @@
-<div class="modal fade" tabindex="-1" id="LP_DIALOG_fileview">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="LP_DIALOG_fileview_title">파일 보기</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p id="LP_DIALOG_fileview_message">파일 이름</p>
-          <div id="LP_DIALOG_fileview_content">파일 내용</div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" data-bs-dismiss="modal">닫기</button>
-        </div>
-      </div>
-    </div>
-</div>
-<script src="/js/dialog/fileview.js"></script>
+<LP-template use="dialog" />
+<LP-param name="id" value="fileview" />
+
+<LP-content name="dialog_main">
+    <div id="LP_DIALOG_fileview_content">파일 내용</div>
+</LP-content>

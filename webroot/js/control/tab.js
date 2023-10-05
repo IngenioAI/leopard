@@ -9,7 +9,7 @@ function createTab(tabInfo, defaultTab=null) {
             ]}
         })
     };
-    console.log(tab);
+    //console.log(tab);
     return createElem(tab);
 }
 

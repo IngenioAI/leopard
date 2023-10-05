@@ -28,20 +28,20 @@ class FileUploadHanlder extends FileUploader {
 
 class FileUploadDialogBox extends ModalDialogBox {
     constructor(storageId=null, storagePath="/") {
-        super('LP_DIALOG_fileupload_dialogbox');
+        super("fileupload");
         this.storageId = storageId;
         this.storagePath = storagePath;
     }
 
     onShow(e) {
-        getE('LP_DIALOG_fileupload_dialogbox_file').value = "";
-        getE('LP_DIALOG_progress').setAttribute("style", `width: 0%`);
-        this.addEvent('LP_DIALOG_fileupload_dialogbox_upload', 'click', this.onUpload.bind(this));
+        getE('LP_DIALOG_fileupload_file').value = "";
+        getE('LP_DIALOG_fileupload_progress').setAttribute("style", `width: 0%`);
+        this.addEvent('LP_DIALOG_fileupload_upload', 'click', this.onUpload.bind(this));
     }
 
     onUpload() {
-        if (getE('LP_DIALOG_fileupload_dialogbox_file').value) {
-            const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_dialogbox_file', 'LP_DIALOG_progress');
+        if (getE('LP_DIALOG_fileupload_file').value) {
+            const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_file', 'LP_DIALOG_fileupload_progress');
             if (this.storageId == null) {
                 uploadHandler.send("/api/upload_item", this.onCompleted.bind(this), { unzip: true});
             }

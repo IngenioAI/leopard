@@ -1,21 +1,21 @@
 class InputDialogBox extends ModalDialogBox {
     constructor(validator) {
-        super('LP_DIALOG_input_dialogbox');
+        super('input');
         this.validator = validator;
     }
 
     init() {
-        getE('LP_DIALOG_input_dialogbox_input').value = "";
+        getE('LP_DIALOG_input_input').value = "";
     }
 
     onShow(e) {
-        this.addEvent('LP_DIALOG_input_dialogbox_OK', 'click', this.onOK.bind(this));
-        this.addEvent('LP_DIALOG_input_dialogbox_input', 'keypress', this.onKeyPress.bind(this));
-        getE('LP_DIALOG_input_dialogbox_input').focus();
+        this.addEvent('LP_DIALOG_input_OK', 'click', this.onOK.bind(this));
+        this.addEvent('LP_DIALOG_input_input', 'keypress', this.onKeyPress.bind(this));
+        getE('LP_DIALOG_input_input').focus();
     }
 
     async onOK() {
-        const value = getE('LP_DIALOG_input_dialogbox_input').value;
+        const value = getE('LP_DIALOG_input_input').value;
         let handleOK = true;
         if (this.validator) {
             handleOK = await this.validator(value);

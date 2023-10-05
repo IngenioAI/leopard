@@ -2,31 +2,31 @@
 <html lang="ko">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Leopard</title>
-  <LP-include-html src="head.html"></LP-include-html>
-  <LP-include-html src="get-query-param.html"></LP-include-html>
-  <LP-include-content name="head"></LP-include-content>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Leopard</title>
+    <LP-include-html src="head.html"></LP-include-html>
+    <LP-include-content name="head"></LP-include-content>
+    <LP-include-script></LP-include-script>
 </head>
 
 <body>
-  <LP-include-html src="bs-script.html"></LP-include-html>
-  <LP-include-html src="topbar.html"></LP-include-html>
+    <LP-include-html src="bs-script.html"></LP-include-html>
+    <LP-include-html src="topbar.html"></LP-include-html>
 
-  <div class="container-fluid">
-    <div class="row">
-      <LP-include-html src="sidebar.html"></LP-include-html>
-      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-        <div class="p-3 bg-body-tertiary" style="width:100%;">
-          <LP-include-content name="main"></LP-include-content>
+    <div class="container-fluid">
+        <div class="row">
+            <LP-include-html src="sidebar.html"></LP-include-html>
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="p-3 bg-body-tertiary" style="width:100%;">
+                    <LP-include-content name="main">default main</LP-include-content>
+                </div>
+            </main>
         </div>
-      </main>
     </div>
-  </div>
 
-  <LP-include-content name="dialog"></LP-include-content>
-  <script>if (typeof init == "function") init();</script>
+    <LP-include-content name="dialog"></LP-include-content>
+    <script>if (typeof init == "function") init();</script>
 </body>
 
 </html>

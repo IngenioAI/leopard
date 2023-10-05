@@ -1,21 +1,13 @@
-<div class="modal fade" tabindex="-1" id="LP_DIALOG_input_dialogbox">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="LP_DIALOG_input_dialogbox_title">입력</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <p id="LP_DIALOG_input_dialogbox_message">값을 입력하세요</p>
-          <div class="container">
-            <input type="text" class="form-control" id="LP_DIALOG_input_dialogbox_input">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary" id="LP_DIALOG_input_dialogbox_OK">확인</button>
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
-        </div>
-      </div>
+<LP-template use="dialog" />
+<LP-param name="id" value="input" />
+
+<LP-content name="dialog_main">
+    <div class="container">
+        <input type="text" class="form-control" id="LP_DIALOG_input_input">
     </div>
-</div>
-<script src="/js/dialog/input.js"></script>
+</LP-content>
+
+<LP-content name="dialog_footer">
+    <button type="button" class="btn btn-primary" id="LP_DIALOG_input_OK">확인</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+</LP-content>

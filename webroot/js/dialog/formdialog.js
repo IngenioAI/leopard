@@ -1,16 +1,16 @@
 class FormDialogBox extends ModalDialogBox {
     constructor(formSpec, data, validator) {
-        super("LP_DIALOG_form_dialogbox", { dialog_size: "lg"});
+        super("formdialog", { dialog_size: "lg"});
         this.formSpec = formSpec;
         this.data = data;
         this.validator = validator;
     }
 
     init() {
-        const formDiv = getE("LP_DIALOG_form_dialogbox_formgroup");
+        const formDiv = getE("LP_DIALOG_formdialog_formgroup");
         clearE(formDiv);
         addE(formDiv, createFormGroup(this.formSpec, this.data));
-        this.addEvent('LP_DIALOG_form_dialogbox_OK', 'click', this.onOK.bind(this));
+        this.addEvent('LP_DIALOG_formdialog_OK', 'click', this.onOK.bind(this));
     }
 
     async onOK() {
