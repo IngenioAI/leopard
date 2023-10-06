@@ -12,7 +12,7 @@ from pydantic import BaseModel
 from starlette.status import HTTP_302_FOUND, HTTP_303_SEE_OTHER
 
 import storage_util
-import dataset_util
+import data_store
 from docker_runner import DockerRunner
 from html_util import process_include_html
 import upload_util
@@ -94,10 +94,8 @@ async def get_image_list():
 
 @app.delete("/api/image/{name:path}", tags=["Image"])
 async def delete_image(name: str):
-    app.docker_runner.remove_image(name)
-    return JSONResponse({
-        "success": True
-    })
+    res = app.docker_runner.remove_image(name)
+    return JSONResponse(res)
 
 
 @app.get("/api/exec_list", tags=["Exec"])
@@ -121,8 +119,20 @@ async def create_execution(data: ExecutionItem):
     else:
         source_path = data.srcPath
 
-    containerId = app.docker_runner.exec_command(source_path, data.command, data.imageTag, data.inputPath,
-                                                data.outputPath)
+    if data.inputPath is not None and data.inputPath != "":
+        storagePath = data.inputPath.split(":")
+        input_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+    else:
+        input_path = None
+
+    if data.outputPath is not None and data.outputPath != "":
+        storagePath = data.outputPath.split(":")
+        output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+    else:
+        output_path = None
+
+    containerId = app.docker_runner.exec_command(source_path, data.command, data.imageTag, input_path,
+                                                output_path)
     print('execId(containerId):', containerId)
     return JSONResponseHandler({
         'exec_id': containerId
@@ -286,13 +296,29 @@ async def delete_storage_file(storage_id: str, file_path: str, req: Request):
 
 @app.get("/api/dataset", tags=["Dataset"])
 async def get_dataset_list():
-    return JSONResponseHandler(dataset_util.get_dataset_info())
+    return JSONResponseHandler(data_store.manager.get_data_list("dataset"))
 
 @app.post("/api/dataset", tags=["Dataset"])
 async def post_dataset_list(req: Request):
-    info = await req.json()
+    dataset_list = await req.json()
+    res = data_store.manager.save_data_list("dataset", dataset_list)
     return JSONResponseHandler({
-        "success": dataset_util.save_dataset_info(info)
+        "success": res
+    })
+
+@app.post("/api/dataset/{name}", tags=["Dataset"])
+async def add_dataset(req: Request):
+    dataset = await req.json()
+    res = data_store.manager.add_data_to_list("dataset", dataset)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.delete("/api/dataset/{name}", tags=["Dataset"])
+async def delete_dataset(name: str):
+    data_store.manager.remove_data_from_list("dataset", "name", name);
+    return JSONResponseHandler({
+        "success": True
     })
 
 @app.get("/api/app_list", tags=["App"])
@@ -304,7 +330,6 @@ async def run_app(module_id: str, req: Request):
     params = await req.json()
     res = app.app_manager.run(module_id, params)
     return JSONResponseHandler(res)
-
 
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 

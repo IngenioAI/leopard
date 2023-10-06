@@ -3,23 +3,18 @@ let currentLog = null;
 let logWindow = null;
 
 function createExecItem(itemInfo, execInfo) {
-    return createListGroupItem(
-        [
-            {
-                name: "h5", attributes: { class: "mb-1" }, children: [
-                    { name: "span", attributes: { class: "", style: "padding-right: 0.2em" } },
-                    { name: "span", text: itemInfo.id }
-                ]
+    return createListGroupItem([
+            { name: "h5", attributes: { class: "mb-1" }, children: [
+                { name: "span", attributes: { class: "", style: "padding-right: 0.2em" } },
+                { name: "span", text: itemInfo.id }]
             },
-            {
-                name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
-                    { name: "small", text: itemInfo.command },
-                    { name: "small", text: itemInfo.imageTag }
-                ]
+            { name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
+                { name: "small", text: itemInfo.command },
+                { name: "small", text: itemInfo.imageTag }]
             },
             { name: "div", text: "running", attributes: { id: `state_${itemInfo.id}` } }
         ],
-        (e) => {
+        (e) => {    // listItemClick
             logWindow = showLogView(`${itemInfo.command} on ${itemInfo.imageTag}`, `실행 로그 - ${itemInfo.id}`);
             if (currentLog) {
                 logWindow.setLog(currentLog);
@@ -37,7 +32,8 @@ async function createExecution() {
         ['outputPath', 'output_data_path']
     ]);
     if (item["id"] == "") {
-        showMessageBox("실험 ID를 입력해야 합니다.", "실행");
+        await showMessageBox("실험 ID를 입력해야 합니다.", "실행");
+        getE("input_exp_id").focus();
         return;
     }
     if (sourceUploadInfo && sourceUploadInfo.success) {
@@ -60,7 +56,7 @@ async function checkLogs(info) {
         setT(`state_${info.id}`, "running");
     }
     else {
-        removeExec(info.exec_id);    // auto remove after getting logs
+        //removeExec(info.exec_id);    // auto remove after getting logs
         setT(`state_${info.id}`, "exited");
     }
     currentLog = logs.lines;
@@ -70,8 +66,13 @@ async function checkLogs(info) {
 }
 
 async function setInputPath() {
-    const filepath = await showFileSave('1', '');
-    console.log(filepath)
+    const filepath = await showSelectPath();
+    setV("input_data_path", filepath);
+}
+
+async function setOutputPath() {
+    const filepath = await showSelectPath();
+    setV("output_data_path", filepath);
 }
 
 async function setSourceCode() {
@@ -83,6 +84,9 @@ async function setSourceCode() {
     }
     sourceUploadInfo = res;
     setV("src_path", sourceUploadInfo.files[0]);
+    if (sourceUploadInfo.files[0].indexOf(".py") > 0) {
+        setV("command_line", `python ${sourceUploadInfo.files[0]}`)
+    }
 }
 
 async function setCommandLine() {

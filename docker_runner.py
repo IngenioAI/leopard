@@ -84,7 +84,16 @@ class DockerRunner():
         del self.threads[name]
 
     def remove_image(self, name):
-        self.client.remove_image(name);
+        try:
+            self.client.remove_image(name);
+            return { "success": True }
+        except docker.errors.APIError as e:
+            return {
+                "success": False,
+                "error_code": e.response.status_code,
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
+            }
 
     def list_execs(self):
         return self.client.containers(all=True)

@@ -19,7 +19,7 @@ async function checkBuild(name) {
 async function onCreateImage() {
     const data = await showFormDialogBox([
         { id: "name", title: "이름", type: "text", default: "leopard/" },
-        { id: "baseImage", title: " 기본 이미지", type: "text", default: "python:3.8" },
+        { id: "baseImage", title: "기본 이미지", type: "text", default: "python:3.8" },
         { id: "aptInstall", title: "apt 설치", type: "text" },
         { id: "pipInstall", title: "pip 설치", type: "text" },
         { id: "additionalCommand", title: "추가 명령 실행", type: "text" }
@@ -51,6 +51,9 @@ function createContextMenu(imageInfo) {
                 const res = await removeExecImage(info.RepoTags[0]);
                 if (res.success) {
                     refreshImageTable();
+                }
+                else {
+                    showMessageBox(res.error_message, "에러");
                 }
             }
         });

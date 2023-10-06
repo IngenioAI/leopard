@@ -20,7 +20,7 @@ class Canvas {
 
     drawImageFit(image) {
         const canvas = document.getElementById(this.canvasId);
-        let scale = 10.0;
+        let scale = 100.0;
         if (canvas.width / image.width < scale) {
             scale = canvas.width / image.width;
         }

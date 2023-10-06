@@ -4,9 +4,9 @@
 <LP-content name="dialog_script">
     <script>
         function showMessageBox(message, title) {
-            const messageBox = new DialogBox("messagebox");
+            const messageBox = new ModalDialogBox("messagebox");
             messageBox.setText(message, title);
-            messageBox.show();
+            return messageBox.exec();
         }
     </script>
 </LP-content>

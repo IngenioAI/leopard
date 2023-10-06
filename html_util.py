@@ -212,7 +212,18 @@ def process_include_html(content, params={}, template_content={}):
             src_name = "/js/page/%s.js" % file_title
         script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
         if os.path.exists(script_path):
-            sub_content = f'<script src="{src_name}"></script>'
+            sub_content = f'<script src="{src_name}" charset="utf-8"></script>'
+        else:
+            sub_content = ""
+    elif content[p+1:].startswith("LP-include-dialog-script"):
+        p1, tag, p2 = split_html_content(content, "LP-include-dialog-script", p)
+        src_name = get_html_attribute(tag, "src")
+        if src_name == "":
+            file_title = params['id']
+            src_name = "/js/dialog/%s.js" % file_title
+        script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
+        if os.path.exists(script_path):
+            sub_content = f'<script src="{src_name}" charset="utf-8"></script>'
         else:
             sub_content = ""
     elif content[p+1:].startswith("LP-include-string"):

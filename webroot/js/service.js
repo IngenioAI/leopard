@@ -147,6 +147,21 @@ async function getDatasetList() {
     return datasetList;
 }
 
+async function saveDatasetList(datasetList) {
+    const res = await http_post("/api/dataset", datasetList);
+    return JSON.parse(res);
+}
+
+async function addDatasetToList(dataset) {
+    const res = await http_post(`/api/dataset/${dataset.name}`, dataset);
+    return JSON.parse(res);
+}
+
+async function removeDatasetFromList(datasetName) {
+    const res = await http_delete(`/api/dataset/${datasetName}`);
+    return JSON.parse(res);
+}
+
 // APP
 async function getAppList() {
     const res = await http_get("/api/app_list");

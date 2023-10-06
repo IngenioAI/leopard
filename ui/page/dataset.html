@@ -3,9 +3,14 @@
 <LP-content name="main">
     <h2>데이터세트</h2>
     <div class="my-2">
-        <button class="btn btn-primary">새 데이터셋 생성</button>
+        <button class="btn btn-primary" onclick="createDataset()">새 데이터셋 생성</button>
     </div>
     <div id="card_container" class="row row-cols-1 row-cols-md-3 g-4">
 
     </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="formdialog.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
 </LP-content>

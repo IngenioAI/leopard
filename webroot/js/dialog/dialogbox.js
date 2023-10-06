@@ -7,7 +7,7 @@ class ElementEventItem {
 };
 
 class DialogBox {
-    constructor(dialogBoxId, options=null) {
+    constructor(dialogBoxId, options={}) {
         if (dialogBoxId.indexOf("LP_DIALOG_") == 0) {
             this.dialogBoxId = dialogBoxId;
         }
@@ -106,18 +106,31 @@ class ModalDialogBox extends DialogBox {
         super(dialogBoxId, options);
         this.resolve = null;
         this.reject = null;
+        this.resolved = true;
     }
 
     exec(...args) {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
+            this.resolved = false;
             this.show(args);
         });
     }
 
+    onHidden(e) {
+        if (!this.resolved) {
+            this.close();
+        }
+        super.onHidden(e);
+    }
+
     close(...args) {
+        if (this.resolved) {
+            console.warn("ModalDialog already resolved")
+        }
         this.resolve(...args);
+        this.resolved = true;
         this.hide();
     }
 }

@@ -1,14 +1,41 @@
 class FileSaveDialogBox extends ModalDialogBox {
-    constructor(storageId, defaultFilename, defaultStoragePath) {
-        super('LP_DIALOG_filesave');
-        this.storageId = storageId;
-        this.defaultFilename = defaultFilename;
-        this.storagePath = defaultStoragePath;
+    constructor(options) {
+        super("filesave");
+        this.options = options;
+        this.storageId = null;
+        if ('defaultStoragePath' in this.options)
+            this.storagePath = this.options.defaultStoragePath;
+        else
+            this.storagePath = '/';
     }
 
-    onShow(e) {
-        setV('LP_DIALOG_filesave_dialogbox_input', this.defaultFilename);
-        this.addEvent('LP_DIALOG_filesave_dialogbox_OK', 'click', this.onOK.bind(this));
+    async init() {
+        if ('defaultFilename' in this.options) {
+            setV('LP_DIALOG_filesave_filename_input', this.options.defaultFilename);
+        }
+        this.addEvent('LP_DIALOG_filesave_OK', 'click', this.onOK.bind(this));
+
+        if (this.options.showPathOnly) {
+            getE("LP_DIALOG_filesave_filename_div").style.display = "none";
+        }
+        else {
+            getE("LP_DIALOG_filesave_filename_div").style.display = "";
+        }
+
+        const storageList = await getStorageList();
+        const storageSelect = getE("LP_DIALOG_filesave_storage_select");
+        clearE(storageSelect);
+        for (const storage of storageList) {
+            addE(storageSelect, createE("option", storage.name, { value: storage.id }));
+        }
+        if ('defaultStorageId' in this.options) {
+            this.storageId = this.options.defaultStorageId;
+            storageSelect.value = this.storageId;
+        }
+        else {
+            this.storageId = storageList[0].id;
+        }
+        this.addEvent("LP_DIALOG_filesave_storage_select", "change", this.onStorageChange.bind(this));
         this.browse();
     }
 
@@ -48,6 +75,13 @@ class FileSaveDialogBox extends ModalDialogBox {
         }
     }
 
+    onStorageChange(e) {
+        const storageSelect = getE("LP_DIALOG_filesave_storage_select");
+        this.storageId = storageSelect.value;
+        this.storagePath = "/";
+        this.browse();
+    }
+
     onItemClick(e, fileInfo) {
         this.storagePath = changeStorageDir(this.storagePath, fileInfo.name);
         this.browse();
@@ -55,12 +89,23 @@ class FileSaveDialogBox extends ModalDialogBox {
 
     onOK() {
         if (this.resolve) {
-            this.resolve(joinPath(this.storagePath, getV('LP_DIALOG_filesave_dialogbox_input')));
+            this.resolve(`${this.storageId}:${joinPath(this.storagePath, getV('LP_DIALOG_filesave_filename_input'))}`);
         }
         this.hide();
     }
 }
-function showFileSave(storageId, defaultFilename, defaultStoragePath='/') {
-    const dialogBox = new FileSaveDialogBox(storageId, defaultFilename, defaultStoragePath);
-    return dialogBox.exec();    
+
+function showFileSave(options={}) {
+    const dialogBox = new FileSaveDialogBox(options);
+    dialogBox.setText("파일 저장 위치 선택", "파일 저장");
+    setT("LP_DIALOG_filesave_OK", "저장");
+    return dialogBox.exec();
+}
+
+function showSelectPath(options={}) {
+    options.showPathOnly = true;
+    const dialogBox = new FileSaveDialogBox(options);
+    dialogBox.setText("경로 선택", "경로 지정");
+    setT("LP_DIALOG_filesave_OK", "선택");
+    return dialogBox.exec();
 }
