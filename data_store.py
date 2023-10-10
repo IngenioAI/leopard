@@ -8,7 +8,7 @@ class DataStore():
         self.type = type
 
     def load(self):
-        dataset_info_path = os.path.join("config", "%s.json" % self.name)
+        dataset_info_path = os.path.join("data", "%s.json" % self.name)
         if os.path.exists(dataset_info_path):
             with open(dataset_info_path, "rt", encoding="utf-8") as fp:
                 self.current_data = json.load(fp)
@@ -19,7 +19,9 @@ class DataStore():
                 self.current_data = {}
 
     def save(self):
-        dataset_info_path = os.path.join("config", "%s.json" % self.name)
+        if not os.path.exists("data"):
+            os.mkdir("data")
+        dataset_info_path = os.path.join("data", "%s.json" % self.name)
         with open(dataset_info_path, "wt", encoding="utf-8") as fp:
             json.dump(self.current_data, fp, indent=4)
         return True

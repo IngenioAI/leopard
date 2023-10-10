@@ -86,10 +86,9 @@ class DockerRunner():
     def remove_image(self, name):
         try:
             self.client.remove_image(name);
-            return { "success": True }
-        except docker.errors.APIError as e:
-            return {
-                "success": False,
+            return True, None
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            return False, {
                 "error_code": e.response.status_code,
                 "error_reason":e.response.reason,
                 "error_message":  e.explanation
@@ -108,7 +107,7 @@ class DockerRunner():
         if output_dir is not None and output_dir != '':
             binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
 
-        print("Binds:", binds)
+        #print("Binds:", binds)
         if type(command) == str:
             command_list = command.split(" ")
         elif type(command) == list:
@@ -118,32 +117,62 @@ class DockerRunner():
 
         if command_params is not None:
             command_list += command_params
-        container = self.client.create_container(image, command=command_list,
-                                                 working_dir=working_dir,
-                                                 ports=[port] if port is not None else [],
-                                                 host_config=self.client.create_host_config(
-                                                     # auto_remove=True,  # 'auto_remove' cannot get logs after removed
-                                                     device_requests=[
-                                                         docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
-                                                     binds=binds,
-                                                     port_bindings={port: port} if port is not None else {}
-                                                 ))
-        self.client.start(container.get('Id'))
-        return container.get('Id')
+        try:
+            container = self.client.create_container(image, command=command_list,
+                                                    working_dir=working_dir,
+                                                    ports=[port] if port is not None else [],
+                                                    host_config=self.client.create_host_config(
+                                                        device_requests=[
+                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
+                                                        binds=binds,
+                                                        port_bindings={port: port} if port is not None else {}
+                                                    ))
+            self.client.start(container.get('Id'))
+            return True, { "container_id": container.get('Id') }
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            return False, {
+                "error_code": e.response.status_code,
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
+            }
 
     def exec_python(self, src_dir, main_src, image, data_dir=None, output_dir=None, port=None, command_params=None):
         return self.exec_command(src_dir, ["python", main_src], image, data_dir, output_dir, port, command_params)
 
 
     def exec_logs(self, container_id):
-        return self.client.logs(container_id).decode('utf-8')
-        # return self.client.logs(container.get('Id'), stream=True, since=ps_start_time)
+        try:
+            return self.client.logs(container_id).decode('utf-8')
+            # return self.client.logs(container.get('Id'), stream=True, since=ps_start_time)
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            print("exec_logs:", e)
+            return ""
 
     def exec_inspect(self, container_id):
-        return self.client.inspect_container(container_id)
+        try:
+            return self.client.inspect_container(container_id)
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            print("exec_inspect:", e)
+            return {}
 
     def exec_stop(self, container_id):
-        return self.client.stop(container_id)
+        try:
+            self.client.stop(container_id)
+            return True, None
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            return False, {
+                "error_code": e.response.status_code,
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
+            }
 
     def exec_remove(self, container_id):
-        self.client.remove_container(container_id)
+        try:
+            self.client.remove_container(container_id)
+            return True, None
+        except (docker.errors.APIError, docker.errors.NotFound) as e:
+            return False, {
+                "error_code": e.response.status_code,
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
+            }

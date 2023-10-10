@@ -129,7 +129,7 @@ DELETE /api/exec/{exec_id}
 ### 실행 로그 얻기
 
 ```jsx
-GET /api/exec/logs/{exec_id}
+GET /api/exec_logs/{exec_id}
 ```
 
 실행 프로세스의 출력 로그를 얻는다. URL의 파라메터 name에는 생성하는 이미지의 이름을 지정하면 된다.

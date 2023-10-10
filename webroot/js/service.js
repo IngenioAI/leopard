@@ -61,13 +61,18 @@ async function createExec(item) {
     return JSON.parse(res);
 }
 
-async function inspectExec(id) {
+async function getExecInfo(id) {
     const res = await http_get(`/api/exec/${id}`);
     return JSON.parse(res);
 }
 
 async function getExecLogs(id) {
-    const res = await http_get(`/api/exec/logs/${id}`);
+    const res = await http_get(`/api/exec_logs/${id}`);
+    return JSON.parse(res);
+}
+
+async function stopExec(id) {
+    const res = await http_put(`/api/exec_stop/${id}`);
     return JSON.parse(res);
 }
 

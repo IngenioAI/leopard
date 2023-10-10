@@ -17,6 +17,7 @@ from docker_runner import DockerRunner
 from html_util import process_include_html
 import upload_util
 from app.manager import AppManager
+import exec
 
 
 tags_metadata = [
@@ -94,13 +95,16 @@ async def get_image_list():
 
 @app.delete("/api/image/{name:path}", tags=["Image"])
 async def delete_image(name: str):
-    res = app.docker_runner.remove_image(name)
-    return JSONResponse(res)
+    res, error_info = app.docker_runner.remove_image(name)
+    response = { "success": res }
+    if error_info is not None:
+        response.update(error_info)
+    return JSONResponse(response)
 
 
 @app.get("/api/exec_list", tags=["Exec"])
 async def get_exec_list():
-    return JSONResponseHandler(app.docker_runner.list_execs())
+    return JSONResponseHandler(exec.manager.get_list())
 
 class ExecutionItem(BaseModel):
     id: str
@@ -130,35 +134,45 @@ async def create_execution(data: ExecutionItem):
         output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
     else:
         output_path = None
-
-    containerId = app.docker_runner.exec_command(source_path, data.command, data.imageTag, input_path,
-                                                output_path)
-    print('execId(containerId):', containerId)
-    return JSONResponseHandler({
-        'exec_id': containerId
-    })
+    res, info = exec.manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path)
+    if res:
+        return JSONResponseHandler({
+            "success": True,
+            "exec_info": info
+        })
+    else:
+        return JSONResponseHandler({ "success": False }.update(info))
 
 
 @app.get("/api/exec/{exec_id}", tags=["Exec"])
 async def get_execution_info(exec_id: str):
-    info = app.docker_runner.exec_inspect(exec_id)
+    info = exec.manager.get_info(exec_id)
     return JSONResponseHandler(info)
 
 
-@app.get("/api/exec/logs/{exec_id}", tags=["Exec"])
+@app.get("/api/exec_logs/{exec_id}", tags=["Exec"])
 async def get_execution_logs(exec_id: str):
-    logs = app.docker_runner.exec_logs(exec_id)
+    logs = exec.manager.get_logs(exec_id)
     return JSONResponseHandler({
-        'lines': logs
+        "success": True,
+        "lines": logs
     })
 
+@app.put("/api/exec_stop/{exec_id}", tags=["Exec"])
+async def stop_execution(exec_id: str):
+    res, error_info = exec.manager.stop(exec_id)
+    response = { "success": res }
+    if error_info is not None:
+        response.update(error_info)
+    return JSONResponseHandler(response)
 
 @app.delete("/api/exec/{exec_id}", tags=["Exec"])
 async def remove_execution_info(exec_id: str):
-    app.docker_runner.exec_remove(exec_id)
-    return JSONResponse({
-        'success': True
-    })
+    res, error_info = exec.manager.remove_exec(exec_id)
+    response = { "success": res }
+    if error_info is not None:
+        response.update(error_info)
+    return JSONResponseHandler(response)
 
 
 @app.get("/api/storage", tags=["Storage"])

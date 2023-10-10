@@ -1,6 +1,7 @@
 <LP-template use="basepage" />
 
 <LP-content name="head">
+    <script src="/js/control/context_menu.js"></script>
     <script src="/js/control/list_group.js"></script>
     <script src="/js/control/tab.js"></script>
 </LP-content>
@@ -118,10 +119,11 @@
         </div>
 
         <div class="tab-pane fade" id="current_exec" role="tabpanel">
-                <div class="list-group" id="exec_list"></div>
+            <div class="list-group" id="exec_current_list"></div>
         </div>
 
         <div class="tab-pane fade" id="completed_exec" role="tabpanel">
+            <div class="list-group" id="exec_completed_list"></div>
         </div>
     </div>
 </LP-content>

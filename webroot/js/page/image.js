@@ -41,11 +41,11 @@ function createContextMenu(imageInfo) {
         BUILD: 103
     };
     const contextMenu = new ContextMenu([
-        { id: MENU_ID.DELETE, title: "삭제", info: imageInfo },
-        { id: MENU_ID.VIEW, title: "세부 정보", info: imageInfo },
-        { id: MENU_ID.EDIT, title: "수정", info: imageInfo },
-        { id: MENU_ID.BUILD, title: "빌드", info: imageInfo }
-    ],
+            { id: MENU_ID.DELETE, title: "삭제", info: imageInfo },
+            { id: MENU_ID.VIEW, title: "세부 정보", info: imageInfo },
+            { id: MENU_ID.EDIT, title: "수정", info: imageInfo },
+            { id: MENU_ID.BUILD, title: "빌드", info: imageInfo }
+        ],
         async (menuId, info) => {
             if (menuId == MENU_ID.DELETE) {
                 const res = await removeExecImage(info.RepoTags[0]);

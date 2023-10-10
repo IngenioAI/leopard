@@ -1,5 +1,5 @@
 import os
-import json
+import data_store
 
 default_storage_info = [
     {
@@ -16,19 +16,12 @@ default_storage_info = [
     }
 ]
 
-current_storage_list = None
 
 def get_storage_info(trait):
-    global current_storage_list
-    if current_storage_list is None:
-        storage_path = os.path.join("config", "storage.json")
-        if os.path.exists(storage_path):
-            with open(storage_path, "rt", encoding="utf-8") as fp:
-                current_storage_list = json.load(fp)
-        else:
-            current_storage_list = default_storage_info
-
-    return [x for x in current_storage_list if trait in x['trait'] or trait == "*"]
+    storage_list = data_store.manager.get_data_list("storage")
+    if len(storage_list) == 0:
+        storage_list = default_storage_info
+    return [x for x in storage_list if trait in x['trait'] or trait == "*"]
 
 def get_storage_file_path(storage_id: str, file_path: str):
     storage_info_list = get_storage_info("*")

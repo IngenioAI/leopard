@@ -1,4 +1,4 @@
-function createTab(tabInfo, defaultTab=null) {
+function createTab(tabInfo, defaultTab=null, onShow=null, onHide=null) {
     if (defaultTab == null) {
         defaultTab = tabInfo[0].id;
     }
@@ -9,8 +9,14 @@ function createTab(tabInfo, defaultTab=null) {
             ]}
         })
     };
-    //console.log(tab);
-    return createElem(tab);
+    const elem = createElem(tab);
+    if (onShow) {
+        elem.addEventListener("show.bs.tab", onShow);
+    }
+    if (onHide) {
+        elem.addEventListener("hide.bs.tab", onHide);
+    }
+    return elem;
 }
 
 function showTab(tabId) {

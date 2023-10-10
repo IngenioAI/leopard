@@ -1,25 +1,57 @@
 let sourceUploadInfo = null;
-let currentLog = null;
+let currentLogId = null;
 let logWindow = null;
 
-function createExecItem(itemInfo, execInfo) {
+function createExecItem(execInfo, initState="실행 중") {
+    const MENU_ID = {
+        STOP: 100,
+        DELETE: 101,
+        VIEW: 102,
+        RESTART: 103
+    };
+    const contextHandler = async (menuId, info) => {
+        if (menuId == MENU_ID.STOP) {
+            const res = await stopExec(info.id);
+            if (!res.success) {
+                showMessageBox(res.error_message, "실행 중지 오류");
+            }
+            refreshExecList();
+        }
+        else if (menuId == MENU_ID.DELETE) {
+            const res = await removeExec(info.id);
+            if (!res.success) {
+                showMessageBox(res.error_message, "실행 삭제 오류");
+            }
+            refreshExecList();
+        }
+    }
+    const contextMenuExited = new ContextMenu([
+        { id: MENU_ID.DELETE, title: "삭제", info: execInfo },
+        { id: MENU_ID.VIEW, title: "세부 정보", info: execInfo },
+        { id: MENU_ID.RESTART, title: "다시 실행", info: execInfo }
+    ], contextHandler);
+    const contextMenuRunning = new ContextMenu([
+        { id: MENU_ID.STOP, title: "중지", info: execInfo },
+        { id: MENU_ID.VIEW, title: "세부 정보", info: execInfo }
+    ], contextHandler);
     return createListGroupItem([
             { name: "h5", attributes: { class: "mb-1" }, children: [
                 { name: "span", attributes: { class: "", style: "padding-right: 0.2em" } },
-                { name: "span", text: itemInfo.id }]
+                { name: "span", text: execInfo.id }]
             },
             { name: "div", attributes: { class: "d-flex w-100 justify-content-between" }, children: [
-                { name: "small", text: itemInfo.command },
-                { name: "small", text: itemInfo.imageTag }]
+                { name: "small", text: execInfo.command_line },
+                { name: "small", text: execInfo.base_image }]
             },
-            { name: "div", text: "running", attributes: { id: `state_${itemInfo.id}` } }
+            { name: "div", text: initState, attributes: { id: `state_${execInfo.id}` } }
         ],
         (e) => {    // listItemClick
-            logWindow = showLogView(`${itemInfo.command} on ${itemInfo.imageTag}`, `실행 로그 - ${itemInfo.id}`);
-            if (currentLog) {
-                logWindow.setLog(currentLog);
-            }
-        });
+            logWindow = showLogView(`${execInfo.command_line} on ${execInfo.base_image}`, "실행 로그");
+            logWindow.clearLog();
+            currentLogId = execInfo.id;
+            checkLogs(execInfo);
+        },
+        initState == "실행 중" ? contextMenuRunning.element : contextMenuExited.element);
 }
 
 async function createExecution() {
@@ -39,29 +71,37 @@ async function createExecution() {
     if (sourceUploadInfo && sourceUploadInfo.success) {
         item['uploadId'] = sourceUploadInfo.upload_id;
     }
-    const execInfo = await createExec(item);
-    execInfo.id = item['id'];
-    setTimeout(checkLogs, 1000, execInfo);
-
-    const elem = getE("exec_list");
-    addE(elem, createExecItem(item, execInfo));
-    showTab("current_exec");
+    const res = await createExec(item);
+    if (res.success) {
+        const execInfo = res.exec_info;
+        refreshExecList();
+        showTab("current_exec");
+        checkLogs(execInfo);
+    }
+    else {
+        showMessageBox(res.error_message, "실행 오류");
+    }
 }
 
 async function checkLogs(info) {
-    const inspectInfo = await inspectExec(info.exec_id);
-    const logs = await getExecLogs(info.exec_id);
-    if (inspectInfo.State.Running) {
-        setTimeout(checkLogs, 1000, info);
-        setT(`state_${info.id}`, "running");
-    }
-    else {
-        //removeExec(info.exec_id);    // auto remove after getting logs
-        setT(`state_${info.id}`, "exited");
-    }
-    currentLog = logs.lines;
-    if (logWindow) {
-        logWindow.setLog(currentLog);
+    if (info.id == currentLogId) {
+        const execInfo = await getExecInfo(info.id);
+        if (info.id == currentLogId) {
+            if ('State' in execInfo.container && execInfo.container.State.Running) {
+                setTimeout(checkLogs, 1000, info);
+                setT(`state_${info.id}`, "실행 중");
+            }
+            else {
+                setT(`state_${info.id}`, "종료됨");
+            }
+
+            if (logWindow) {
+                const logs = await getExecLogs(info.id);
+                if (info.id == currentLogId) {
+                    logWindow.setLog(logs.lines);
+                }
+            }
+        }
     }
 }
 
@@ -109,14 +149,36 @@ async function refreshImageList() {
     }
 }
 
+async function refreshExecList() {
+    const execList = await getExecList();
+    const currentList = getE("exec_current_list");
+    clearE(currentList)
+    const completedList = getE("exec_completed_list");
+    clearE(completedList)
+    for (const execInfo of execList) {
+        if ('State' in execInfo.container && execInfo.container.State.Running) {
+            addE(currentList, createExecItem(execInfo, "실행 중"));
+        }
+        else {
+            addE(completedList, createExecItem(execInfo, "종료됨"));
+        }
+    }
+}
+
 async function init() {
     const tab = createTab([
         { id: "new_exec", text: "새 실험/실행" },
         { id: "current_exec", text: "실행 중" },
-        { id: "completed_exec", text: "실행 완료" }]);
+        { id: "completed_exec", text: "실행 완료" }],
+        null,
+        (event) => {
+            //console.log(event.target.id);
+            refreshExecList();
+        });
     addE("tab_div", tab);
 
     refreshImageList();
+    refreshExecList();
 
     window.addEventListener("beforeunload", (e) => {
         if (sourceUploadInfo) {
