@@ -34,8 +34,9 @@
       downloadStorageFile('0', joinPath("/app/faker/run", csvFilePath), "faker_data.csv");
     }
     async function saveCsv() {
-      const filePath = await showFileSave('1', 'faker_data.csv');
-      await uploadFile('1', filePath, csvData);
+      const filePath = await showFileSave({defaultFilename: 'faker_data.csv'});
+      const storagePath = filePath.split(":");
+      await uploadFile(storagePath[0], storagePath[1], csvData);
     }
     function init() {
     }

@@ -61,13 +61,18 @@ async function createExec(item) {
     return JSON.parse(res);
 }
 
-async function inspectExec(id) {
+async function getExecInfo(id) {
     const res = await http_get(`/api/exec/${id}`);
     return JSON.parse(res);
 }
 
 async function getExecLogs(id) {
-    const res = await http_get(`/api/exec/logs/${id}`);
+    const res = await http_get(`/api/exec_logs/${id}`);
+    return JSON.parse(res);
+}
+
+async function stopExec(id) {
+    const res = await http_put(`/api/exec_stop/${id}`);
     return JSON.parse(res);
 }
 
@@ -145,6 +150,21 @@ async function getDatasetList() {
     const res = await http_get("/api/dataset");
     const datasetList = JSON.parse(res);
     return datasetList;
+}
+
+async function saveDatasetList(datasetList) {
+    const res = await http_post("/api/dataset", datasetList);
+    return JSON.parse(res);
+}
+
+async function addDatasetToList(dataset) {
+    const res = await http_post(`/api/dataset/${dataset.name}`, dataset);
+    return JSON.parse(res);
+}
+
+async function removeDatasetFromList(datasetName) {
+    const res = await http_delete(`/api/dataset/${datasetName}`);
+    return JSON.parse(res);
 }
 
 // APP

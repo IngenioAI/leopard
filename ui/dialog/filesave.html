@@ -4,19 +4,23 @@
 
 <LP-content name="dialog_main">
     <div class="container my-2">
-        <div class="my-1">현재 위치: <span id="current_dir">/</span></div>
+        <div class="d-flex flex-row align-items-center mt-2">
+            <div class="p-2">스토리지:</div>
+            <div class="flex-grow-1"><select class="form-control" id="LP_DIALOG_filesave_storage_select"></select></div>
+        </div>
+        <div class="p-2">현재 위치: <span id="current_dir">/</span></div>
         <div id="LP_DIALOG_filesave_list" class="list-group overflow-auto border" style="height:230px">
         </div>
-        <div class="d-flex flex-row align-items-center mt-2">
-            <div class="p-2">파일 이름:</div>
-            <div class="flex-grow-1"><input type="text" class="form-control" id="LP_DIALOG_filesave_dialogbox_input">
+        <div id="LP_DIALOG_filesave_filename_div">
+            <div class="d-flex flex-row align-items-center mt-2">
+                <div class="p-2">파일 이름:</div>
+                <div class="flex-grow-1"><input type="text" class="form-control" id="LP_DIALOG_filesave_filename_input"></div>
             </div>
         </div>
-
     </div>
 </LP-content>
 
 <LP-content name="dialog_footer">
-    <button type="button" class="btn btn-primary" id="LP_DIALOG_filesave_dialogbox_OK">저장</button>
-    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
+    <button type="button" class="btn btn-primary" id="LP_DIALOG_filesave_OK">저장</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
 </LP-content>

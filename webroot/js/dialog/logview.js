@@ -10,7 +10,7 @@ class LogViewDialogBox extends DialogBox {
         clearE(contentDiv);
         this.log = '';
 
-        this.term = new Terminal({convertEol: true});
+        this.term = new Terminal({disableStdin: true, convertEol: true});
         this.term.open(getE("LP_DIALOG_logview_content"));
         this.term.resize(80, 25);
     }

@@ -135,7 +135,7 @@ function getElapsedTimeString(date) {
     for (const t of times) {
         const betweenTime = Math.floor(diff / t.milliSeconds);
         if (betweenTime > 0) {
-        return `${betweenTime}${t.name} 전`;
+            return `${betweenTime}${t.name} 전`;
         }
     }
     return '방금 전';

@@ -10,7 +10,7 @@ class App():
     def __init__(self, config):
         self.config = config
         self.docker = DockerRunner()
-        self.exec_id = None
+        self.container_id = None
 
     def build_image(self, wait=True):
         build_info = self.config['image']['build']
@@ -65,15 +65,21 @@ class App():
                 json.dump(params, fp)
 
         if 'command' in exec_info:
-            exec_id = self.docker.exec_command(exec_info['src'], exec_info['main'], self.config['image']['tag'],
+            res, info = self.docker.exec_command(exec_info['src'], exec_info['main'], self.config['image']['tag'],
                                             exec_info['input'], exec_info['output'],
                                             exec_info['port'] if 'port' in exec_info else None,
                                             exec_info['command_params'] if 'command_params' in exec_info else None)
         else:
-            exec_id = self.docker.exec_python(exec_info['src'], exec_info['main'], self.config['image']['tag'],
+            res, info = self.docker.exec_python(exec_info['src'], exec_info['main'], self.config['image']['tag'],
                                             exec_info['input'], exec_info['output'],
                                             exec_info['port'] if 'port' in exec_info else None,
                                             exec_info['command_params'] if 'command_params' in exec_info else None)
+        if res:
+            self.container_id = info["container_id"]
+        else:
+            print(res, info)
+            self.container_id = ""
+            return ""
 
         if wait:
             status = True
@@ -81,13 +87,13 @@ class App():
             logs = ""
             while status:
                 time.sleep(0.5)
-                info = self.docker.exec_inspect(exec_id)
-                logs = self.docker.exec_logs(exec_id)
+                info = self.docker.exec_inspect(self.container_id)
+                logs = self.docker.exec_logs(self.container_id)
                 if len(logs) > last_line:
                     print(logs[last_line:])
                     last_line = len(logs)
                 status = info['State']['Running']
-            self.docker.exec_remove(exec_id)
+            self.docker.exec_remove(self.container_id)
 
             output_data_path = os.path.join(self.config['execution']['output'], "result.json")
             if os.path.exists(output_data_path):
@@ -98,9 +104,8 @@ class App():
                 return result
             else:
                 return { "success": False, "error_message": "output file not found", "log": logs}
-        else:
-            self.exec_id = exec_id
-            return self.exec_id
+
+        return self.container_id
 
     def call_server(self, params):
         req = request.Request('http://localhost:%s/api/run' % (self.config['execution']['port']),
@@ -110,7 +115,7 @@ class App():
             return json.load(resp)
         except error.HTTPError as e:
             print(e)
-            logs = self.docker.exec_logs(self.exec_id)
+            logs = self.docker.exec_logs(self.container_id)
             return {
                 "success": False,
                 "error_message": e.reason,
@@ -125,12 +130,12 @@ class App():
 
 
     def stop(self, remove=True):
-        self.docker.exec_stop(self.exec_id)
+        self.docker.exec_stop(self.container_id)
         if remove:
-            self.docker.exec_remove(self.exec_id)
+            self.docker.exec_remove(self.container_id)
 
     def logs(self):
-        return self.docker.exec_logs(self.exec_id)
+        return self.docker.exec_logs(self.container_id)
 
     def inspect(self):
-        return self.docker.exec_inspect(self.exec_id)
+        return self.docker.exec_inspect(self.container_id)
