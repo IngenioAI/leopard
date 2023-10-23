@@ -64,16 +64,13 @@ class App():
             with open(os.path.join(self.config['execution']['input'], "params.json"), "wt", encoding="UTF-8") as fp:
                 json.dump(params, fp)
 
-        if 'command' in exec_info:
-            res, info = self.docker.exec_command(exec_info['src'], exec_info['main'], self.config['image']['tag'],
-                                            exec_info['input'], exec_info['output'],
-                                            exec_info['port'] if 'port' in exec_info else None,
-                                            exec_info['command_params'] if 'command_params' in exec_info else None)
+        if "command" not in exec_info:
+            command_line = ["python", exec_info["main"]] + (exec_info["command_params"] if "command_params" in exec_info else [])
         else:
-            res, info = self.docker.exec_python(exec_info['src'], exec_info['main'], self.config['image']['tag'],
-                                            exec_info['input'], exec_info['output'],
-                                            exec_info['port'] if 'port' in exec_info else None,
-                                            exec_info['command_params'] if 'command_params' in exec_info else None)
+            command_line = exec_info["command"]
+        res, info = self.docker.exec_command(exec_info['src'], command_line, self.config['image']['tag'],
+                                        exec_info['input'], exec_info['output'],
+                                        { "port": exec_info['port'] } if 'port' in exec_info else {})
         if res:
             self.container_id = info["container_id"]
         else:

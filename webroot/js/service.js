@@ -167,6 +167,28 @@ async function removeDatasetFromList(datasetName) {
     return JSON.parse(res);
 }
 
+// Model
+async function getModelList() {
+    const res = await http_get("/api/model");
+    const modelList = JSON.parse(res);
+    return modelList;
+}
+
+async function saveModelList(modelList) {
+    const res = await http_post("/api/model", modelList);
+    return JSON.parse(res);
+}
+
+async function addModelToList(model) {
+    const res = await http_post(`/api/model/${model.name}`, model);
+    return JSON.parse(res);
+}
+
+async function removeModelFromList(modelName) {
+    const res = await http_delete(`/api/model/${modelName}`);
+    return JSON.parse(res);
+}
+
 // APP
 async function getAppList() {
     const res = await http_get("/api/app_list");

@@ -13,7 +13,7 @@ class DataStore():
             with open(dataset_info_path, "rt", encoding="utf-8") as fp:
                 self.current_data = json.load(fp)
         else:
-            if type == "list":
+            if self.type == "list":
                 self.current_data = []
             else:
                 self.current_data = {}

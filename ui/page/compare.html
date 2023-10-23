@@ -1,0 +1,37 @@
+<LP-template use="basepage" />
+
+<LP-content name="head">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</LP-content>
+
+<LP-content name="main">
+    <h2>성능 비교</h2>
+    <div>
+        데이터셋 패밀리:
+        <select class="custom-form">
+            <option>CelebA</option>
+            <option>Enron</option>
+            <option>FFHQ</option>
+            <option>MNIST</option>
+        </select>
+    </div>
+    <div>
+        데이터 셋: <input class="form-check-input" type="checkbox"/> MNIST
+        <input class="form-check-input" type="checkbox"/> MNIST-N10
+    </div>
+    <div>
+        모델: <input class="form-check-input" type="checkbox" />MNIST-CNN
+        <input class="form-check-input" type="checkbox" />MNIST-MLP
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="compare()">비교</button>
+    </div>
+    <div id="compare_graph" style="margin-top: 40px; width: 800px;height:600px;">
+
+    </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="formdialog.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
+</LP-content>

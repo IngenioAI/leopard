@@ -1,3 +1,4 @@
+import os
 import docker_runner
 import data_store
 
@@ -17,8 +18,12 @@ class ExecManager():
         current_exec_list = [self.get_info(x['id']) for x in self.exec_list]
         return current_exec_list
 
+    def get_run_path(self, id_name):
+        return os.path.join("storage", "run", id_name)
+
     def create_exec(self, id_name, source_path, command_line, base_image, input_path, output_path):
-        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path)
+        run_path = self.get_run_path(id_name)
+        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path, { "run_path": run_path })
         if res:
             container_id = info["container_id"]
             exec_info = self.docker.exec_inspect(container_id)
@@ -70,7 +75,6 @@ class ExecManager():
                     self.save()
                 return res, error_info
         return False, { "error_message": "ID not found: %s" % exec_id}
-
 
 
 manager = ExecManager()

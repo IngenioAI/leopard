@@ -97,7 +97,7 @@ class DockerRunner():
     def list_execs(self):
         return self.client.containers(all=True)
 
-    def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, port=None, command_params=None):
+    def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, options={}):
         working_dir = "/app"
         binds = []
         if src_dir != '':
@@ -106,6 +106,8 @@ class DockerRunner():
             binds.append('%s:%s' % (os.path.abspath(data_dir), "/data/input"))
         if output_dir is not None and output_dir != '':
             binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
+        if "run_path" in options:
+            binds.append("%s:%s" % (os.path.abspath(options["run_path"]), "/runapp"))
 
         #print("Binds:", binds)
         if type(command) == str:
@@ -115,17 +117,15 @@ class DockerRunner():
         else:
             print("Unsupported command type (string or list):", command)
 
-        if command_params is not None:
-            command_list += command_params
         try:
             container = self.client.create_container(image, command=command_list,
                                                     working_dir=working_dir,
-                                                    ports=[port] if port is not None else [],
+                                                    ports=[options['port']] if 'port' in options else [],
                                                     host_config=self.client.create_host_config(
                                                         device_requests=[
                                                             docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
                                                         binds=binds,
-                                                        port_bindings={port: port} if port is not None else {}
+                                                        port_bindings={options['port']: options['port']} if 'port' in options else {}
                                                     ))
             self.client.start(container.get('Id'))
             return True, { "container_id": container.get('Id') }
@@ -135,10 +135,6 @@ class DockerRunner():
                 "error_reason":e.response.reason,
                 "error_message":  e.explanation
             }
-
-    def exec_python(self, src_dir, main_src, image, data_dir=None, output_dir=None, port=None, command_params=None):
-        return self.exec_command(src_dir, ["python", main_src], image, data_dir, output_dir, port, command_params)
-
 
     def exec_logs(self, container_id):
         try:

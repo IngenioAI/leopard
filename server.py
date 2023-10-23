@@ -119,7 +119,8 @@ class ExecutionItem(BaseModel):
 @app.post("/api/exec", tags=["Exec"])
 async def create_execution(data: ExecutionItem):
     if data.uploadId is not None:
-        source_path = upload_util.process_upload_item(data.uploadId, data.id, data.srcPath)
+        source_path = exec.manager.get_run_path(data.id)
+        upload_util.process_upload_item(data.uploadId, source_path, data.srcPath)
     else:
         source_path = data.srcPath
 
@@ -330,7 +331,34 @@ async def add_dataset(req: Request):
 
 @app.delete("/api/dataset/{name}", tags=["Dataset"])
 async def delete_dataset(name: str):
-    data_store.manager.remove_data_from_list("dataset", "name", name);
+    data_store.manager.remove_data_from_list("dataset", "name", name)
+    return JSONResponseHandler({
+        "success": True
+    })
+
+@app.get("/api/model", tags=["Model"])
+async def get_model_list():
+    return JSONResponseHandler(data_store.manager.get_data_list("model"))
+
+@app.post("/api/model", tags=["Model"])
+async def post_model_list(req: Request):
+    model_list = await req.json()
+    res = data_store.manager.save_data_list("model", model_list)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.post("/api/model/{name}", tags=["Model"])
+async def add_model(req: Request):
+    model = await req.json()
+    res = data_store.manager.add_data_to_list("model", model)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.delete("/api/model/{name}", tags=["Model"])
+async def delete_model(name: str):
+    data_store.manager.remove_data_from_list("model", "name", name)
     return JSONResponseHandler({
         "success": True
     })
