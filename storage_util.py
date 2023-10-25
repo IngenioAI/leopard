@@ -32,8 +32,10 @@ def get_storage_file_path(storage_id: str, file_path: str):
             break
     if storage_path is not None:
         file_path = os.path.normpath(file_path)
-        if file_path.startswith("/") or file_path.startswith(".."):
-            return storage_path  # prevent invalid access to upper directory
+        if file_path.startswith("/"):
+            file_path = file_path[1:]
+        if file_path.startswith("../"):
+            file_path = file_path[3:]
         return os.path.join(storage_path, file_path)
     return ""
 

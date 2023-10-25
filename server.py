@@ -122,7 +122,9 @@ async def create_execution(data: ExecutionItem):
         source_path = exec.manager.get_run_path(data.id)
         upload_util.process_upload_item(data.uploadId, source_path, data.srcPath)
     else:
-        source_path = data.srcPath
+        sourcePath = data.srcPath.split(":")
+        source_path = storage_util.get_storage_file_path(sourcePath[0], sourcePath[1])
+        print("source_path:", sourcePath, source_path)
 
     if data.inputPath is not None and data.inputPath != "":
         storagePath = data.inputPath.split(":")

@@ -6,22 +6,24 @@
 
 <LP-content name="main">
     <h2>성능 비교</h2>
-    <div>
-        데이터셋 패밀리:
-        <select class="custom-form">
-            <option>CelebA</option>
-            <option>Enron</option>
-            <option>FFHQ</option>
-            <option>MNIST</option>
-        </select>
+    <div class="row mb-2">
+        <div class="col-sm-2">데이터셋 패밀리:</div>
+        <div class="col">
+            <select class="form-select" id="dataset_family_select" onchange="selectFamily()">
+            </select>
+        </div>
     </div>
-    <div>
-        데이터 셋: <input class="form-check-input" type="checkbox"/> MNIST
-        <input class="form-check-input" type="checkbox"/> MNIST-N10
+    <div class="row mb-2">
+        <div class="col-sm-2">데이터 셋:</div>
+        <div class="col" id="dataset_check_list">
+
+        </div>
     </div>
-    <div>
-        모델: <input class="form-check-input" type="checkbox" />MNIST-CNN
-        <input class="form-check-input" type="checkbox" />MNIST-MLP
+    <div class="row mb-2">
+        <div class="col-sm-2">모델:</div>
+        <div class="col" id="model_check_list">
+
+        </div>
     </div>
     <div>
         <button class="btn btn-primary" onclick="compare()">비교</button>

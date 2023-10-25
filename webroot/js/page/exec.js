@@ -72,14 +72,16 @@ async function createExecution() {
         item['uploadId'] = sourceUploadInfo.upload_id;
     }
     const res = await createExec(item);
-    if (res.success) {
-        const execInfo = res.exec_info;
-        refreshExecList();
-        showTab("current_exec");
-        checkLogs(execInfo);
-    }
-    else {
-        showMessageBox(res.error_message, "실행 오류");
+    if (res) {
+        if (res.success) {
+            const execInfo = res.exec_info;
+            refreshExecList();
+            showTab("current_exec");
+            checkLogs(execInfo);
+        }
+        else {
+            showMessageBox(res.error_message, "실행 오류");
+        }
     }
 }
 
@@ -107,31 +109,69 @@ async function checkLogs(info) {
 
 async function setInputPath() {
     const filepath = await showSelectPath();
-    setV("input_data_path", filepath);
+    if (filepath) {
+        setV("input_data_path", filepath);
+    }
 }
 
 async function setOutputPath() {
     const filepath = await showSelectPath();
-    setV("output_data_path", filepath);
+    if (filepath) {
+        setV("output_data_path", filepath);
+    }
 }
 
-async function setSourceCode() {
-    const res = await showFileUploadDialogBox();
+function clearUploadInfo() {
     if (sourceUploadInfo) {
         if (sourceUploadInfo.success) {
             removeUploadItem(sourceUploadInfo.upload_id);
         }
     }
-    sourceUploadInfo = res;
-    setV("src_path", sourceUploadInfo.files[0]);
-    if (sourceUploadInfo.files[0].indexOf(".py") > 0) {
-        setV("command_line", `python ${sourceUploadInfo.files[0]}`)
+    sourceUploadInfo = null;
+}
+
+async function setSourceCode() {
+    const res = await showFileUploadDialogBox(null, "/", "업로드할 소스 코드를 선택하세요", "소스 코드 업로드");
+    if (res) {
+        clearUploadInfo();
+        sourceUploadInfo = res;
+        setV("src_path", sourceUploadInfo.files[0]);
+        if (sourceUploadInfo.files[0].indexOf(".py") > 0) {
+            setV("command_line", `python ${sourceUploadInfo.files[0]}`)
+        }
     }
 }
 
 async function setCommandLine() {
     const command = await showInputDialogBox("커맨드 라인 입력", "입력");
-    setV("command_line", command);
+    if (command) {
+        setV("command_line", command);
+    }
+}
+
+async function setInputDataset() {
+    const datasetList = await getDatasetList();
+
+    const res = await showSelectDialogBox("입력 데이터로 사용할 데이터셋을 선택하세요", "데이터셋 설정",
+        datasetList.map((item) => item.name));
+    if (res) {
+        const dataset = datasetList.find((item) => item.name == res);
+        setV("input_data_path", `${dataset.storageId}:${dataset.storagePath}`);
+    }
+}
+
+async function setModel() {
+    const modelList = await getModelList();
+    const storageList = await getStorageList();
+
+    const res = await showSelectDialogBox("실행할 코드 모델을 선택하세요", "소스 설정",
+        modelList.map((item) => item.name));
+    if (res) {
+        const model = modelList.find((item) => item.name == res);
+        clearUploadInfo();
+        setV("src_path", `${getStorageId(model.storage, storageList)}:${model.storagePath}`);
+        setV("command_line", `python ${model.mainSrc}`);
+    }
 }
 
 async function refreshImageList() {

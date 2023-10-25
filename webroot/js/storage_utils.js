@@ -179,3 +179,21 @@ function downloadStorageFile(storageId, storagePath, fileName = null) {
     }
     a.click();
 }
+
+function getStorageName(storageId, storageList) {
+    for (const storageInfo of storageList) {
+        if (storageInfo.id == storageId) {
+            return storageInfo.name;
+        }
+    }
+    return storageId;
+}
+
+function getStorageId(storageName, storageList) {
+    for (const storageInfo of storageList) {
+        if (storageInfo.name == storageName) {
+            return storageInfo.id;
+        }
+    }
+    return storageName;
+}
