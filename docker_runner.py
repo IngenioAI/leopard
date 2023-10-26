@@ -107,7 +107,7 @@ class DockerRunner():
         if output_dir is not None and output_dir != '':
             binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
         if "run_path" in options:
-            binds.append("%s:%s" % (os.path.abspath(options["run_path"]), "/runapp"))
+            binds.append("%s:%s" % (os.path.abspath(options["run_path"]), "/apprun"))
 
         #print("Binds:", binds)
         if type(command) == str:

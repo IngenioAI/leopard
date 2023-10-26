@@ -1,6 +1,10 @@
 let sourceUploadInfo = null;
 let currentLogId = null;
 let logWindow = null;
+const execUserdata = {
+    dataset: "",
+    model: ""
+}
 
 function createExecItem(execInfo, initState="실행 중") {
     const MENU_ID = {
@@ -71,6 +75,7 @@ async function createExecution() {
     if (sourceUploadInfo && sourceUploadInfo.success) {
         item['uploadId'] = sourceUploadInfo.upload_id;
     }
+    item["userdata"] = execUserdata;
     const res = await createExec(item);
     if (res) {
         if (res.success) {
@@ -111,6 +116,7 @@ async function setInputPath() {
     const filepath = await showSelectPath();
     if (filepath) {
         setV("input_data_path", filepath);
+        execUserdata.dataset = "";
     }
 }
 
@@ -136,6 +142,7 @@ async function setSourceCode() {
         clearUploadInfo();
         sourceUploadInfo = res;
         setV("src_path", sourceUploadInfo.files[0]);
+        execUserdata.model = "";
         if (sourceUploadInfo.files[0].indexOf(".py") > 0) {
             setV("command_line", `python ${sourceUploadInfo.files[0]}`)
         }
@@ -146,6 +153,7 @@ async function setCommandLine() {
     const command = await showInputDialogBox("커맨드 라인 입력", "입력");
     if (command) {
         setV("command_line", command);
+        execUserdata.model = "";
     }
 }
 
@@ -157,6 +165,7 @@ async function setInputDataset() {
     if (res) {
         const dataset = datasetList.find((item) => item.name == res);
         setV("input_data_path", `${dataset.storageId}:${dataset.storagePath}`);
+        execUserdata.dataset = dataset.name;
     }
 }
 
@@ -171,6 +180,7 @@ async function setModel() {
         clearUploadInfo();
         setV("src_path", `${getStorageId(model.storage, storageList)}:${model.storagePath}`);
         setV("command_line", `python ${model.mainSrc}`);
+        execUserdata.model = model.name;
     }
 }
 

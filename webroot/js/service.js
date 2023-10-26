@@ -81,6 +81,16 @@ async function removeExec(id) {
     return JSON.parse(res);
 }
 
+async function getExecProgress(id) {
+    const res = await http_get(`/api/exec_progress/${id}`);
+    return JSON.parse(res);
+}
+
+async function getExecResult(id) {
+    const res = await http_get(`/api/exec_result/${id}`);
+    return JSON.parse(res);
+}
+
 // STORAGE
 async function getStorageList() {
     const res = await http_get("/api/storage");

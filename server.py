@@ -114,6 +114,7 @@ class ExecutionItem(BaseModel):
     inputPath: Union[str, None] = None
     outputPath: Union[str, None] = None
     uploadId: Union[str, None] = None
+    userdata: Union[dict, None] = None
 
 
 @app.post("/api/exec", tags=["Exec"])
@@ -137,7 +138,7 @@ async def create_execution(data: ExecutionItem):
         output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
     else:
         output_path = None
-    res, info = exec.manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path)
+    res, info = exec.manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata)
     if res:
         return JSONResponseHandler({
             "success": True,
@@ -177,6 +178,15 @@ async def remove_execution_info(exec_id: str):
         response.update(error_info)
     return JSONResponseHandler(response)
 
+@app.get("/api/exec_progress/{exec_id}", tags=["Exec"])
+async def get_execution_progress(exec_id: str):
+    info = exec.manager.get_progress(exec_id)
+    return JSONResponseHandler(info)
+
+@app.get("/api/exec_result/{exec_id}", tags=["Exec"])
+async def get_execution_result(exec_id: str):
+    info = exec.manager.get_result(exec_id)
+    return JSONResponseHandler(info)
 
 @app.get("/api/storage", tags=["Storage"])
 async def get_storage_list():

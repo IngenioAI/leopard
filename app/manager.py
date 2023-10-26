@@ -19,16 +19,11 @@ class AppManager():
             else:
                 o = App(info)
             self.apps[info['id']] = o
-            if info['type'] == 'server':
-                o.run()
 
     def run(self, module_id, params):
         for info in self.app_info:
             if info['id'] == module_id:
-                if info['type'] == 'server':
-                    return self.apps[module_id].call_server(params)
-                else:
-                    return self.apps[module_id].run(params)
+                return self.apps[module_id].run(params)
         return None
 
     def stop(self):
