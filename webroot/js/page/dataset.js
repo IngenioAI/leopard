@@ -71,19 +71,22 @@ async function createDataset() {
         { id: "type", title: "데이터 타입", type: "select", values:["Table", "Image", "Text", "Multi"], default: "Table" },
         { id: "storage", title: "스토리지", type: "select", values: storageList.map(item => item.name), default: storageList[0].name },
         { id: "storagePath", title: "경로", type: "text" },
+        { id: "family", title: "Family", type: "text" },
         { id: "description", title: "설명", type: "text" }
     ], null, "다음 정보로 데이터셋을 생성합니다", "데이터셋 생성", validator);
 
-    let storageId;
-    for (const storage of storageList) {
-        if (storage.name == data.storage) {
-            storageId = storage.id;
+    if (data) {
+        let storageId;
+        for (const storage of storageList) {
+            if (storage.name == data.storage) {
+                storageId = storage.id;
+            }
         }
+        delete data['storage'];
+        data['storageId'] = storageId;
+        addDatasetToList(data);
+        refreshDataset(true);
     }
-    delete data['storage'];
-    data['storageId'] = storageId;
-    addDatasetToList(data);
-    refreshDataset(true);
 }
 
 async function refreshDataset(reload=false) {

@@ -11,6 +11,7 @@ class App():
         self.config = config
         self.docker = DockerRunner()
         self.container_id = None
+        self.server_online = False
 
     def build_image(self, wait=True):
         build_info = self.config['image']['build']
@@ -38,14 +39,18 @@ class App():
         exec_info = self.config['execution']
         print(exec_info)
 
+        is_server = self.config['type'] == "server"
+        if self.server_online:
+            return self.call_server(params)
+
         if wait is None:
-            if self.config['type'] == "server":
+            if is_server:
                 wait = False
             else:
                 wait = True
 
         if 'main' not in exec_info:
-            if self.config['type'] == "server":
+            if is_server:
                 exec_info['main'] = 'server.py'
             else:
                 exec_info['main'] = 'main.py'
@@ -64,16 +69,13 @@ class App():
             with open(os.path.join(self.config['execution']['input'], "params.json"), "wt", encoding="UTF-8") as fp:
                 json.dump(params, fp)
 
-        if 'command' in exec_info:
-            res, info = self.docker.exec_command(exec_info['src'], exec_info['main'], self.config['image']['tag'],
-                                            exec_info['input'], exec_info['output'],
-                                            exec_info['port'] if 'port' in exec_info else None,
-                                            exec_info['command_params'] if 'command_params' in exec_info else None)
+        if "command" not in exec_info:
+            command_line = ["python", exec_info["main"]] + (exec_info["command_params"] if "command_params" in exec_info else [])
         else:
-            res, info = self.docker.exec_python(exec_info['src'], exec_info['main'], self.config['image']['tag'],
-                                            exec_info['input'], exec_info['output'],
-                                            exec_info['port'] if 'port' in exec_info else None,
-                                            exec_info['command_params'] if 'command_params' in exec_info else None)
+            command_line = exec_info["command"]
+        res, info = self.docker.exec_command(exec_info['src'], command_line, self.config['image']['tag'],
+                                        exec_info['input'], exec_info['output'],
+                                        { "port": exec_info['port'] } if 'port' in exec_info else {})
         if res:
             self.container_id = info["container_id"]
         else:
@@ -105,6 +107,23 @@ class App():
             else:
                 return { "success": False, "error_message": "output file not found", "log": logs}
 
+        if is_server:
+            timeout = 10
+            while timeout > 0:
+                if self.ping_server():
+                    break
+                time.sleep(1.0)
+                timeout -= 1
+            print("Timeout:", timeout)
+            if timeout > 0:
+                self.server_online = True
+                return self.call_server(params)
+            else:
+                return {
+                    "success": False,
+                    "error_message": "Server cannot be started"
+                }
+
         return self.container_id
 
     def call_server(self, params):
@@ -121,18 +140,28 @@ class App():
                 "error_message": e.reason,
                 "log": logs
             }
-        except error.URLLError as e:
+        except error.URLError as e:
             print(e)
             return {
                 "success": False,
                 "error_message": e.reason
             }
 
+    def ping_server(self):
+        req = request.Request('http://localhost:%s/api/ping' % (self.config['execution']['port']))
+        try:
+            resp = request.urlopen(req)
+            info = json.load(resp)
+            return info["success"]
+        except (error.HTTPError, error.URLError, ConnectionResetError) as e:
+            print(e)
+            return False
 
     def stop(self, remove=True):
-        self.docker.exec_stop(self.container_id)
-        if remove:
-            self.docker.exec_remove(self.container_id)
+        if self.container_id:
+            self.docker.exec_stop(self.container_id)
+            if remove:
+                self.docker.exec_remove(self.container_id)
 
     def logs(self):
         return self.docker.exec_logs(self.container_id)

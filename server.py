@@ -114,14 +114,18 @@ class ExecutionItem(BaseModel):
     inputPath: Union[str, None] = None
     outputPath: Union[str, None] = None
     uploadId: Union[str, None] = None
+    userdata: Union[dict, None] = None
 
 
 @app.post("/api/exec", tags=["Exec"])
 async def create_execution(data: ExecutionItem):
     if data.uploadId is not None:
-        source_path = upload_util.process_upload_item(data.uploadId, data.id, data.srcPath)
+        source_path = exec.manager.get_run_path(data.id)
+        upload_util.process_upload_item(data.uploadId, source_path, data.srcPath)
     else:
-        source_path = data.srcPath
+        sourcePath = data.srcPath.split(":")
+        source_path = storage_util.get_storage_file_path(sourcePath[0], sourcePath[1])
+        print("source_path:", sourcePath, source_path)
 
     if data.inputPath is not None and data.inputPath != "":
         storagePath = data.inputPath.split(":")
@@ -134,7 +138,7 @@ async def create_execution(data: ExecutionItem):
         output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
     else:
         output_path = None
-    res, info = exec.manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path)
+    res, info = exec.manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata)
     if res:
         return JSONResponseHandler({
             "success": True,
@@ -174,6 +178,15 @@ async def remove_execution_info(exec_id: str):
         response.update(error_info)
     return JSONResponseHandler(response)
 
+@app.get("/api/exec_progress/{exec_id}", tags=["Exec"])
+async def get_execution_progress(exec_id: str):
+    info = exec.manager.get_progress(exec_id)
+    return JSONResponseHandler(info)
+
+@app.get("/api/exec_result/{exec_id}", tags=["Exec"])
+async def get_execution_result(exec_id: str):
+    info = exec.manager.get_result(exec_id)
+    return JSONResponseHandler(info)
 
 @app.get("/api/storage", tags=["Storage"])
 async def get_storage_list():
@@ -330,7 +343,34 @@ async def add_dataset(req: Request):
 
 @app.delete("/api/dataset/{name}", tags=["Dataset"])
 async def delete_dataset(name: str):
-    data_store.manager.remove_data_from_list("dataset", "name", name);
+    data_store.manager.remove_data_from_list("dataset", "name", name)
+    return JSONResponseHandler({
+        "success": True
+    })
+
+@app.get("/api/model", tags=["Model"])
+async def get_model_list():
+    return JSONResponseHandler(data_store.manager.get_data_list("model"))
+
+@app.post("/api/model", tags=["Model"])
+async def post_model_list(req: Request):
+    model_list = await req.json()
+    res = data_store.manager.save_data_list("model", model_list)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.post("/api/model/{name}", tags=["Model"])
+async def add_model(req: Request):
+    model = await req.json()
+    res = data_store.manager.add_data_to_list("model", model)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.delete("/api/model/{name}", tags=["Model"])
+async def delete_model(name: str):
+    data_store.manager.remove_data_from_list("model", "name", name)
     return JSONResponseHandler({
         "success": True
     })

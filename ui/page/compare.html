@@ -1,0 +1,39 @@
+<LP-template use="basepage" />
+
+<LP-content name="head">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+</LP-content>
+
+<LP-content name="main">
+    <h2>성능 비교</h2>
+    <div class="row mb-2">
+        <div class="col-sm-2">데이터셋 패밀리:</div>
+        <div class="col">
+            <select class="form-select" id="dataset_family_select" onchange="selectFamily()">
+            </select>
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-sm-2">데이터 셋:</div>
+        <div class="col" id="dataset_check_list">
+
+        </div>
+    </div>
+    <div class="row mb-2">
+        <div class="col-sm-2">모델:</div>
+        <div class="col" id="model_check_list">
+
+        </div>
+    </div>
+    <div>
+        <button class="btn btn-primary" onclick="compare()">비교</button>
+    </div>
+    <div id="compare_graph" style="margin-top: 40px; width: 800px;height:600px;">
+
+    </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="formdialog.html"></LP-include-html>
+    <LP-include-html src="messagebox.html"></LP-include-html>
+</LP-content>

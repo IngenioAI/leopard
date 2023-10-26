@@ -81,6 +81,16 @@ async function removeExec(id) {
     return JSON.parse(res);
 }
 
+async function getExecProgress(id) {
+    const res = await http_get(`/api/exec_progress/${id}`);
+    return JSON.parse(res);
+}
+
+async function getExecResult(id) {
+    const res = await http_get(`/api/exec_result/${id}`);
+    return JSON.parse(res);
+}
+
 // STORAGE
 async function getStorageList() {
     const res = await http_get("/api/storage");
@@ -164,6 +174,28 @@ async function addDatasetToList(dataset) {
 
 async function removeDatasetFromList(datasetName) {
     const res = await http_delete(`/api/dataset/${datasetName}`);
+    return JSON.parse(res);
+}
+
+// Model
+async function getModelList() {
+    const res = await http_get("/api/model");
+    const modelList = JSON.parse(res);
+    return modelList;
+}
+
+async function saveModelList(modelList) {
+    const res = await http_post("/api/model", modelList);
+    return JSON.parse(res);
+}
+
+async function addModelToList(model) {
+    const res = await http_post(`/api/model/${model.name}`, model);
+    return JSON.parse(res);
+}
+
+async function removeModelFromList(modelName) {
+    const res = await http_delete(`/api/model/${modelName}`);
     return JSON.parse(res);
 }
 

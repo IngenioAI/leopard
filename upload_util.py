@@ -53,17 +53,15 @@ def get_compressed_filelist(filepath):
         print("Invalid zip file:", filepath)
     return file_list
 
-def process_upload_item(uploadId, id, filename):
+def process_upload_item(uploadId, target_dir, filename):
     upload_path = os.path.join("storage", "upload", uploadId)
     if os.path.exists(upload_path):
-        run_path = os.path.join("storage", "run", id)
-        if os.path.exists(run_path):
-            shutil.rmtree(run_path)
+        if os.path.exists(target_dir):
+            shutil.rmtree(target_dir)
         else:
             storage_util.ensure_path(os.path.join("storage", "run"))
-        shutil.copytree(upload_path, run_path)
-        zip_path = os.path.join(run_path, filename)
+        shutil.copytree(upload_path, target_dir)
+        zip_path = os.path.join(target_dir, filename)
         ext = os.path.splitext(filename)[1]
         if ext in [".zip", ".gz", "tgz", ".tar"]:
-            shutil.unpack_archive(zip_path, run_path)
-    return run_path
+            shutil.unpack_archive(zip_path, target_dir)

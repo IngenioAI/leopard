@@ -65,6 +65,6 @@ class FileUploadDialogBox extends ModalDialogBox {
 
 function showFileUploadDialogBox(storageId, storagePath, message=null, title=null) {
     const dialogBox = new FileUploadDialogBox(storageId, storagePath);
-    dialogBox.setText(message, title);
+    dialogBox.setText(message ? message : "업로드할 파일을 선택하세요", title ? title : "파일 업로드");
     return dialogBox.exec();
 }
