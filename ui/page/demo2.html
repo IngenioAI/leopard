@@ -1,0 +1,90 @@
+<LP-template use="basepage" /><LP-template use="basepage" />
+
+<LP-content name="head">
+    <script src="/js/control/context_menu.js"></script>
+</LP-content>
+
+<LP-content name="main">
+    <h2 class="mb-2">비식별화 데이터 성능 평가</h2>
+
+    <div class="card">
+        <h5 class="card-header">데이터셋</h5>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-5" id="dataset_list"><i class="bi bi-database mx-2"></i>데이터셋 없음</div>
+                <div class="col-5">
+                    <select class="form-select" id="dataset_select">
+                    </select>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-outline-secondary" onclick="addDataset()">추가</button>
+                    <button class="btn btn-outline-secondary" onclick="deleteDataset()">모두 삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center"><i class="bi bi-arrow-down" style="font-size: 2rem; color: darkgray;"></i></div>
+    <div class="card mt-2">
+        <h5 class="card-header">비식별화 처리기</h5>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-5" id="data_processor_list"><i class="bi bi-boxes mx-2"></i>데이터 처리기 없음</div>
+                <div class="col-5">
+                    <select class="form-select" id="data_processor_select">
+                    </select>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-outline-secondary" onclick="addDataProcessor()">추가</button>
+                    <button class="btn btn-outline-secondary" onclick="deleteDataProcessor()">모두 삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="text-center"><i class="bi bi-arrow-down" style="font-size: 2rem; color: darkgray;"></i></div>
+    <div class="card mt-2">
+        <h5 class="card-header">학습 모델</h5>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-5" id="model_list"><i class="bi bi-layers mx-2"></i>학습 모델 없음</div>
+                <div class="col-5">
+                    <select class="form-select" id="model_select">
+                    </select>
+                </div>
+                <div class="col-2">
+                    <button class="btn btn-outline-secondary" onclick="addModel()">추가</button>
+                    <button class="btn btn-outline-secondary" onclick="deleteModel()">모두 삭제</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button type="button" id="setting_button" class="btn btn-primary p-2" style="width: 34%"
+            onclick="setting()">설정</button>
+    </div>
+
+    <div id="exec_table" class="mt-4" style="display:none">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th scope="col">데이터셋</th>
+                    <th scope="col">데이터 처리기</th>
+                    <th scope="col">모델</th>
+                    <th scope="col">상태</th>
+                    <th scope="col">동작</th>
+                </tr>
+            </thead>
+            <tbody id="exec_tbody">
+
+            </tbody>
+        </table>
+        <div class="text-center mt-4">
+            <button type="button" class="btn btn-primary p-2" style="width: 34%"
+                onclick="execute()">실행</button>
+        </div>
+    </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="messagebox.html"></LP-include-html>
+</LP-content>

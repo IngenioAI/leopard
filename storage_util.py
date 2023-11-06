@@ -21,6 +21,8 @@ def get_storage_info(trait):
     storage_list = data_store.manager.get_data_list("storage")
     if len(storage_list) == 0:
         storage_list = default_storage_info
+        for storage in storage_list:
+            ensure_path(storage["path"])
     return [x for x in storage_list if trait in x['trait'] or trait == "*"]
 
 def get_storage_file_path(storage_id: str, file_path: str):
