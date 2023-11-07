@@ -18,6 +18,7 @@ from html_util import process_include_html
 import upload_util
 from app.manager import AppManager
 import exec
+import sysinfo
 
 
 tags_metadata = [
@@ -385,6 +386,11 @@ async def run_app(module_id: str, req: Request):
     res = app.app_manager.run(module_id, params)
     return JSONResponseHandler(res)
 
+@app.get("/api/sys_info", tags=["System"])
+async def get_sys_info():
+    return JSONResponseHandler(app.sys_info.get_system_info())
+
+
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 
 
@@ -393,10 +399,13 @@ def web_main(args):
     app.docker_runner = DockerRunner()
     app.app_manager = AppManager()
     app.app_manager.start()
+    app.sys_info = sysinfo.SystemInfo()
+    app.sys_info.start()
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
     print("Cleanup app docker")
     app.app_manager.stop()
+    app.sys_info.stop()
 
 
 def parse_arguments():

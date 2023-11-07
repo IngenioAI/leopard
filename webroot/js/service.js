@@ -213,3 +213,9 @@ async function runApp(appName, params) {
         return HTTPErrorHandler(err);
     }
 }
+
+// SYSINFO
+async function getSysInfo() {
+    const res = await http_get("/api/sys_info");
+    return JSON.parse(res);
+}

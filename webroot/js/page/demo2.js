@@ -77,7 +77,6 @@ function createContextMenu(info) {
 }
 
 async function setting() {
-    console.log(selectedDataset, selectedDataProcessor, selectedModel);
     if (selectedDataset.length == 0) {
         showMessageBox("하나 이상의 데이터셋을 추가해야 합니다.", "데이터셋")
         return;
