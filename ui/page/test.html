@@ -1,12 +1,18 @@
 <LP-template use="basepage" />
 <LP-content name="head">
+    <script src="/js/control/pagination.js"></script>
     <script>
         async function onTest() {
             //window.open("/ui/storage.html?storage_id=1&storage_path=dataset 12")
             showMessageBox("테스트", "테스트제목");
         }
+        let pagination = null;
+        function goPage(page) {
+            pagination.update(page);
+        }
         async function init() {
-
+            pagination = createPagination("test_pagination", 10, 45, 9, (page) => goPage(page));
+            pagination.update(1);
         }
     </script>
 </LP-content>
@@ -22,6 +28,11 @@
         </a>
     </h4>
     <button class="btn btn-primary" onclick="onTest()">테스트</button>
+
+    <nav class="mt-2">
+        <ul id="test_pagination" class="pagination pagination-sm">
+        </ul>
+    </nav>
 </LP-content>
 
 <LP-content name="dialog">

@@ -1,7 +1,9 @@
 let currentStorageId = "";
 let currentPath = "";
-let currentPage = 0;
-const pageCount = 25;
+let currentPage = 1;
+const pageCount = 10;
+let pagination = null;
+const paginationItemCount = 9;
 const queryParam = getQueryParam();
 
 function onChangeStorage(e) {
@@ -80,15 +82,15 @@ function createContextMenu(fileInfo) {
     return contextMenu.element;
 }
 
-async function browseDirectory(storageId, storagePath, page = 0) {
-    currentStorageId = storageId
-    currentPath = storagePath
-    currentPage = page
+async function browseDirectory(storageId, storagePath, page=1) {
+    currentStorageId = storageId;
+    currentPath = storagePath;
+    currentPage = page;
 
     const fileListDiv = getE("file_list");
-    clearE(fileListDiv);
     setT("current_path", currentPath);
-    const fileList = await getFileList(currentStorageId, currentPath, currentPage, pageCount)
+    const fileList = await getFileList(currentStorageId, currentPath, currentPage-1, pageCount);
+    clearE(fileListDiv);
     if (currentPath != "/") {
         addE(fileListDiv, createFileItem({ name: "..", is_dir: true }));
     }
@@ -96,6 +98,16 @@ async function browseDirectory(storageId, storagePath, page = 0) {
         const fileItem = createFileItem(file)
         addE(fileListDiv, fileItem);
     }
+    pagination = createPagination("list_pagination", pageCount, fileList.total_count, paginationItemCount, (clickPage) => {
+        browseDirectory(currentStorageId, currentPath, clickPage);
+    });
+    if (pagination.totalPage > 1) {
+        getE("btn_page").style = "display: inline";
+    }
+    else {
+        getE("btn_page").style = "display: none";
+    }
+    pagination.update(currentPage);
 }
 
 async function createFolder() {
@@ -107,22 +119,32 @@ async function createFolder() {
         return true;
     });
 
-    const res = await createStorageFolder(currentStorageId, joinPath(currentPath, newName));
-    if (!res.success) {
-        if (res.errorCode == 403) {
-            showMessageBox("동일한 이름의 객체가 이미 존재합니다.", "폴더 생성");
+    if (newName) {
+        const res = await createStorageFolder(currentStorageId, joinPath(currentPath, newName));
+        if (!res.success) {
+            if (res.errorCode == 403) {
+                showMessageBox("동일한 이름의 객체가 이미 존재합니다.", "폴더 생성");
+            }
+            else {
+                showMessageBox(`폴더 생성에 실패하였습니다. 오류코드: ${res.errorCode}`, "폴더 생성");
+            }
         }
-        else {
-            showMessageBox(`폴더 생성에 실패하였습니다. 오류코드: ${res.errorCode}`, "폴더 생성");
-        }
+        browseDirectory(currentStorageId, currentPath);
     }
-    browseDirectory(currentStorageId, currentPath);
 }
 
 async function uploadFile() {
     const res = await showFileUploadDialogBox(currentStorageId, currentPath);
-    if (res.success) {
+    if (res && res.success) {
         browseDirectory(currentStorageId, currentPath);
+    }
+}
+
+async function goPage() {
+    const newPage = await showInputDialogBox("이동할 페이지를 입력합니다.", "페이지 이동");
+    const page = parseInt(newPage);
+    if (pagination && page > 0 && page <= pagination.totalPage) {
+        browseDirectory(currentStorageId, currentPath, page);
     }
 }
 
@@ -143,5 +165,6 @@ async function init() {
     if (queryParam && queryParam.storage_id) {
         selectStorage.value = queryParam.storage_id;
     }
-    browseDirectory(selectStorage.value, queryParam && queryParam.storage_path ? queryParam.storage_path : "/");
+
+    browseDirectory(selectStorage.value, queryParam && queryParam.storage_path ? queryParam.storage_path : "/", queryParam && queryParam.page ? parseInt(queryParam.page) : 1);
 }

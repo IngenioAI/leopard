@@ -109,7 +109,6 @@ async function getFileList(storageId, storagePath, page=0, count=0) {
     }
     const res = await http_get(url);
     const fileList = JSON.parse(res);
-    sortFileList(fileList);
     return fileList;
 }
 

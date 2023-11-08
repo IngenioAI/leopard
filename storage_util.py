@@ -42,12 +42,15 @@ def get_storage_file_path(storage_id: str, file_path: str):
     return ""
 
 
-def get_file_list(storage_id: str, file_path: str = "."):
+def get_file_list(storage_id: str, file_path: str = ".", sort = "default"):
     storage_file_path = get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         if os.access(storage_file_path, os.R_OK):
-            file_list = os.listdir(storage_file_path)
-            return file_list
+            _, dir_list, file_list = next(os.walk(storage_file_path))
+            if sort == "default":
+                dir_list = sorted(dir_list)
+                file_list = sorted(file_list)
+            return dir_list + file_list
     return []
 
 
