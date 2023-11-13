@@ -1,38 +1,42 @@
 <LP-template use="basepage" />
 <LP-content name="head">
-    <script src="/js/control/pagination.js"></script>
     <script>
-        async function onTest() {
-            //window.open("/ui/storage.html?storage_id=1&storage_path=dataset 12")
-            showMessageBox("테스트", "테스트제목");
+        async function login() {
+            const res = await createSession(getV("input_user"));
+            await saveSessionData({"test": "test string"})
+            refresh();
         }
-        let pagination = null;
-        function goPage(page) {
-            pagination.update(page);
+        async function logout() {
+            const res = await deleteSession();
+            refresh();
         }
+        async function refresh() {
+            const session = await getSession();
+            if (session.success) {
+                setT("username", session.username);
+                const data = await getSessionData();
+                console.log(data);
+            }
+            else {
+                setT("username", "사용자 없음");
+            }
+
+        }
+
         async function init() {
-            pagination = createPagination("test_pagination", 10, 45, 9, (page) => goPage(page));
-            pagination.update(1);
+            refresh();
         }
     </script>
 </LP-content>
 
 <LP-content name="main">
     <h1>TEST</h1>
-    <h4 class="d-flex justify-content-between align-items-center px-3 mt-4 mb-1 text-body-secondary text-uppercase">
-        <span>API 테스트</span>
-        <a class="link-secondary" href="#" aria-label="Add a new report">
-            <svg class="bi">
-                <use xlink:href="#plus-circle" />
-            </svg>
-        </a>
-    </h4>
-    <button class="btn btn-primary" onclick="onTest()">테스트</button>
+    <h2>User Session 테스트</h2>
+    <div>로그인된 사용자: <span id="username"></span></div>
+    <div class="my-2"><input type="text" value="user1" id="input_user"/></div>
+    <button class="btn btn-primary" onclick="login()">로그인</button>
+    <button class="btn btn-primary" onclick="logout()">로그아웃</button>
 
-    <nav class="mt-2">
-        <ul id="test_pagination" class="pagination pagination-sm">
-        </ul>
-    </nav>
 </LP-content>
 
 <LP-content name="dialog">

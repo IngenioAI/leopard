@@ -1,8 +1,16 @@
 import os
 import json
 import shutil
+
+from pydantic import BaseModel
+from typing import Union
+from fastapi import APIRouter
+
 import docker_runner
 import data_store
+import upload_util
+import storage_util
+from fastapi_util import JSONResponseHandler
 
 class ExecManager():
     def __init__(self) -> None:
@@ -100,4 +108,92 @@ class ExecManager():
         return None
 
 
-manager = ExecManager()
+exec_manager = ExecManager()
+
+exec_router = APIRouter(prefix="/api/exec", tags=["Exec"])
+
+@exec_router.get("/list")
+async def get_exec_list():
+    return JSONResponseHandler(exec_manager.get_list())
+
+class ExecutionItem(BaseModel):
+    id: str
+    srcPath: str
+    command: str
+    imageTag: str
+    inputPath: Union[str, None] = None
+    outputPath: Union[str, None] = None
+    uploadId: Union[str, None] = None
+    userdata: Union[dict, None] = None
+
+
+@exec_router.post("/create")
+async def create_execution(data: ExecutionItem):
+    if data.uploadId is not None:
+        source_path = exec_manager.get_run_path(data.id)
+        upload_util.process_upload_item(data.uploadId, source_path, data.srcPath)
+    else:
+        sourcePath = data.srcPath.split(":")
+        source_path = storage_util.get_storage_file_path(sourcePath[0], sourcePath[1])
+        print("source_path:", sourcePath, source_path)
+
+    if data.inputPath is not None and data.inputPath != "":
+        storagePath = data.inputPath.split(":")
+        input_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+    else:
+        input_path = None
+
+    if data.outputPath is not None and data.outputPath != "":
+        storagePath = data.outputPath.split(":")
+        output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+    else:
+        output_path = None
+    res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata)
+    if res:
+        return JSONResponseHandler({
+            "success": True,
+            "exec_info": info
+        })
+    else:
+        return JSONResponseHandler({ "success": False }.update(info))
+
+
+@exec_router.get("/info/{exec_id}")
+async def get_execution_info(exec_id: str):
+    info = exec_manager.get_info(exec_id)
+    return JSONResponseHandler(info)
+
+
+@exec_router.get("/logs/{exec_id}")
+async def get_execution_logs(exec_id: str):
+    logs = exec_manager.get_logs(exec_id)
+    return JSONResponseHandler({
+        "success": True,
+        "lines": logs
+    })
+
+@exec_router.put("/stop/{exec_id}")
+async def stop_execution(exec_id: str):
+    res, error_info = exec_manager.stop(exec_id)
+    response = { "success": res }
+    if error_info is not None:
+        response.update(error_info)
+    return JSONResponseHandler(response)
+
+@exec_router.delete("/item/{exec_id}")
+async def remove_execution_info(exec_id: str):
+    res, error_info = exec_manager.remove_exec(exec_id)
+    response = { "success": res }
+    if error_info is not None:
+        response.update(error_info)
+    return JSONResponseHandler(response)
+
+@exec_router.get("/progress/{exec_id}")
+async def get_execution_progress(exec_id: str):
+    info = exec_manager.get_progress(exec_id)
+    return JSONResponseHandler(info)
+
+@exec_router.get("/result/{exec_id}")
+async def get_execution_result(exec_id: str):
+    info = exec_manager.get_result(exec_id)
+    return JSONResponseHandler(info)

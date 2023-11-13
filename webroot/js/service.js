@@ -26,17 +26,17 @@ function HTTPErrorHandler(err) {
 
 // IMAGE
 async function createExecImage(item) {
-    const res = await http_post('/api/image_create', item);
+    const res = await http_post('/api/image/create', item);
     return JSON.parse(res);
 }
 
 async function getExecImageCreationInfo(tagName) {
-    const res = await http_get(`/api/image_create/${tagName}`);
+    const res = await http_get(`/api/image/create/${tagName}`);
     return JSON.parse(res);
 }
 
 async function removeExecImageCreationInfo(tagName) {
-    const res = await http_delete(`/api/image_create/${tagName}`, null);
+    const res = await http_delete(`/api/image/create/${tagName}`, null);
     return JSON.parse(res);
 }
 
@@ -46,48 +46,48 @@ async function getExecImageList() {
 }
 
 async function removeExecImage(tagName) {
-    const res = await http_delete(`/api/image/${tagName}`);
+    const res = await http_delete(`/api/image/item/${tagName}`);
     return JSON.parse(res);
 }
 
 // EXEC
 async function getExecList() {
-    const res = await http_get("/api/exec_list");
+    const res = await http_get("/api/exec/list");
     return JSON.parse(res);
 }
 
 async function createExec(item) {
-    const res = await http_post('/api/exec', item);
+    const res = await http_post('/api/exec/create', item);
     return JSON.parse(res);
 }
 
 async function getExecInfo(id) {
-    const res = await http_get(`/api/exec/${id}`);
+    const res = await http_get(`/api/exec/info/${id}`);
     return JSON.parse(res);
 }
 
 async function getExecLogs(id) {
-    const res = await http_get(`/api/exec_logs/${id}`);
+    const res = await http_get(`/api/exec/logs/${id}`);
     return JSON.parse(res);
 }
 
 async function stopExec(id) {
-    const res = await http_put(`/api/exec_stop/${id}`);
+    const res = await http_put(`/api/exec/stop/${id}`);
     return JSON.parse(res);
 }
 
 async function removeExec(id) {
-    const res = await http_delete(`/api/exec/${id}`, null);
+    const res = await http_delete(`/api/exec/item/${id}`, null);
     return JSON.parse(res);
 }
 
 async function getExecProgress(id) {
-    const res = await http_get(`/api/exec_progress/${id}`);
+    const res = await http_get(`/api/exec/progress/${id}`);
     return JSON.parse(res);
 }
 
 async function getExecResult(id) {
-    const res = await http_get(`/api/exec_result/${id}`);
+    const res = await http_get(`/api/exec/result/${id}`);
     return JSON.parse(res);
 }
 
@@ -216,5 +216,44 @@ async function runApp(appName, params) {
 // SYSINFO
 async function getSysInfo() {
     const res = await http_get("/api/sys_info");
+    return JSON.parse(res);
+}
+
+// Session
+async function createSession(username) {
+    const res = await http_post(`/api/session/create/${username}`);
+    return JSON.parse(res);
+}
+
+async function getSession() {
+    try {
+        const res = await http_get("/api/session/current");
+        return JSON.parse(res);
+    } catch(err) {
+        return HTTPErrorHandler(err);
+    }
+}
+
+async function deleteSession() {
+    try {
+        const res = await http_delete("/api/session/current");
+        return JSON.parse(res);
+    } catch (err) {
+        return HTTPErrorHandler(err);
+    }
+}
+
+async function saveSessionData(data) {
+    const res = await http_post("/api/session/data", data);
+    return JSON.parse(res);
+}
+
+async function getSessionData() {
+    const res = await http_get("/api/session/data");
+    return JSON.parse(res);
+}
+
+async function deleteSessionData() {
+    const res = await http_delete("/api/session/data");
     return JSON.parse(res);
 }

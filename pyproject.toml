@@ -11,6 +11,7 @@ fastapi = "^0.99.1"
 uvicorn = "^0.23.1"
 python-multipart = "^0.0.6"
 psutil = "^5.9.6"
+fastapi-sessions = "^0.3.2"
 
 [tool.poetry.dev-dependencies]
 
