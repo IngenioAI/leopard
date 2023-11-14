@@ -152,7 +152,7 @@ def web_main(args):
     app.app_manager.start()
     app.sys_info = sysinfo.SystemInfo()
     app.sys_info.start()
-    uvicorn.run("server:app", host="127.0.0.1", port=args.port, reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=args.port)
 
     print("Cleanup app docker")
     app.app_manager.stop()
