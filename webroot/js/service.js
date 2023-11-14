@@ -93,13 +93,13 @@ async function getExecResult(id) {
 
 // STORAGE
 async function getStorageList() {
-    const res = await http_get("/api/storage");
+    const res = await http_get("/api/storage/list");
     const storageList = JSON.parse(res);
     return storageList;
 }
 
 async function getFileList(storageId, storagePath, page=0, count=0) {
-    let url = joinPath("/api/storage", storageId, storagePath);
+    let url = joinPath("/api/storage/list", storageId, storagePath);
     const query = makeQueryString({
         page: page,
         count: count
@@ -113,7 +113,7 @@ async function getFileList(storageId, storagePath, page=0, count=0) {
 }
 
 async function createStorageFolder(storageId, storagePath) {
-    const url = joinPath("/api/storage", storageId, storagePath);
+    const url = joinPath("/api/storage/dir", storageId, storagePath);
     try {
         const res = await http_put(url)
         return JSON.parse(res);
@@ -134,7 +134,7 @@ async function getStorageFileContent(storageId, storagePath, reload=false) {
 
 async function deleteStorageItem(storageId, storagePath) {
     try {
-        const url = joinPath("/api/storage", storageId, storagePath);
+        const url = joinPath("/api/storage/item", storageId, storagePath);
         const res = await http_delete(url);
         return JSON.parse(res);
     } catch(err) {
@@ -148,65 +148,69 @@ async function uploadFile(storageId, storagePath, contents, contentType='applica
     return JSON.parse(res);
 }
 
+function getUploadItemURL() {
+    return "/api/storage/upload_item";
+}
+
 async function removeUploadItem(uploadId) {
-    const url = `/api/upload_item/${uploadId}`;
+    const url = `/api/storage/upload_item/${uploadId}`;
     const res = await http_delete(url)
     return JSON.parse(res);
 }
 
 // DATASET
 async function getDatasetList() {
-    const res = await http_get("/api/dataset");
+    const res = await http_get("/api/dataset/list");
     const datasetList = JSON.parse(res);
     return datasetList;
 }
 
 async function saveDatasetList(datasetList) {
-    const res = await http_post("/api/dataset", datasetList);
+    const res = await http_post("/api/dataset/list", datasetList);
     return JSON.parse(res);
 }
 
 async function addDatasetToList(dataset) {
-    const res = await http_post(`/api/dataset/${dataset.name}`, dataset);
+    const res = await http_post(`/api/dataset/item/${dataset.name}`, dataset);
     return JSON.parse(res);
 }
 
 async function removeDatasetFromList(datasetName) {
-    const res = await http_delete(`/api/dataset/${datasetName}`);
+    const res = await http_delete(`/api/dataset/item/${datasetName}`);
     return JSON.parse(res);
 }
 
 // Model
 async function getModelList() {
-    const res = await http_get("/api/model");
+    const res = await http_get("/api/model/list");
     const modelList = JSON.parse(res);
     return modelList;
 }
 
 async function saveModelList(modelList) {
-    const res = await http_post("/api/model", modelList);
+    const res = await http_post("/api/model/list", modelList);
     return JSON.parse(res);
 }
 
 async function addModelToList(model) {
-    const res = await http_post(`/api/model/${model.name}`, model);
+    const res = await http_post(`/api/model/item/${model.name}`, model);
     return JSON.parse(res);
 }
 
 async function removeModelFromList(modelName) {
-    const res = await http_delete(`/api/model/${modelName}`);
+    const res = await http_delete(`/api/model/item/${modelName}`);
     return JSON.parse(res);
 }
 
 // APP
 async function getAppList() {
-    const res = await http_get("/api/app_list");
+    const res = await http_get("/api/app/list");
     return JSON.parse(res);
 }
 
 async function runApp(appName, params) {
     try {
-        const res = await http_post(`/api/app/${appName}`, params);
+        const res = await http_post(`/api/app/run/${appName}`, params);
         return JSON.parse(res);
     } catch(err) {
         return HTTPErrorHandler(err);
@@ -215,7 +219,7 @@ async function runApp(appName, params) {
 
 // SYSINFO
 async function getSysInfo() {
-    const res = await http_get("/api/sys_info");
+    const res = await http_get("/api/system/info");
     return JSON.parse(res);
 }
 
