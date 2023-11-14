@@ -160,7 +160,7 @@ function sortFileList(fileList) {
 }
 
 function createStorageFileURL(storageId, storagePath, reload=false) {
-    let url = joinPath('/api/storage_file', storageId, storagePath);
+    let url = joinPath('/api/storage/file', storageId, storagePath);
     if (reload) {
         url += `?${new Date().getTime()}`;
     }

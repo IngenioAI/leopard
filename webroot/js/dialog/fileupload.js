@@ -43,7 +43,7 @@ class FileUploadDialogBox extends ModalDialogBox {
         if (getE('LP_DIALOG_fileupload_file').value) {
             const uploadHandler = new FileUploadHanlder('LP_DIALOG_fileupload_file', 'LP_DIALOG_fileupload_progress');
             if (this.storageId == null) {
-                uploadHandler.send("/api/upload_item", this.onCompleted.bind(this), { unzip: true});
+                uploadHandler.send(getUploadItemURL(), this.onCompleted.bind(this), { unzip: true});
             }
             else {
                 const url = createStorageFileURL(this.storageId, this.storagePath);

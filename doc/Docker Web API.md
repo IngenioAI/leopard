@@ -5,7 +5,7 @@
 ### 이미지 생성
 
 ```jsx
-POST /api/image_create
+POST /api/image/create
 ```
 
 지정된 데이터로 새로운 이미지를 생성한다.
@@ -26,7 +26,7 @@ POST시 body에 아래와 같은 데이터로 구성된 json 객체를 전달해
 ### 이미지 생성 정보 얻기
 
 ```jsx
-GET /api/image_create/{name}
+GET /api/image/create/{name}
 ```
 
 생성중인 이미지의 정보를 얻는다. URL의 파라메터 name에는 생성하는 이미지의 이름을 지정하면 된다.
@@ -41,7 +41,7 @@ GET /api/image_create/{name}
 ### 이미지 생성 정보 삭제
 
 ```jsx
-DELETE /api/image_create/{name}
+DELETE /api/image/create/{name}
 ```
 
 생성중인 이미지의 정보를 삭제한다. URL의 파라메터 name에는 생성하는 이미지의 이름을 지정하면 된다.
@@ -74,7 +74,7 @@ GET /api/image/list
 ### 실행 수행
 
 ```jsx
-POST /api/exec
+POST /api/exec/create
 ```
 
 새로운 실행을 시작한다.
@@ -98,7 +98,7 @@ POST시 body에 아래와 같은 데이터로 구성된 json 객체를 전달해
 ### 실행 정보 얻기
 
 ```jsx
-GET /api/exec/{exec_id}
+GET /api/exec/info/{exec_id}
 ```
 
 실행 중인 프로세스의 정보를 얻는다. URL의 파라메터 exec_id에는 생성시에 리턴된 id값을 지정한다.
@@ -115,7 +115,7 @@ GET /api/exec/{exec_id}
 ### 실행 정보 삭제
 
 ```jsx
-DELETE /api/exec/{exec_id}
+DELETE /api/exec/item/{exec_id}
 ```
 
 실행 프로세스의 정보를 삭제한다. URL의 파라메터 exec_id에는 생성시에 리턴된 id값을 지정한다.
@@ -129,7 +129,7 @@ DELETE /api/exec/{exec_id}
 ### 실행 로그 얻기
 
 ```jsx
-GET /api/exec_logs/{exec_id}
+GET /api/exec/logs/{exec_id}
 ```
 
 실행 프로세스의 출력 로그를 얻는다. URL의 파라메터 name에는 생성하는 이미지의 이름을 지정하면 된다.
