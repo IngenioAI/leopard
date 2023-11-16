@@ -1,5 +1,6 @@
 <LP-template use="basepage" />
 <LP-content name="head">
+    <LP-include-html src="codemirror.html"></LP-include-html>
     <script>
         async function login() {
             const res = await createSession(getV("input_user"));
@@ -25,6 +26,7 @@
 
         async function init() {
             refresh();
+            createCodeMirrorForPython(getE("code_test"));
         }
     </script>
 </LP-content>
@@ -34,9 +36,11 @@
     <h2>User Session 테스트</h2>
     <div>로그인된 사용자: <span id="username"></span></div>
     <button class="btn btn-primary" onclick="logout()">로그아웃</button>
-    <div>
+    <div class="my-2">
         <a href="/ui_secure_test/test2.html">로그인이 필요한 페이지로</a>
     </div>
+
+    <textarea id="code_test"></textarea>
 </LP-content>
 
 <LP-content name="dialog">

@@ -56,11 +56,15 @@ function createT(text) {
 }
 
 function addE(parent, child) {
-    getE(parent).appendChild(child);
+    const parentElem = getE(parent);
+    parentElem.appendChild(child);
+    return parentElem;
 }
 
 function clearE(elem) {
-    getE(elem).replaceChildren();
+    const e =getE(elem);
+    e.replaceChildren();
+    return e;
 }
 
 function createElem(o) {

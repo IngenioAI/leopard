@@ -1,0 +1,19 @@
+<LP-template use="dialog" />
+<LP-param name="id" value="code_editor" />
+
+<LP-content name="dialog_main">
+    <div class="mx-2 my-2 border">
+        <div id="LP_DIALOG_code_editor">
+            <textarea id="LP_DIALOG_code_editor_textarea"></textarea>
+        </div>
+    </div>
+</LP-content>
+
+<LP-content name="dialog_footer">
+    <button type="button" class="btn btn-primary" id="LP_DIALOG_code_editor_save">저장</button>
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button>
+</LP-content>
+
+<LP-content name="dialog_script">
+    <LP-include-html src="codemirror.html"></LP-include-html>
+</LP-content>

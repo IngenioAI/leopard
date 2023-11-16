@@ -26,8 +26,7 @@ class FileViewDialogBox extends DialogBox {
             const contentDiv = getE('LP_DIALOG_fileview_content');
             clearE(contentDiv);
             const content = await getStorageFileContent(this.storageId, this.storagePath);
-            const text = createE("pre", content, { class: "border p-2 bg-light" });
-            addE(contentDiv, text);
+            codeHighlight(contentDiv, content, this.storagePath);
         }
     }
 }

@@ -1,5 +1,5 @@
 let currentStorageId = "";
-let currentPath = "";
+let currentStoragePath = "";
 let currentPage = 1;
 const pageCount = 10;
 let pagination = null;
@@ -28,7 +28,7 @@ function createFileItem(fileInfo) {
         }],
         (e) => {
             if (fileInfo.is_dir) {
-                newPath = changeStorageDir(currentPath, fileInfo.name);
+                newPath = changeStorageDir(currentStoragePath, fileInfo.name);
                 browseDirectory(currentStorageId, newPath);
             }
         }, menu);
@@ -54,13 +54,13 @@ function createContextMenu(fileInfo) {
         { id: MENU_ID.EDIT, title: "편집", info: fileInfo, condition: (info) => isEditableFile(fileInfo) }
     ],
         async (menuId, info) => {
-            const storagePath = joinPath(currentPath, info.name);
+            const storagePath = joinPath(currentStoragePath, info.name);
             if (menuId == MENU_ID.DELETE) {
                 const answer = await showAskMessageBox("정말로 삭제하시겠습니까?", "파일삭제", ["확인", "취소"]);
                 if (answer.index == 0) {
                     const res = await deleteStorageItem(currentStorageId, storagePath);
                     if (res.success) {
-                        browseDirectory(currentStorageId, currentPath);
+                        browseDirectory(currentStorageId, currentStoragePath);
                     }
                     else {
                         showMessageBox(`${res.errorCode}: ${res.errorMessage}`, "삭제 오류");
@@ -76,6 +76,10 @@ function createContextMenu(fileInfo) {
                 showFileView(`위치: ${storagePath}`, `파일보기 - ${info.name}`, currentStorageId, storagePath);
             }
             else if (menuId == MENU_ID.EDIT) {
+                const newContent = await showCodeEditor(`위치: ${storagePath}`, `파일편집 - ${info.name}`, currentStorageId, storagePath);
+                if (newContent != undefined) {
+                    uploadFileToStorage(currentStorageId, storagePath, newContent);
+                }
             }
         }
     );
@@ -84,14 +88,14 @@ function createContextMenu(fileInfo) {
 
 async function browseDirectory(storageId, storagePath, page=1) {
     currentStorageId = storageId;
-    currentPath = storagePath;
+    currentStoragePath = storagePath;
     currentPage = page;
 
     const fileListDiv = getE("file_list");
-    setT("current_path", currentPath);
-    const fileList = await getFileList(currentStorageId, currentPath, currentPage-1, pageCount);
+    setT("current_path", currentStoragePath);
+    const fileList = await getFileList(currentStorageId, currentStoragePath, currentPage-1, pageCount);
     clearE(fileListDiv);
-    if (currentPath != "/") {
+    if (currentStoragePath != "/") {
         addE(fileListDiv, createFileItem({ name: "..", is_dir: true }));
     }
     for (const file of fileList.items) {
@@ -99,7 +103,7 @@ async function browseDirectory(storageId, storagePath, page=1) {
         addE(fileListDiv, fileItem);
     }
     pagination = createPagination("list_pagination", pageCount, fileList.total_count, paginationItemCount, (clickPage) => {
-        browseDirectory(currentStorageId, currentPath, clickPage);
+        browseDirectory(currentStorageId, currentStoragePath, clickPage);
     });
     if (pagination.totalPage > 1) {
         getE("btn_page").style = "display: inline";
@@ -120,7 +124,7 @@ async function createFolder() {
     });
 
     if (newName) {
-        const res = await createStorageFolder(currentStorageId, joinPath(currentPath, newName));
+        const res = await createStorageFolder(currentStorageId, joinPath(currentStoragePath, newName));
         if (!res.success) {
             if (res.errorCode == 403) {
                 showMessageBox("동일한 이름의 객체가 이미 존재합니다.", "폴더 생성");
@@ -129,14 +133,14 @@ async function createFolder() {
                 showMessageBox(`폴더 생성에 실패하였습니다. 오류코드: ${res.errorCode}`, "폴더 생성");
             }
         }
-        browseDirectory(currentStorageId, currentPath);
+        browseDirectory(currentStorageId, currentStoragePath);
     }
 }
 
 async function uploadFile() {
-    const res = await showFileUploadDialogBox(currentStorageId, currentPath);
+    const res = await showFileUploadDialogBox(currentStorageId, currentStoragePath);
     if (res && res.success) {
-        browseDirectory(currentStorageId, currentPath);
+        browseDirectory(currentStorageId, currentStoragePath);
     }
 }
 
@@ -144,7 +148,7 @@ async function goPage() {
     const newPage = await showInputDialogBox("이동할 페이지를 입력합니다.", "페이지 이동");
     const page = parseInt(newPage);
     if (pagination && page > 0 && page <= pagination.totalPage) {
-        browseDirectory(currentStorageId, currentPath, page);
+        browseDirectory(currentStorageId, currentStoragePath, page);
     }
 }
 
