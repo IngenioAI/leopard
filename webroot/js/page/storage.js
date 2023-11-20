@@ -29,6 +29,7 @@ function createFileItem(fileInfo) {
         (e) => {
             if (fileInfo.is_dir) {
                 newPath = changeStorageDir(currentStoragePath, fileInfo.name);
+                window.history.replaceState(null, "Leopard", `/ui/storage.html?storage_id=${currentStorageId}&storage_path=${newPath}`);
                 browseDirectory(currentStorageId, newPath);
             }
         }, menu);
@@ -91,13 +92,20 @@ async function browseDirectory(storageId, storagePath, page=1) {
     currentStoragePath = storagePath;
     currentPage = page;
 
+    const paths = splitPath(currentStoragePath);
+    const currentPathDiv = getE("current_path");
+    clearE(currentPathDiv);
+    let thisPath = "/";
+    for(const path of paths) {
+        addE(currentPathDiv, createT("/"));
+        thisPath = joinPath(thisPath, path);
+        let url = `/ui/storage.html?storage_id=${currentStorageId}&storage_path=${thisPath}`;
+        addE(currentPathDiv, createE("a", path, { href: url}))
+    }
+
     const fileListDiv = getE("file_list");
-    setT("current_path", currentStoragePath);
     const fileList = await getFileList(currentStorageId, currentStoragePath, currentPage-1, pageCount);
     clearE(fileListDiv);
-    if (currentStoragePath != "/") {
-        addE(fileListDiv, createFileItem({ name: "..", is_dir: true }));
-    }
     for (const file of fileList.items) {
         const fileItem = createFileItem(file)
         addE(fileListDiv, fileItem);

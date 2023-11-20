@@ -1,0 +1,34 @@
+<LP-template use="basepage" />
+
+<LP-content name="head">
+    <script src="/js/control/pagination.js"></script>
+    <LP-include-html src="get-query-param.html"></LP-include-html>
+</LP-content>
+
+<LP-content name="main">
+    <h2>데이터보기</h2>
+    <div class="d-flex w-100 justify-content-between">
+        <div class="my-2">경로: <span id="current_path"></span></div>
+        <div class="row">
+            <nav class="col">
+                <ul id="list_pagination" class="pagination pagination-sm">
+                    <li class="page-item active"><span class="page-link">1</span></li>
+                    <li class="page-item"><a class="page-link">2</a></li>
+                    <li class="page-item"><a class="page-link">3</a></li>
+                </ul>
+            </nav>
+            <div class="col">
+                <button type="button" class="btn btn-outline-primary btn-sm text-nowrap" id="btn_page" onclick="goPage();">페이지 이동</button>
+            </div>
+        </div>
+    </div>
+    <div id="file_list">
+
+    </div>
+</LP-content>
+
+<LP-content name="dialog">
+    <LP-include-html src="messagebox.html"></LP-include-html>
+    <LP-include-html src="fileview.html"></LP-include-html>
+    <LP-include-html src="input.html"></LP-include-html>
+</LP-content>

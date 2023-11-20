@@ -9,6 +9,22 @@ function joinPath(...args) {
     }).filter(x => x.length).join('/')
 }
 
+function splitPath(path) {
+    let index = 0;
+    const items = [];
+    if (path.startsWith("/")) {
+        index = 1;
+    }
+    let p = path.indexOf("/", index)
+    while (p > 0) {
+        items.push(path.substr(index, p-index));
+        index = p+1;
+        p = path.indexOf("/", index);
+    }
+    items.push(path.substr(index));
+    return items;
+}
+
 function splitStoragePath(path) {
     const items = [];
     if (path.startsWith("storage/")) {
@@ -18,7 +34,7 @@ function splitStoragePath(path) {
     items.push(path.substr(0, p));
     items.push(path.substr(p+1));
     return items;
-  }
+}
 
 function changeStorageDir(currentPath, dirName) {
     if (dirName == "..") {
