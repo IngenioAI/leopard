@@ -55,7 +55,7 @@ async def create_storage_directory(storage_id: str, file_path: str):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         raise HTTPException(status_code=403, detail="File already exist")
-    os.mkdir(storage_file_path)
+    os.makedirs(storage_file_path)
     return JSONResponseHandler({
         'success': True,
         'dir': storage_file_path
@@ -96,8 +96,8 @@ async def save_storage_file(storage_id: str, file_path: str, req: Request):
         'success': True
     })
 
-@storage_router.delete("/item/{storage_id}/{file_path:path}", tags=["Storage"])
-async def delete_storage_file(storage_id: str, file_path: str, req: Request):
+@storage_router.delete("/item/{storage_id}/{file_path:path}")
+async def delete_storage_file(storage_id: str, file_path: str):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         try:

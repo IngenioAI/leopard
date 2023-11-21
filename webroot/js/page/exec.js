@@ -178,7 +178,7 @@ async function setModel() {
     if (res) {
         const model = modelList.find((item) => item.name == res);
         clearUploadInfo();
-        setV("src_path", `${getStorageId(model.storage, storageList)}:${model.storagePath}`);
+        setV("src_path", `${model.storageId}:${model.storagePath}`);
         setV("command_line", `python ${model.mainSrc}`);
         execUserdata.model = model.name;
     }
