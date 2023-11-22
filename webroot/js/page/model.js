@@ -10,7 +10,7 @@ function createModelElement(modelInfo) {
                     { name: "h5", text: modelInfo.name, attributes: { class: "card-title" } },
                     { name: "p", attributes: { class: "card-text" }, children: [
                         { name: "ul", children: [
-                            { name: "li", text: "storage: " + getStorageName(modelInfo.storage, storageList) },
+                            { name: "li", text: "storage: " + getStorageName(modelInfo.storageId, storageList) },
                             { name: "li", text: modelInfo.storagePath },
                             { name: "li", text: modelInfo.mainSrc }]
                         },
@@ -21,7 +21,7 @@ function createModelElement(modelInfo) {
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: "스토리지 보기",
                         events: {
                             click: (e) => {
-                                let url = `/ui/storage.html?storage_id=${getStorageId(modelInfo.storage, storageList)}&storage_path=${modelInfo.storagePath}`;
+                                let url = `/ui/storage.html?storage_id=${modelInfo.storageId}&storage_path=${modelInfo.storagePath}`;
                                 window.open(url, "_self");
                             }
                         }
@@ -30,7 +30,7 @@ function createModelElement(modelInfo) {
                         events: {
                             click: (e) => {
                                 const filePath = joinPath(modelInfo.storagePath, modelInfo.mainSrc);
-                                showFileView(`위치: ${modelInfo.storagePath}`, `파일보기 - ${modelInfo.mainSrc}`, getStorageId(modelInfo.storage, storageList), filePath);
+                                showFileView(`위치: ${modelInfo.storagePath}`, `파일보기 - ${modelInfo.mainSrc}`, modelInfo.storageId, filePath);
                             }
                         }
                     }]
@@ -53,13 +53,12 @@ async function createModel() {
     const data = await showFormDialogBox([
         { id: "name", title: "이름", type: "text", default: "" },
         { id: "type", title: "타입", type: "select", values: ["Model", "Preprocessor"], default: "Model"},
-        { id: "storage", title: "스토리지", type: "select", values: storageList.map(item => item.name), default: storageList[0].name },
+        { id: "storageId", title: "스토리지", type: "select", values: storageList.map(item => item.id), default: storageList[0].id },
         { id: "storagePath", title: "경로", type: "text" },
         { id: "mainSrc", title: "메인소스", type: "text" },
         { id: "family", title: "Family", type: "text" },
         { id: "description", title: "설명", type: "text" }
     ], null, "다음 정보로 모델을 등록합니다", "모델 등록", validator);
-    //console.log(data);
     if (data) {
         const cardElem = createModelElement(data);
         addE("model_list", cardElem);

@@ -1,6 +1,8 @@
 let sourceUploadInfo = null;
 let currentLogId = null;
 let logWindow = null;
+let progressMonitoring = false;
+
 const execUserdata = {
     dataset: "",
     model: ""
@@ -112,6 +114,33 @@ async function checkLogs(info) {
     }
 }
 
+async function checkProgress() {
+    if (progressMonitoring) {
+        let runningCount = 0;
+        const execList = await getExecList();
+        for (const execInfo of execList) {
+            if ('State' in execInfo.container && execInfo.container.State.Running) {
+                const progressInfo = await getExecProgress(execInfo.id);
+                //console.log(execInfo, progressInfo, new Date().toLocaleString());
+                if (progressInfo) {
+                    setT(`state_${execInfo.id}`, `실행 중 - 진행 ${progressInfo.main_progress.toFixed(1)}%`);
+                }
+                else {
+                    setT(`state_${execInfo.id}`, `실행 중 - 진행 준비`);
+                }
+                runningCount += 1;
+            }
+            else {
+                setT(`state_${execInfo.id}`, `종료됨`);
+            }
+        }
+
+        if (runningCount <= 0) {
+            progressMonitoring = false;
+        }
+    }
+}
+
 async function setInputPath() {
     const filepath = await showSelectPath();
     if (filepath) {
@@ -171,14 +200,13 @@ async function setInputDataset() {
 
 async function setModel() {
     const modelList = await getModelList();
-    const storageList = await getStorageList();
 
     const res = await showSelectDialogBox("실행할 코드 모델을 선택하세요", "소스 설정",
         modelList.map((item) => item.name));
     if (res) {
         const model = modelList.find((item) => item.name == res);
         clearUploadInfo();
-        setV("src_path", `${getStorageId(model.storage, storageList)}:${model.storagePath}`);
+        setV("src_path", `${model.storageId}:${model.storagePath}`);
         setV("command_line", `python ${model.mainSrc}`);
         execUserdata.model = model.name;
     }
@@ -200,6 +228,7 @@ async function refreshImageList() {
 }
 
 async function refreshExecList() {
+    let runningCount = 0;
     const execList = await getExecList();
     const currentList = getE("exec_current_list");
     clearE(currentList)
@@ -208,10 +237,15 @@ async function refreshExecList() {
     for (const execInfo of execList) {
         if ('State' in execInfo.container && execInfo.container.State.Running) {
             addE(currentList, createExecItem(execInfo, "실행 중"));
+            runningCount += 1;
         }
         else {
             addE(completedList, createExecItem(execInfo, "종료됨"));
         }
+    }
+
+    if (runningCount > 0) {
+        progressMonitoring = true;
     }
 }
 
@@ -229,6 +263,8 @@ async function init() {
 
     refreshImageList();
     refreshExecList();
+
+    setInterval(checkProgress, 1000);
 
     window.addEventListener("beforeunload", (e) => {
         if (sourceUploadInfo) {

@@ -102,7 +102,7 @@ class DialogBox {
 }
 
 class ModalDialogBox extends DialogBox {
-    constructor(dialogBoxId, options=null) {
+    constructor(dialogBoxId, options={}) {
         super(dialogBoxId, options);
         this.resolve = null;
         this.reject = null;

@@ -1,0 +1,23 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.0-beta1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.0-beta1/languages/javascript.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.0.0-beta1/languages/python.min.js"></script>
+
+<!-- https://github.com/highlightjs/cdn-release/blob/main/DIGESTS.md -->
+
+<script>
+    function codeHighlight(elem, content, filepath=null) {
+        let highlightedContent = content;
+        if (filepath.endsWith(".py")) {
+            highlightedContent = hljs.highlight(content, {language: 'python'}).value;
+        }
+        else {
+            highlightedContent = hljs.highlightAuto(content).value;
+        }
+        const codeDiv = createE("pre", "", { class: "border p-2 bg-light" })
+        codeDiv.innerHTML = highlightedContent;
+        addE(elem, codeDiv);
+    }
+</script>
+

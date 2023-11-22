@@ -37,8 +37,14 @@ function createDatasetElement(datasetInfo) {
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: datasetInfo.type == "Image" ? "이미지 보기" : "데이터 보기",
                         events: {
                             click: (e) => {
-                                let url = `/ui/dataview.html?storage_id=${datasetInfo.storageId}&storage_path=${datasetInfo.storagePath}&type=${datasetInfo.type}`;
-                                window.open(url, "_self");
+                                if (datasetInfo.type == "Image") {
+                                    let url = `/ui/imageview.html?storage_id=${datasetInfo.storageId}&storage_path=${datasetInfo.storagePath}&type=${datasetInfo.type}`;
+                                    window.open(url, "_self");
+                                }
+                                else {
+                                    let url = `/ui/dataview.html?storage_id=${datasetInfo.storageId}&storage_path=${datasetInfo.storagePath}&type=${datasetInfo.type}`;
+                                    window.open(url, "_self");
+                                }
                             }
                         }
                     }]

@@ -142,7 +142,7 @@ async function deleteStorageItem(storageId, storagePath) {
     }
 }
 
-async function uploadFile(storageId, storagePath, contents, contentType='application/octet-stream') {
+async function uploadFileToStorage(storageId, storagePath, contents, contentType='application/octet-stream') {
     const url = createStorageFileURL(storageId, storagePath);
     const res = await http_put(url, contents, contentType);
     return JSON.parse(res);
