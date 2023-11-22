@@ -2,6 +2,7 @@ import os
 import docker
 import io
 import threading
+import shutil
 from ast import literal_eval
 import re
 import time
@@ -107,6 +108,13 @@ class DockerRunner():
         if output_dir is not None and output_dir != '':
             binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
         if "run_path" in options:
+            try:
+                if os.path.exists(options["run_path"]):
+                    shutil.rmtree(options["run_path"])
+                os.mkdir(options["run_path"])
+            except:
+                pass
+
             binds.append("%s:%s" % (os.path.abspath(options["run_path"]), "/apprun"))
 
         #print("Binds:", binds)

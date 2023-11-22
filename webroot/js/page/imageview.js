@@ -5,7 +5,7 @@ let pagination;
 let currentStorageId;
 let currentStoragePath;
 let currentPage = 1;
-let pageCount = 24;
+let pageCount = 32;
 let thumbnail_size = 160;
 
 let rootPath = '';
