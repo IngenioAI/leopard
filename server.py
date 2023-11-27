@@ -13,7 +13,7 @@ import data_store
 from html_util import process_include_html
 from fastapi_util import JSONResponseHandler
 from app.manager import AppManager
-from exec import exec_router
+from exec import exec_router, exec_manager
 import sysinfo
 from session import session_router, session_manager
 from image import image_router
@@ -152,11 +152,13 @@ def web_main(args):
     app.app_manager.start()
     app.sys_info = sysinfo.SystemInfo()
     app.sys_info.start()
+    exec_manager.start()
     uvicorn.run(app, host="127.0.0.1", port=args.port)
 
     print("Cleanup app docker")
     app.app_manager.stop()
     app.sys_info.stop()
+    exec_manager.stop()
 
 
 def parse_arguments():

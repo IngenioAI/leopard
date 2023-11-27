@@ -68,17 +68,6 @@ async function browseDirectory(storageId, storagePath, page=1) {
     currentStoragePath = storagePath;
     currentPage = page;
 
-    const paths = splitPath(currentStoragePath);
-    const currentPathDiv = getE("current_path");
-    clearE(currentPathDiv);
-    let thisPath = "/";
-    for(const path of paths) {
-        addE(currentPathDiv, createT("/"));
-        thisPath = joinPath(thisPath, path);
-        let url = `/ui/imageview.html?storage_id=${currentStorageId}&storage_path=${thisPath}&type=Image`;
-        addE(currentPathDiv, createE("a", path, { href: url}))
-    }
-
     const fileListDiv = getE("file_list");
     fileListDiv.style = `line-height:${thumbnail_size-9}px`
     const fileList = await getFileList(storageId, storagePath, page-1, pageCount);
@@ -98,6 +87,17 @@ async function browseDirectory(storageId, storagePath, page=1) {
         getE("btn_page").style = "display: none";
     }
     pagination.update(currentPage);
+
+    const paths = splitPath(currentStoragePath);
+    const currentPathDiv = getE("current_path");
+    clearE(currentPathDiv);
+    let thisPath = "/";
+    for(const path of paths) {
+        addE(currentPathDiv, createT("/"));
+        thisPath = joinPath(thisPath, path);
+        let url = `/ui/imageview.html?storage_id=${currentStorageId}&storage_path=${thisPath}&type=Image`;
+        addE(currentPathDiv, createE("a", path, { href: url}))
+    }
 }
 
 async function init() {

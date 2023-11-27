@@ -6,6 +6,8 @@ from pydantic import BaseModel
 from typing import Union
 from fastapi import APIRouter
 
+from threading import Timer
+
 import docker_runner
 import data_store
 import upload_util
@@ -16,6 +18,7 @@ class ExecManager():
     def __init__(self) -> None:
         self.docker = docker_runner.DockerRunner()
         self.exec_list = []
+        self.timer = None
         self.load()
 
     def load(self):
@@ -27,6 +30,12 @@ class ExecManager():
     def get_list(self):
         current_exec_list = [self.get_info(x['id']) for x in self.exec_list]
         return current_exec_list
+
+    def get_container_id(self, id):
+        for info in self.exec_list:
+            if info["id"] == id:
+                return info["container_id"]
+        return None
 
     def get_run_path(self, id_name):
         return os.path.join("storage", "run", id_name)
@@ -47,7 +56,8 @@ class ExecManager():
                 "name": exec_info["Name"],
                 "date": exec_info["Created"],
                 "container_id": container_id,
-                "user_data": user_data
+                "user_data": user_data,
+                "running": True
             }
             self.exec_list.append(data)
             self.save()
@@ -55,20 +65,28 @@ class ExecManager():
         return False, info
 
     def get_info(self, exec_id):
-        exec_info = {}
         for info in self.exec_list:
             if info["id"] == exec_id:
-                exec_info = dict.copy(info)
-                break
-        if "container_id" in exec_info:
-            docker_exec_info = self.docker.exec_inspect(exec_info["container_id"])
-            exec_info["container"] = docker_exec_info
-        return exec_info
+                if "container" in info:
+                    return info
+                else:
+                    if "container_id" in info:
+                        docker_exec_info = self.docker.exec_inspect(info["container_id"])
+                        info["container"] = {}
+                        info["container"]["State"] = docker_exec_info["State"]
+                    return info
+        return {}
 
     def get_logs(self, exec_id):
-        for info in self.exec_list:
-            if info["id"] == exec_id:
-                return self.docker.exec_logs(info["container_id"])
+        container_id = self.get_container_id(exec_id)
+        run_path = self.get_run_path(exec_id)
+        log_path = os.path.join(run_path, "log.txt")
+        if os.path.exists(log_path):
+            with open(log_path, "rt", encoding="utf-8") as fp:
+                return fp.read()
+
+        if container_id is not None:
+            return self.docker.exec_logs(container_id)
         return ""
 
     def stop(self, exec_id):
@@ -80,16 +98,24 @@ class ExecManager():
     def remove_exec(self, exec_id):
         for info in self.exec_list:
             if info["id"] == exec_id:
-                res, error_info = self.docker.exec_remove(info["container_id"])
-                if res or error_info["error_code"] == 404:
-                    run_path = self.get_run_path(info["id"])
-                    if os.path.exists(run_path):
-                        try:
-                            shutil.rmtree(run_path)
-                        except:
-                            pass
-                    self.exec_list.remove(info)
-                    self.save()
+                res = True
+                error_info = None
+                if info["running"]:
+                    res, error_info = self.docker.exec_stop(info["container_id"])
+                    if not res:
+                        return res, error_info
+                    res, error_info = self.docker.exec_remove(info["container_id"])
+                    if not res:
+                        return res.error_info
+
+                run_path = self.get_run_path(info["id"])
+                if os.path.exists(run_path):
+                    try:
+                        shutil.rmtree(run_path)
+                    except:
+                        pass
+                self.exec_list.remove(info)
+                self.save()
                 return res, error_info
         return False, { "error_message": "ID not found: %s" % exec_id}
 
@@ -106,6 +132,38 @@ class ExecManager():
             with open(result_info_path, "rt", encoding="utf-8") as fp:
                 return json.load(fp)
         return None
+
+    def start(self):
+        if self.timer is None:
+            self.timer = Timer(1.0, self.run)
+            self.timer.start()
+
+    def run(self):
+        for exec_info in self.exec_list:
+            if exec_info["running"]:
+                docker_exec_info = self.docker.exec_inspect(exec_info["container_id"])
+                if not docker_exec_info["State"]["Running"]:
+                    exec_info["running"] = False
+                    exec_info["container"] = {}
+                    exec_info["container"]["State"] = docker_exec_info["State"]
+                    run_path = self.get_run_path(exec_info["id"])
+                    log_path = os.path.join(run_path, "log.txt")
+                    logs = self.docker.exec_logs(exec_info["container_id"])
+                    with open(log_path, "wt", encoding="utf-8") as fp:
+                        fp.write(logs)
+                    self.save()
+
+                    # remove docker
+                    self.docker.exec_remove(exec_info["container_id"])
+
+        # repeat timer if not canceled
+        if self.timer is not None:
+            self.timer = Timer(1.0, self.run)
+            self.timer.start()
+
+    def stop(self):
+        self.timer.cancel()
+        self.timer = None
 
 
 exec_manager = ExecManager()

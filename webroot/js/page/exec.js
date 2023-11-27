@@ -98,10 +98,6 @@ async function checkLogs(info) {
         if (info.id == currentLogId) {
             if ('State' in execInfo.container && execInfo.container.State.Running) {
                 setTimeout(checkLogs, 1000, info);
-                setT(`state_${info.id}`, "실행 중");
-            }
-            else {
-                setT(`state_${info.id}`, "종료됨");
             }
 
             if (logWindow) {
