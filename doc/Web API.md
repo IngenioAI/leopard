@@ -64,7 +64,7 @@ GET /api/image/list
 
 | 필드이름 | 필드타입 | 설명 |
 | --- | --- | --- |
-| RepoTag | [string] | 이미지의 태그 이름 |
+| RepoTags | [string] | 이미지의 태그 이름 |
 | Created | number | 생성된 시간 (Unix timestamp, 초단위) |
 | Id | string | 이미지의 id |
 | Size | number | 이미지의 크기, 바이트수 |
@@ -91,6 +91,7 @@ POST시 body에 아래와 같은 데이터로 구성된 json 객체를 전달해
 
 | 필드이름 | 필드타입 | 설명 |
 | --- | --- | --- |
+| id | string | 실행에 대한 ID 값, 내부적으로 폴더 이름으로 사용되므로 폴더 이름에 적합한 문자열로 설정해야 한다 |
 | srcPath | string | 실행할 소스코드가 위한 곳의 경로를 지정한다. 실행 컨테이너에서는 ‘/app’ 위치로 마운팅된다. |
 | mainSrc | string | 소스코드에서 실행할 파이썬 메인 소스 파일을 지정한다. |
 | imageTag | string | 실행할 이미지의 이름을 지정한다. |
@@ -101,7 +102,25 @@ POST시 body에 아래와 같은 데이터로 구성된 json 객체를 전달해
 
 | 필드이름 | 필드타입 | 설명 |
 | --- | --- | --- |
-| exec_id | string | 새로 실행된 프로세스에 대한 id 값, 이 값을 통해 이후 상태 정보를 얻을 수 있다 |
+| success | boolean | 새로운 프로세스 실행에 대한 성공 여부 |
+| exec_info | object | 새로운 프로세스에 대한 정보 |
+
+exec_info는 다음과 같은 필드값을 가진다.
+
+| 필드이름 | 필드타입 | 설명 |
+| --- | --- | --- |
+| id | string | 새 프로세스의 ID값 |
+| base_image | string | 실행한 이미지의 이름 |
+| command_line | string |실행한 명령어 |
+| source_path | string | 실행한 소스 경로 |
+| input_path | string | 입력으로 지정한 경로 |
+| output_path | string | 출력으로 지정한 경로 |
+| name | string | 컨테이너 이름 (Docker 에서 지정한 이름값) |
+| date | string | 실행히 시작된 시각 |
+| container_id | string | 컨테이너의 id 값 |
+| user_data | object | 생성시에 건네준 사용자 데이터 |
+| running | boolean | 현재 실행 중인지 종료된 상태인지 나타내는 플래그 |
+
 
 ### 실행 정보 얻기
 
@@ -111,14 +130,8 @@ GET /api/exec/info/{exec_id}
 
 실행 중인 프로세스의 정보를 얻는다. URL의 파라메터 exec_id에는 생성시에 리턴된 id값을 지정한다.
 
-결과로 json 객체를 리턴하며, 객체는 docker-py에서 유지하는 모든 데이터를 포함한다. 그중 주요한 필드는 다음과 같다.
+결과로 json 객체를 리턴하며, 기본적으로 생성시 리턴되는 exec_info 필드와 같은 값들을 가진다. 추가로 도커 컨테이너의 상태 정보를 "State" 필드로 가지고 있다.
 
-| 필드이름 | 필드타입 | 설명 |
-| --- | --- | --- |
-| Args | [string] | 실행시에 커맨드 파라메터로 넘겨준 값의 목록 |
-| Created | string | 실행 시작 시간으로 ISO문자열 형태 |
-| Path | string | 실행 프로세스의 실행 파일 경로 |
-| State.Running | boolean | 실행 중인지의 여부 |
 
 ### 실행 로그 얻기
 
@@ -132,6 +145,7 @@ GET /api/exec/logs/{exec_id}
 
 | 필드이름 | 필드타입 | 설명 |
 | --- | --- | --- |
+| success | boolean | 로그 얻기의 성공 여부 |
 | lines | [string] | 실행 프로세스의 출력을 문자열의 리스트로 가진다. |
 
 ### 실행 목록 얻기
@@ -140,7 +154,7 @@ GET /api/exec/logs/{exec_id}
 GET /api/exec/list
 ```
 
-모든 실행의 목록을 얻는다. 목록의 각 이이템은 실행에 대한 정보를 가지고 있으며 각 필드의 의미는 실행 수행 명령의 설명을 참고한다. 추가로 실행 정보 얻기 (info)를 통해 얻을 수 있는 정보를 'container'라는 필드를 통해 접근 가능하다.
+모든 실행의 목록을 얻는다. 목록의 각 이이템은 실행에 대한 정보를 가지고 있으며 각 필드의 의미는 실행 수행 명령의 설명을 참고한다.
 
 ### 실행 중단
 
