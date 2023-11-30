@@ -19,7 +19,6 @@ def test_image(server):
     response = client.get("/api/image/list")
     assert response.status_code == 200
     res = response.json()
-    print(res)
     for image_info in res:
         if "test-pytest:latest" in image_info["RepoTags"]:
             response = client.delete("/api/image/item/test-pytest")
@@ -140,14 +139,12 @@ def test_exec(server):
                     "outputPath": ""
                 })
     res = response.json()
-    print(res)
     assert response.status_code == 200
     assert res["success"]
     exec_id = "pytest"
 
     response = client.get(f'/api/exec/info/{exec_id}')
     res = response.json()
-    print(res)
     while res["container"]["State"]["Running"]:
         time.sleep(0.5)
         response = client.get(f'/api/exec/info/{exec_id}')
@@ -158,9 +155,97 @@ def test_exec(server):
     response = client.delete(f'/api/storage/item/{storageId}/test-pytest')
     assert response.status_code == 200
 
+def test_dataset(server):
+    response = client.get("/api/dataset/list")
+    assert response.status_code == 200
+    res = response.json()
+    dataset_exist = False
+    for info in res:
+        if info["name"] == "pytest-dataset":
+            dataset_exist = True
+            break
+    assert not dataset_exist
+
+    response = client.post("/api/dataset/item/pytest-dataset", json={
+        "name": "pytest-dataset",
+        "type": "Text",
+        "storageId": "0",
+        "storagePath": "/dataset"
+    })
+    assert response.status_code == 200
+
+    response = client.get("/api/dataset/list")
+    assert response.status_code == 200
+    res = response.json()
+    dataset_exist = False
+    for info in res:
+        if info["name"] == "pytest-dataset":
+            dataset_exist = True
+            break
+    assert dataset_exist
+
+    response = client.delete("/api/dataset/item/pytest-dataset")
+    assert response.status_code == 200
+
+    response = client.get("/api/dataset/list")
+    assert response.status_code == 200
+    res = response.json()
+    dataset_exist = False
+    for info in res:
+        if info["name"] == "pytest-dataset":
+            dataset_exist = True
+            break
+    assert not dataset_exist
+
+def test_model(server):
+    response = client.get("/api/model/list")
+    assert response.status_code == 200
+    res = response.json()
+    model_exist = False
+    for info in res:
+        if info["name"] == "pytest-model":
+            model_exist = True
+            break
+    assert not model_exist
+
+    response = client.post("/api/model/item/pytest-model", json={
+        "name": "pytest-model",
+        "type": "Model",
+        "storageId": "0",
+        "storagePath": "/model",
+        "mainSrc": "main.py"
+    })
+    assert response.status_code == 200
+
+    response = client.get("/api/model/list")
+    assert response.status_code == 200
+    res = response.json()
+    model_exist = False
+    for info in res:
+        if info["name"] == "pytest-model":
+            model_exist = True
+            break
+    assert model_exist
+
+    response = client.delete("/api/model/item/pytest-model")
+    assert response.status_code == 200
+
+    response = client.get("/api/model/list")
+    assert response.status_code == 200
+    res = response.json()
+    model_exist = False
+    for info in res:
+        if info["name"] == "pytest-model":
+            model_exist = True
+            break
+    assert not model_exist
+
+def test_app(server):
+    response = client.get("/api/app/list")
+    assert response.status_code == 200
+
 def test_sys_info(server):
     response = client.get("/api/system/info")
     res = response.json()
-    print(res)
     assert res["cpu_info"] is not None
     assert response.status_code == 200
