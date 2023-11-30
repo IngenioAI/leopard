@@ -17,7 +17,6 @@ fastapi-sessions = "^0.3.2"
 pytest = "^7.4.3"
 pytest-cov = "^4.1.0"
 httpx = "^0.25.2"
-pytest-asyncio = "^0.22.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

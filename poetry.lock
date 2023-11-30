@@ -263,21 +263,6 @@ tomli = {version = ">=1.0.0", markers = "python_version < \"3.11\""}
 testing = ["argcomplete", "attrs (>=19.2.0)", "hypothesis (>=3.56)", "mock", "nose", "pygments (>=2.7.2)", "requests", "setuptools", "xmlschema"]
 
 [[package]]
-name = "pytest-asyncio"
-version = "0.22.0"
-description = "Pytest support for asyncio"
-category = "dev"
-optional = false
-python-versions = ">=3.8"
-
-[package.dependencies]
-pytest = ">=7.0.0"
-
-[package.extras]
-docs = ["sphinx (>=5.3)", "sphinx-rtd-theme (>=1.0)"]
-testing = ["coverage (>=6.2)", "hypothesis (>=5.7.1)", "flaky (>=3.5.0)", "mypy (>=0.931)", "pytest-trio (>=0.7.0)"]
-
-[[package]]
 name = "pytest-cov"
 version = "4.1.0"
 description = "Pytest plugin for measuring coverage."
@@ -414,7 +399,7 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "5220bb712c7f1e303588b7e13233e28c83d86f0d15954c6fbc69092e44334ca4"
+content-hash = "89e3f3795cfadb34e233adfab838caf2746aebae3c1eae413f1e63e93793f21b"
 
 [metadata.files]
 anyio = []
@@ -438,7 +423,6 @@ pluggy = []
 psutil = []
 pydantic = []
 pytest = []
-pytest-asyncio = []
 pytest-cov = []
 python-multipart = []
 pywin32 = []
