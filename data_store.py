@@ -107,6 +107,8 @@ class DataStoreManager():
             datastore.add(data)
         else:
             print("datastore not found:", name)
+            return False
+        return True
 
     def remove_data_from_list(self, name, key, value):
         datastore = self.get_datastore_by_name(name)

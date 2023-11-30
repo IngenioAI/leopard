@@ -145,20 +145,24 @@ async def get_sys_info():
 
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 
-
-def web_main(args):
-    app.args = args
+def init_app(app):
     app.app_manager = AppManager()
     app.app_manager.start()
     app.sys_info = sysinfo.SystemInfo()
     app.sys_info.start()
     exec_manager.start()
-    uvicorn.run(app, host="127.0.0.1", port=args.port)
 
-    print("Cleanup app docker")
+def deinit_app(app):
     app.app_manager.stop()
     app.sys_info.stop()
     exec_manager.stop()
+
+def web_main(args):
+    app.args = args
+    init_app(app)
+    uvicorn.run(app, host="127.0.0.1", port=args.port if args else 12700)
+    deinit_app(app)
+
 
 
 def parse_arguments():
