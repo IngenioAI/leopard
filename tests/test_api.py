@@ -136,10 +136,12 @@ def test_exec(server):
                     "command": "python test.py",
                     "imageTag": "python:3.8",
                     "inputPath": "",
-                    "outputPath": ""
+                    "outputPath": "",
+                    "useGPU": False
                 })
-    res = response.json()
     assert response.status_code == 200
+    res = response.json()
+    print(response, res)
     assert res["success"]
     exec_id = "pytest"
 

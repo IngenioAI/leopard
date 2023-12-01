@@ -41,9 +41,9 @@ class ExecManager():
     def get_run_path(self, id_name):
         return os.path.join("storage", "run", id_name)
 
-    def create_exec(self, id_name, source_path, command_line, base_image, input_path, output_path, user_data):
+    def create_exec(self, id_name, source_path, command_line, base_image, input_path, output_path, user_data, use_gpu = True):
         run_path = self.get_run_path(id_name)
-        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path, { "run_path": run_path })
+        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path, { "run_path": run_path, "use_gpu": use_gpu })
         if res:
             container_id = info["container_id"]
             exec_info = self.docker.exec_inspect(container_id)
@@ -189,6 +189,7 @@ class ExecutionItem(BaseModel):
     outputPath: Union[str, None] = None
     uploadId: Union[str, None] = None
     userdata: Union[dict, None] = None
+    useGPU: Union[bool, None] = None
 
 
 @exec_router.post("/create")
@@ -199,7 +200,6 @@ async def create_execution(data: ExecutionItem):
     else:
         sourcePath = data.srcPath.split(":")
         source_path = storage_util.get_storage_file_path(sourcePath[0], sourcePath[1])
-        print("source_path:", sourcePath, source_path)
 
     if data.inputPath is not None and data.inputPath != "":
         storagePath = data.inputPath.split(":")
@@ -212,7 +212,7 @@ async def create_execution(data: ExecutionItem):
         output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
     else:
         output_path = None
-    res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata)
+    res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata, data.useGPU)
     if res:
         return JSONResponseHandler({
             "success": True,

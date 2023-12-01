@@ -111,7 +111,7 @@ class DockerRunner():
             try:
                 if os.path.exists(options["run_path"]):
                     shutil.rmtree(options["run_path"])
-                os.mkdir(options["run_path"])
+                os.makedirs(options["run_path"])
             except:
                 pass
 
@@ -131,7 +131,7 @@ class DockerRunner():
                                                     ports=[options['port']] if 'port' in options else [],
                                                     host_config=self.client.create_host_config(
                                                         device_requests=[
-                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])],
+                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])] if options["use_gpu"] else [],
                                                         binds=binds,
                                                         port_bindings={options['port']: options['port']} if 'port' in options else {}
                                                     ))
