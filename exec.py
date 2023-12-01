@@ -19,6 +19,7 @@ class ExecManager():
         self.docker = docker_runner.DockerRunner()
         self.exec_list = []
         self.timer = None
+        self.timer_inteval = 0.5
         self.load()
 
     def load(self):
@@ -73,7 +74,8 @@ class ExecManager():
                     if "container_id" in info:
                         docker_exec_info = self.docker.exec_inspect(info["container_id"])
                         info["container"] = {}
-                        info["container"]["State"] = docker_exec_info["State"]
+                        if "State" in docker_exec_info:
+                            info["container"]["State"] = docker_exec_info["State"]
                     return info
         return {}
 
@@ -135,30 +137,34 @@ class ExecManager():
 
     def start(self):
         if self.timer is None:
-            self.timer = Timer(1.0, self.run)
+            self.timer = Timer(self.timer_inteval, self.run)
             self.timer.start()
 
     def run(self):
         for exec_info in self.exec_list:
             if exec_info["running"]:
                 docker_exec_info = self.docker.exec_inspect(exec_info["container_id"])
-                if not docker_exec_info["State"]["Running"]:
-                    exec_info["running"] = False
-                    exec_info["container"] = {}
+                exec_info["container"] = {}
+                if "State" in docker_exec_info:
                     exec_info["container"]["State"] = docker_exec_info["State"]
-                    run_path = self.get_run_path(exec_info["id"])
-                    log_path = os.path.join(run_path, "log.txt")
-                    logs = self.docker.exec_logs(exec_info["container_id"])
-                    with open(log_path, "wt", encoding="utf-8") as fp:
-                        fp.write(logs)
-                    self.save()
+                    if not docker_exec_info["State"]["Running"]:
+                        exec_info["running"] = False
+                        run_path = self.get_run_path(exec_info["id"])
+                        log_path = os.path.join(run_path, "log.txt")
+                        logs = self.docker.exec_logs(exec_info["container_id"])
+                        with open(log_path, "wt", encoding="utf-8") as fp:
+                            fp.write(logs)
+                        self.save()
 
-                    # remove docker
-                    self.docker.exec_remove(exec_info["container_id"])
+                        # remove docker
+                        self.docker.exec_remove(exec_info["container_id"])
+                else:
+                    exec_info["running"] = False
+                    self.save()
 
         # repeat timer if not canceled
         if self.timer is not None:
-            self.timer = Timer(1.0, self.run)
+            self.timer = Timer(self.timer_inteval, self.run)
             self.timer.start()
 
     def stop(self):

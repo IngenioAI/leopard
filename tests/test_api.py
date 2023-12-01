@@ -143,9 +143,11 @@ def test_exec(server):
     assert res["success"]
     exec_id = "pytest"
 
+    time.sleep(0.5)
+
     response = client.get(f'/api/exec/info/{exec_id}')
     res = response.json()
-    while res["container"]["State"]["Running"]:
+    while "State" in res["container"] and res["container"]["State"]["Running"]:
         time.sleep(0.5)
         response = client.get(f'/api/exec/info/{exec_id}')
         res = response.json()
@@ -154,6 +156,10 @@ def test_exec(server):
     assert response.status_code == 200
     response = client.delete(f'/api/storage/item/{storageId}/test-pytest')
     assert response.status_code == 200
+
+    response = client.delete(f'/api/exec/item/{exec_id}')
+    assert response.status_code == 200
+
 
 def test_dataset(server):
     response = client.get("/api/dataset/list")
