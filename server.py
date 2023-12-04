@@ -145,12 +145,13 @@ async def get_sys_info():
 
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 
-def init_app(app):
+def init_app(app, config=None):
     app.app_manager = AppManager()
-    app.app_manager.start()
+    app.app_manager.start(config)
     app.sys_info = sysinfo.SystemInfo()
-    app.sys_info.start()
-    exec_manager.start()
+    app.sys_info.start(config)
+    exec_manager.start(config)
+    data_store.manager.start(config)
 
 def deinit_app(app):
     app.app_manager.stop()
@@ -159,7 +160,12 @@ def deinit_app(app):
 
 def web_main(args):
     app.args = args
-    init_app(app)
+    config = None
+    if args.config is not None:
+        if os.path.exists(args.config):
+            with open(args.config, "rt", encoding="utf-8") as fp:
+                config = json.load(fp)
+    init_app(app, config)
     uvicorn.run(app, host="127.0.0.1", port=args.port if args else 12700)
     deinit_app(app)
 
@@ -167,6 +173,7 @@ def web_main(args):
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--config', type=str, default=None)
     parser.add_argument('--port', type=int, default=12700)
     return parser.parse_args()
 

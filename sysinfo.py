@@ -15,7 +15,7 @@ class SystemInfo(object):
         self.thread = None
         self.stop_flag = False
 
-    def start(self, poll_time=1.0):
+    def start(self, config, poll_time=1.0):
         self.stop_flag = False
         self.poll_time = poll_time
         self.thread = threading.Thread(target=lambda: self.run())

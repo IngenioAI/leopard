@@ -78,6 +78,9 @@ async function createExecution() {
         item['uploadId'] = sourceUploadInfo.upload_id;
     }
     item["userdata"] = execUserdata;
+    if (getE("resource_gpu").checked) {
+        item['useGPU'] = true;
+    }
     const res = await createExec(item);
     if (res) {
         if (res.success) {

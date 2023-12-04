@@ -7,7 +7,10 @@ client = TestClient(app)
 
 @pytest.fixture(scope="module")
 def server():
-    init_app(app)
+    config = {
+        "data_path": "tests/data"
+    }
+    init_app(app, config)
     yield
     deinit_app(app)
 

@@ -3,3 +3,5 @@ misc/
 storage/*
 data/*
 .coverage
+tests/data/model.json
+tests/data/dataset.json

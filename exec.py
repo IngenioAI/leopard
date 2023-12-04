@@ -91,7 +91,7 @@ class ExecManager():
             return self.docker.exec_logs(container_id)
         return ""
 
-    def stop(self, exec_id):
+    def stop_exec(self, exec_id):
         for info in self.exec_list:
             if info["id"] == exec_id:
                 return self.docker.exec_stop(info["container_id"])
@@ -135,7 +135,7 @@ class ExecManager():
                 return json.load(fp)
         return None
 
-    def start(self):
+    def start(self, config):
         if self.timer is None:
             self.timer = Timer(self.timer_inteval, self.run)
             self.timer.start()
@@ -238,7 +238,7 @@ async def get_execution_logs(exec_id: str):
 
 @exec_router.put("/stop/{exec_id}")
 async def stop_execution(exec_id: str):
-    res, error_info = exec_manager.stop(exec_id)
+    res, error_info = exec_manager.stop_exec(exec_id)
     response = { "success": res }
     if error_info is not None:
         response.update(error_info)
