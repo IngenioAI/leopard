@@ -13,7 +13,8 @@ function createExecItem(execInfo, initState="실행 중") {
         STOP: 100,
         DELETE: 101,
         VIEW: 102,
-        RESTART: 103
+        RESTART: 103,
+        TENSORBOARD: 104
     };
     const contextHandler = async (menuId, info) => {
         if (menuId == MENU_ID.STOP) {
@@ -30,15 +31,22 @@ function createExecItem(execInfo, initState="실행 중") {
             }
             refreshExecList();
         }
+        else if (menuId == MENU_ID.TENSORBOARD) {
+            const url = new URL(window.location.href);
+            await startTensorboard(info.id);
+            setTimeout(() => window.open(`http://${url.hostname}:12760`, '_blank'), 3500);
+        }
     }
     const contextMenuExited = new ContextMenu([
         { id: MENU_ID.DELETE, title: "삭제", info: execInfo },
         { id: MENU_ID.VIEW, title: "세부 정보", info: execInfo },
-        { id: MENU_ID.RESTART, title: "다시 실행", info: execInfo }
+        { id: MENU_ID.RESTART, title: "다시 실행", info: execInfo },
+        { id: MENU_ID.TENSORBOARD, title: "텐서보드", info: execInfo }
     ], contextHandler);
     const contextMenuRunning = new ContextMenu([
         { id: MENU_ID.STOP, title: "중지", info: execInfo },
-        { id: MENU_ID.VIEW, title: "세부 정보", info: execInfo }
+        { id: MENU_ID.VIEW, title: "세부 정보", info: execInfo },
+        { id: MENU_ID.TENSORBOARD, title: "텐서보드", info: execInfo }
     ], contextHandler);
     return createListGroupItem([
             { name: "h5", attributes: { class: "mb-1" }, children: [
