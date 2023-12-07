@@ -33,8 +33,13 @@ function createExecItem(execInfo, initState="실행 중") {
         }
         else if (menuId == MENU_ID.TENSORBOARD) {
             const url = new URL(window.location.href);
-            await startTensorboard(info.id);
-            setTimeout(() => window.open(`http://${url.hostname}:12760`, '_blank'), 3500);
+            document.body.style.cursor = 'progress';
+            const res = await startTensorboard(info.id);
+            document.body.style.cursor = 'default';
+            const tbUrl = `http://${url.hostname}:${res.port}`;
+            if (res.success) {
+                setTimeout(() => window.open(tbUrl, '_blank'), 100);
+            }
         }
     }
     const contextMenuExited = new ContextMenu([

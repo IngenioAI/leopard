@@ -147,7 +147,12 @@ async def get_sys_info():
 @app.get("/api/tensorboard/start/{exec_id}", tags=["Tensorboard"])
 async def get_start_tensorboard(exec_id: str):
     run_path = exec_manager.get_run_path(exec_id)
-    tensorboard.manager.start(run_path, 12760)
+    default_port = 12760
+    success = tensorboard.manager.start(run_path, default_port)
+    return {
+        "success": success,
+        "port": default_port
+    }
 
 @app.get("/api/tensorboard/stop", tags=["Tensorboard"])
 async def get_stop_tensorboard():
