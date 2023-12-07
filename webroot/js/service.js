@@ -261,3 +261,14 @@ async function deleteSessionData() {
     const res = await http_delete("/api/session/data");
     return JSON.parse(res);
 }
+
+// TENSORBOARD
+async function startTensorboard(execId) {
+    const res = await http_get(`/api/tensorboard/start/${execId}`);
+    return JSON.parse(res);
+}
+
+async function stopTensorboard() {
+    const res = await http_get("/api/tensorboard/stop");
+    return JSON.parse(res);
+}

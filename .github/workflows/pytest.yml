@@ -5,6 +5,9 @@ on:
     branches:
       - main
       - ci_test
+  pull_request:
+    branches:
+      - main
 
 jobs:
   pytest:

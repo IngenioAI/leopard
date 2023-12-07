@@ -18,6 +18,7 @@ import sysinfo
 from session import session_router, session_manager
 from image import image_router
 from storage import storage_router
+import tensorboard
 
 tags_metadata = [
     {"name": "UI", "description": "UI template service"},
@@ -143,6 +144,20 @@ async def run_app(module_id: str, req: Request):
 async def get_sys_info():
     return JSONResponseHandler(app.sys_info.get_system_info())
 
+@app.get("/api/tensorboard/start/{exec_id}", tags=["Tensorboard"])
+async def get_start_tensorboard(exec_id: str):
+    run_path = exec_manager.get_run_path(exec_id)
+    default_port = 12760
+    success = tensorboard.manager.start(run_path, default_port)
+    return {
+        "success": success,
+        "port": default_port
+    }
+
+@app.get("/api/tensorboard/stop", tags=["Tensorboard"])
+async def get_stop_tensorboard():
+    tensorboard.manager.stop()
+
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 
 def init_app(app, config=None):
@@ -157,6 +172,7 @@ def deinit_app(app):
     app.app_manager.stop()
     app.sys_info.stop()
     exec_manager.stop()
+    tensorboard.manager.stop()
 
 def web_main(args):
     app.args = args
