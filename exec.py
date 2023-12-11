@@ -2,11 +2,11 @@ import os
 import json
 import shutil
 
-from pydantic import BaseModel
 from typing import Union
-from fastapi import APIRouter
-
 from threading import Timer
+
+from pydantic import BaseModel
+from fastapi import APIRouter
 
 import docker_runner
 import data_store
@@ -32,9 +32,9 @@ class ExecManager():
         current_exec_list = [self.get_info(x['id']) for x in self.exec_list]
         return current_exec_list
 
-    def get_container_id(self, id):
+    def get_container_id(self, exec_id):
         for info in self.exec_list:
-            if info["id"] == id:
+            if info["id"] == exec_id:
                 return info["container_id"]
         return None
 
@@ -70,13 +70,12 @@ class ExecManager():
             if info["id"] == exec_id:
                 if "container" in info:
                     return info
-                else:
-                    if "container_id" in info:
-                        docker_exec_info = self.docker.exec_inspect(info["container_id"])
-                        info["container"] = {}
-                        if "State" in docker_exec_info:
-                            info["container"]["State"] = docker_exec_info["State"]
-                    return info
+                if "container_id" in info:
+                    docker_exec_info = self.docker.exec_inspect(info["container_id"])
+                    info["container"] = {}
+                    if "State" in docker_exec_info:
+                        info["container"]["State"] = docker_exec_info["State"]
+                return info
         return {}
 
     def get_logs(self, exec_id):
@@ -95,7 +94,7 @@ class ExecManager():
         for info in self.exec_list:
             if info["id"] == exec_id:
                 return self.docker.exec_stop(info["container_id"])
-        return False, { "error_message": "ID not found: %s" % exec_id}
+        return False, { "error_message": f'ID not found: {exec_id}'}
 
     def remove_exec(self, exec_id):
         for info in self.exec_list:
@@ -114,12 +113,12 @@ class ExecManager():
                 if os.path.exists(run_path):
                     try:
                         shutil.rmtree(run_path)
-                    except:
+                    except OSError:
                         pass
                 self.exec_list.remove(info)
                 self.save()
                 return res, error_info
-        return False, { "error_message": "ID not found: %s" % exec_id}
+        return False, { "error_message": f'ID not found: {exec_id}'}
 
     def get_progress(self, exec_id):
         progress_info_path = os.path.join(self.get_run_path(exec_id), "progress.json")
@@ -135,7 +134,7 @@ class ExecManager():
                 return json.load(fp)
         return None
 
-    def start(self, config):
+    def start(self, config):    # pylint: disable=unused-argument
         if self.timer is None:
             self.timer = Timer(self.timer_inteval, self.run)
             self.timer.start()
@@ -198,18 +197,18 @@ async def create_execution(data: ExecutionItem):
         source_path = exec_manager.get_run_path(data.id)
         upload_util.process_upload_item(data.uploadId, source_path, data.srcPath)
     else:
-        sourcePath = data.srcPath.split(":")
-        source_path = storage_util.get_storage_file_path(sourcePath[0], sourcePath[1])
+        paths = data.srcPath.split(":")
+        source_path = storage_util.get_storage_file_path(paths[0], paths[1])
 
     if data.inputPath is not None and data.inputPath != "":
-        storagePath = data.inputPath.split(":")
-        input_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+        paths = data.inputPath.split(":")
+        input_path = storage_util.get_storage_file_path(paths[0], paths[1])
     else:
         input_path = None
 
     if data.outputPath is not None and data.outputPath != "":
-        storagePath = data.outputPath.split(":")
-        output_path = storage_util.get_storage_file_path(storagePath[0], storagePath[1])
+        paths = data.outputPath.split(":")
+        output_path = storage_util.get_storage_file_path(paths[0], paths[1])
     else:
         output_path = None
     res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata, data.useGPU)
@@ -218,8 +217,7 @@ async def create_execution(data: ExecutionItem):
             "success": True,
             "exec_info": info
         })
-    else:
-        return JSONResponseHandler({ "success": False }.update(info))
+    return JSONResponseHandler({ "success": False }.update(info))
 
 
 @exec_router.get("/info/{exec_id}")

@@ -1,10 +1,12 @@
+const bootstrap = window.bootstrap;
+
 class ElementEventItem {
     constructor(elementId, name, handler) {
         this.elementId = elementId;
         this.name = name;
         this.handler = handler;
     }
-};
+}
 
 class DialogBox {
     constructor(dialogBoxId, options={}) {
@@ -89,14 +91,14 @@ class DialogBox {
         this.eventHandlers = [];
     }
 
-    onShow(e) {
+    onShow() {
     }
 
-    onHide(e) {
+    onHide() {
     }
 
     // use onHide, or you should call super.onHidden(e)
-    onHidden(e) {
+    onHidden() {
         this.clearAllEvent();
     }
 }
@@ -134,3 +136,5 @@ class ModalDialogBox extends DialogBox {
         this.hide();
     }
 }
+
+export { DialogBox, ModalDialogBox }

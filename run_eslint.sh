@@ -1,0 +1,1 @@
+npx eslint . --config .eslintrc.json --ext .js

@@ -1,3 +1,7 @@
+import { createElem } from "/js/dom_utils.js"
+
+const bootstrap = window.bootstrap;
+
 class ContextMenu {
     constructor(menuItems, menuHandler, buttonSpec=null) {
         const contextItems = menuItems.filter((item) => item.condition ? item.condition(item.info) : true);
@@ -25,7 +29,7 @@ class ContextMenu {
                             name: "a",
                             text: item.title,
                             attributes: { class: "dropdown-item", href: "#" },
-                            events: { click: (e) => this.onClickMenuItem(item.id, item.info) }
+                            events: { click: () => this.onClickMenuItem(item.id, item.info) }
                         }]
                     }
                 })
@@ -35,7 +39,7 @@ class ContextMenu {
         this.dropdown = null;
     }
 
-    onShow(e) {
+    onShow() {
         this.dropdown = new bootstrap.Dropdown(this.element);
     }
 
@@ -53,3 +57,5 @@ class ContextMenu {
             this.dropdown.hide();
     }
 }
+
+export { ContextMenu }

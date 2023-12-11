@@ -1,3 +1,5 @@
+import { createElem, addE, getE, clearE } from "/js/dom_utils.js"
+
 class Pagination {
     constructor(listId, pageCount, totalCount, showCount, onClick) {
         this.listId = listId;
@@ -84,8 +86,10 @@ class Pagination {
             this.addPageItem(this.totalPage);
         }
     }
-};
+}
 
 function createPagination(listId, pageCount, totalCount, showCount=11, onClick=null) {
     return new Pagination(listId, pageCount, totalCount, showCount, onClick);
 }
+
+export { Pagination, createPagination }

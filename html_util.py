@@ -2,9 +2,9 @@ import os
 from html.parser import HTMLParser
 
 class HTMLElement():
-    def __init__(self, tagName) -> None:
-        self.tagName = tagName
-        self.attrs = dict()
+    def __init__(self, tag_name) -> None:
+        self.tag_name = tag_name
+        self.attrs = {}
         self.parent = None
         self.data = ""
         self.children = []
@@ -12,12 +12,12 @@ class HTMLElement():
         self.end_pos = None
         self.inner_html = ""
 
-    def addChild(self, elem):
+    def add_child(self, elem):
         elem.parent = self
         self.children.append(elem)
 
     def print(self, recur=False, indent=0):
-        print(" " * indent, "Tag:", self.tagName, " Attrs:", self.attrs, " Data:", self.data)
+        print(" " * indent, "Tag:", self.tag_name, " Attrs:", self.attrs, " Data:", self.data)
         if recur:
             for child in self.children:
                 child.print(recur, indent+1)
@@ -47,13 +47,13 @@ class HTMLTagParser(HTMLParser):
             if self.current is None:
                 self.roots.append(elem)
             else:
-                self.current.addChild(elem)
+                self.current.add_child(elem)
             self.current = elem
 
     def handle_endtag(self, tag):
         if self.current is not None:
-            while tag != self.current.tagName:
-                print("End tag mismatch:", tag, self.current.tagName)
+            while tag != self.current.tag_name:
+                print("End tag mismatch:", tag, self.current.tag_name)
                 self.current = self.current.parent
             self.current.end_pos = self.getpos()
             self.current.inner_html  = ""
@@ -82,15 +82,18 @@ class HTMLTagParser(HTMLParser):
         return ""
 
     def print(self, recur=False):
-       for root in self.roots:
+        for root in self.roots:
             root.print(recur, 0)
+
+    def error(self, message):
+        print("ParserError:", message)
 
 
 def get_html_attribute(tag, name):
     parser = HTMLTagParser(tag)
     # parser.print()
 
-    if type(name) == list:
+    if isinstance(name, list):
         value = []
         for s in name:
             v = parser.get_attr(s)
@@ -103,15 +106,15 @@ def split_html_content(content, tag, index=0):
     if content is None:
         return None, None, None
 
-    tag_open = "<%s" % tag
-    tag_close = "</%s>" % tag
+    tag_open = f'<{tag}'
+    tag_close = f'</{tag}>'
 
     start = content.find(tag_open, index)
     if start < 0:
         return None, None, content
     starttag = content.find(">", start+1)
     startendtag = content.find("/>", start+1)
-    if startendtag >= 0 and startendtag < starttag:
+    if 0 <= startendtag < starttag:
         end = startendtag + 2
     else:
         starttag += 1
@@ -129,9 +132,9 @@ def split_html_content(content, tag, index=0):
     return content[:start], content[start:end], content[end:]
 
 
-def get_inner_html(tag, tagName):
-    tag_open = "<%s" % tagName
-    tag_close = "</%s>" % tagName
+def get_inner_html(tag, tag_name):
+    tag_open = f'<{tag_name}'
+    tag_close = f'</{tag_name}>'
     open_count = tag.count(tag_open)
     tag_start = tag.find(tag_open)
     inner_start = tag.find(">", tag_start) + 1
@@ -146,9 +149,15 @@ def get_inner_html(tag, tagName):
     return ""
 
 
-def process_include_html(content, params={}, template_content={}):
+def process_include_html(content, params=None, template_content=None):
     if content is None or content == "":
         return ""
+
+    if params is None:
+        params = {}
+
+    if template_content is None:
+        template_content = {}
 
     content = content.replace("<!LP-", "<LP-")
     content = content.replace("</!LP-", "</LP-")
@@ -163,7 +172,7 @@ def process_include_html(content, params={}, template_content={}):
         p1, tag, p2 = split_html_content(content, "LP-template", p)
         use_template = get_html_attribute(tag, "use")
         # print("use template:", use_template)
-        template_filepath = "ui/template/%s.html" % use_template
+        template_filepath = f'ui/template/{use_template}.html'
 
         p1, tag, p2 = split_html_content(p2, "LP-param")
         while tag is not None:
@@ -197,9 +206,9 @@ def process_include_html(content, params={}, template_content={}):
         p1, tag, p2 = split_html_content(content, "LP-include-html", p)
         src_name = get_html_attribute(tag, "src")
         # print("Load template:", src_name)
-        src_file_path = "ui/fragment/%s" % src_name
+        src_file_path = f'ui/fragment/{src_name}'
         if not os.path.exists(src_file_path):
-            src_file_path = "ui/dialog/%s" % src_name
+            src_file_path = f'ui/dialog/{src_name}'
         if os.path.exists(src_file_path):
             with open(src_file_path, "rt", encoding="UTF-8") as fp:
                 sub_content = fp.read()
@@ -209,10 +218,10 @@ def process_include_html(content, params={}, template_content={}):
         src_name = get_html_attribute(tag, "src")
         if src_name == "":
             file_title, _ = os.path.splitext(template_content["file_path"])
-            src_name = "/js/page/%s.js" % file_title
+            src_name = f'/js/page/{file_title}.js'
         script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
         if os.path.exists(script_path):
-            sub_content = f'<script src="{src_name}" charset="utf-8"></script>'
+            sub_content = f'<script type="module" src="{src_name}" charset="utf-8"></script>'
         else:
             sub_content = ""
     elif content[p+1:].startswith("LP-include-dialog-script"):
@@ -220,10 +229,10 @@ def process_include_html(content, params={}, template_content={}):
         src_name = get_html_attribute(tag, "src")
         if src_name == "":
             file_title = params['id']
-            src_name = "/js/dialog/%s.js" % file_title
+            src_name = f'/js/dialog/{file_title}.js'
         script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
         if os.path.exists(script_path):
-            sub_content = f'<script src="{src_name}" charset="utf-8"></script>'
+            sub_content = f'<script type="module" src="{src_name}" charset="utf-8"></script>'
         else:
             sub_content = ""
     elif content[p+1:].startswith("LP-include-string"):

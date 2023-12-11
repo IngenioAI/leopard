@@ -1,11 +1,10 @@
 import os
-import docker
 import io
 import threading
 import shutil
 from ast import literal_eval
 import re
-import time
+import docker
 
 
 def escape_ansi(line):
@@ -16,7 +15,7 @@ def escape_ansi(line):
 class DockerRunner():
     def __init__(self):
         self.client = docker.APIClient()
-        self.threads = dict()
+        self.threads = {}
 
     def list_images(self):
         return self.client.images()
@@ -37,7 +36,7 @@ class DockerRunner():
         self.threads[name]['status'] = 'exited'
 
     def start_create_log(self, name, gen):
-        self.threads[name] = dict()
+        self.threads[name] = {}
 
         thread = threading.Thread(target=lambda: self.generator_thread(name, gen))
         self.threads[name]['thread'] = thread
@@ -46,22 +45,22 @@ class DockerRunner():
 
     def create_image(self, name, base_image="python:3.8", update=True, apt_install=None, pip_install=None,
                      additional_cmd=None):
-        dockerfile_template = "FROM %s\n" % base_image
+        dockerfile_template = f'FROM {base_image}\n'
         if update:
             # dockerfile_template += "RUN apt-key del 7fa2af80 && apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub && apt update && apt -y upgrade\n"
             dockerfile_template += "RUN apt update && apt -y upgrade\n"
         if apt_install is not None and apt_install != '':
-            dockerfile_template += "RUN apt install -y --allow-downgrades %s\n" % apt_install
+            dockerfile_template += f'RUN apt install -y --allow-downgrades {apt_install}\n'
         if pip_install is not None and pip_install != '':
-            dockerfile_template += "RUN pip install --upgrade pip && pip install %s\n" % pip_install
+            dockerfile_template += f'RUN pip install --upgrade pip && pip install {pip_install}\n'
         if additional_cmd is not None and additional_cmd != '':
-            if type(additional_cmd) is list:
+            if isinstance(additional_cmd, list):
                 for cmd in additional_cmd:
-                    dockerfile_template += "RUN %s\n" % cmd
+                    dockerfile_template += f'RUN {cmd}\n'
             else:
                 commands = additional_cmd.split('\n')
                 for cmd in commands:
-                    dockerfile_template += "RUN %s\n" % cmd
+                    dockerfile_template += f'RUN {cmd}\n'
 
         # print("=====DOCKERFILE\n", dockerfile_template, "\n========")
         dockerfile = io.BytesIO(dockerfile_template.encode('utf-8'))
@@ -75,18 +74,17 @@ class DockerRunner():
                 'lines': self.threads[name]['lines'],
                 'status': self.threads[name]['status']
             }
-        else:
-            return {
-                'lines': [],
-                'status': 'not found'
-            }
+        return {
+            'lines': [],
+            'status': 'not found'
+        }
 
     def remove_create_image_info(self, name):
         del self.threads[name]
 
     def remove_image(self, name):
         try:
-            self.client.remove_image(name);
+            self.client.remove_image(name)
             return True, None
         except (docker.errors.APIError, docker.errors.NotFound) as e:
             return False, {
@@ -98,42 +96,44 @@ class DockerRunner():
     def list_execs(self):
         return self.client.containers(all=True)
 
-    def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, options={}):
+    def exec_command(self, src_dir, command, image, data_dir=None, output_dir=None, options=None):
         working_dir = "/app"
         binds = []
         if src_dir != '':
-            binds.append('%s:%s' % (os.path.abspath(src_dir), working_dir))
+            binds.append(f'{os.path.abspath(src_dir)}:{working_dir}')
         if data_dir is not None and data_dir != '':
-            binds.append('%s:%s' % (os.path.abspath(data_dir), "/data/input"))
+            binds.append(f'{os.path.abspath(data_dir)}:/data/input')
         if output_dir is not None and output_dir != '':
-            binds.append('%s:%s' % (os.path.abspath(output_dir), "/data/output"))
-        if "run_path" in options:
+            binds.append(f'{os.path.abspath(output_dir)}:/data/output')
+        if options is not None and "run_path" in options:
             try:
                 if os.path.exists(options["run_path"]):
                     shutil.rmtree(options["run_path"])
                 os.makedirs(options["run_path"])
-            except:
+            except OSError:
                 pass
 
-            binds.append("%s:%s" % (os.path.abspath(options["run_path"]), "/apprun"))
+            binds.append(f'{os.path.abspath(options["run_path"])}:/apprun')
 
         #print("Binds:", binds)
-        if type(command) == str:
+        if isinstance(command, str):
             command_list = command.split(" ")
-        elif type(command) == list:
+        elif isinstance(command, list):
             command_list = command
         else:
             print("Unsupported command type (string or list):", command)
 
         try:
+            use_gpu = options["use_gpu"] if options is not None and "use_gpu" in options else True
+            port_number = options["port"] if options is not None and "port" in options else None
             container = self.client.create_container(image, command=command_list,
                                                     working_dir=working_dir,
-                                                    ports=[options['port']] if 'port' in options else [],
+                                                    ports=[port_number] if port_number is not None else [],
                                                     host_config=self.client.create_host_config(
                                                         device_requests=[
-                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])] if options["use_gpu"] else [],
+                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])] if use_gpu else [],
                                                         binds=binds,
-                                                        port_bindings={options['port']: options['port']} if 'port' in options else {}
+                                                        port_bindings={port_number: port_number} if port_number is not None else {}
                                                     ))
             self.client.start(container.get('Id'))
             return True, { "container_id": container.get('Id') }

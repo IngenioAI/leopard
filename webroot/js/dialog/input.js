@@ -1,3 +1,6 @@
+import { ModalDialogBox } from "/js/dialog/dialogbox.js"
+import { getE } from "/js/dom_utils.js";
+
 class InputDialogBox extends ModalDialogBox {
     constructor(validator) {
         super('input');
@@ -8,7 +11,7 @@ class InputDialogBox extends ModalDialogBox {
         getE('LP_DIALOG_input_input').value = "";
     }
 
-    onShow(e) {
+    onShow() {
         this.addEvent('LP_DIALOG_input_OK', 'click', this.onOK.bind(this));
         this.addEvent('LP_DIALOG_input_input', 'keypress', this.onKeyPress.bind(this));
         getE('LP_DIALOG_input_input').focus();
@@ -31,10 +34,12 @@ class InputDialogBox extends ModalDialogBox {
             this.onOK();
         }
     }
-};
+}
 
 function showInputDialogBox(message, title, validator=null) {
     const dialogBox = new InputDialogBox(validator);
     dialogBox.setText(message, title);
     return dialogBox.exec();
 }
+
+export { InputDialogBox, showInputDialogBox }

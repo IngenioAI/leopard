@@ -1,15 +1,17 @@
-function joinPath(...args) {
+export function joinPath(...args) {
     args = args.filter(item => item != null && item != "")
     return args.map((part, i) => {
         if (i === 0) {
-            return part.trim().replace(/[\/]*$/g, '')
+            //return part.trim().replace(/[\/]*$/g, '')
+            return part.trim().replace(/[/]*$/g, '')
         } else {
-            return part.trim().replace(/(^[\/]*|[\/]*$)/g, '')
+            //return part.trim().replace(/(^[\/]*|[\/]*$)/g, '')
+            return part.trim().replace(/(^[/]*|[/]*$)/g, '')
         }
     }).filter(x => x.length).join('/')
 }
 
-function splitPath(path) {
+export function splitPath(path) {
     let index = 0;
     const items = [];
     if (path.startsWith("/")) {
@@ -25,7 +27,7 @@ function splitPath(path) {
     return items;
 }
 
-function splitStoragePath(path) {
+export function splitStoragePath(path) {
     const items = [];
     if (path.startsWith("storage/")) {
         path = path.substr("storage/".length)
@@ -36,7 +38,7 @@ function splitStoragePath(path) {
     return items;
 }
 
-function changeStorageDir(currentPath, dirName) {
+export function changeStorageDir(currentPath, dirName) {
     if (dirName == "..") {
         const p = currentPath.lastIndexOf("/");
         if (p > 0) {
@@ -52,7 +54,7 @@ function changeStorageDir(currentPath, dirName) {
     return currentPath;
 }
 
-function getFileIcon(fileInfo) {
+export function getFileIcon(fileInfo) {
     if (fileInfo.is_dir) {
         return "bi-folder";
     }
@@ -81,15 +83,15 @@ function getFileIcon(fileInfo) {
     return "bi-file";
 }
 
-function isViewableFile(fileInfo) {
+export function isViewableFile(fileInfo) {
     return isImageFile(fileInfo.name) || isTextFile(fileInfo.name);
 }
 
-function isEditableFile(fileInfo) {
+export function isEditableFile(fileInfo) {
     return isTextFile(fileInfo.name);
 }
 
-function isImageFile(filepath) {
+export function isImageFile(filepath) {
     const imageFileExt = [".jpg", ".jpeg", ".png"]
     for (const ext of imageFileExt) {
         if (filepath.endsWith(ext)) {
@@ -99,7 +101,7 @@ function isImageFile(filepath) {
     return false;
 }
 
-function isTextFile(filepath) {
+export function isTextFile(filepath) {
     const textFileExt = [".py", ".txt", ".csv", ".json", ".md"]
     for (const ext of textFileExt) {
         if (filepath.endsWith(ext)) {
@@ -109,7 +111,7 @@ function isTextFile(filepath) {
     return false;
 }
 
-function getFileSizeString(fileSize) {
+export function getFileSizeString(fileSize) {
     const units = [" bytes", "KB", "MB", "GB", "TB"]
     let value = fileSize;
     let unitIndex = 0;
@@ -132,11 +134,11 @@ function getFileSizeString(fileSize) {
     return `${value}${units[unitIndex]}`;
 }
 
-function getDateString(date) {
+export function getDateString(date) {
     return date.toLocaleString();
 }
 
-function getElapsedTimeString(date) {
+export function getElapsedTimeString(date) {
     const start = new Date(date);
     const end = new Date();
     const diff = (end - start) / 1000;
@@ -157,7 +159,7 @@ function getElapsedTimeString(date) {
     return '방금 전';
 }
 
-function sortFileList(fileList) {
+export function sortFileList(fileList) {
     fileList.items.sort((a, b) => {
         if (a.is_dir && !b.is_dir) {
             return -1;
@@ -175,7 +177,7 @@ function sortFileList(fileList) {
     });
 }
 
-function createStorageFileURL(storageId, storagePath, reload=false) {
+export function createStorageFileURL(storageId, storagePath, reload=false) {
     let url = joinPath('/api/storage/file', storageId, storagePath);
     if (reload) {
         url += `?${new Date().getTime()}`;
@@ -183,7 +185,7 @@ function createStorageFileURL(storageId, storagePath, reload=false) {
     return url;
 }
 
-function downloadStorageFile(storageId, storagePath, fileName = null) {
+export function downloadStorageFile(storageId, storagePath, fileName = null) {
     const a = document.createElement("a");
     a.href = createStorageFileURL(storageId, storagePath);
     if (fileName) {
@@ -196,7 +198,7 @@ function downloadStorageFile(storageId, storagePath, fileName = null) {
     a.click();
 }
 
-function getStorageName(storageId, storageList) {
+export function getStorageName(storageId, storageList) {
     for (const storageInfo of storageList) {
         if (storageInfo.id == storageId) {
             return storageInfo.name;
@@ -205,7 +207,7 @@ function getStorageName(storageId, storageList) {
     return storageId;
 }
 
-function getStorageId(storageName, storageList) {
+export function getStorageId(storageName, storageList) {
     for (const storageInfo of storageList) {
         if (storageInfo.name == storageName) {
             return storageInfo.id;

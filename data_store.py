@@ -2,14 +2,14 @@ import os
 import json
 
 class DataStore():
-    def __init__(self, name, data_path="data", type="list") -> None:
+    def __init__(self, name, data_path="data", data_type="list") -> None:
         self.name = name
         self.data_path = data_path
         self.current_data = None
-        self.type = type
+        self.type = data_type
 
     def load(self):
-        dataset_info_path = os.path.join(self.data_path, "%s.json" % self.name)
+        dataset_info_path = os.path.join(self.data_path, f'{self.name}.json')
         if os.path.exists(dataset_info_path):
             with open(dataset_info_path, "rt", encoding="utf-8") as fp:
                 self.current_data = json.load(fp)
@@ -22,7 +22,7 @@ class DataStore():
     def save(self):
         if not os.path.exists(self.data_path):
             os.mkdir(self.data_path)
-        dataset_info_path = os.path.join(self.data_path, "%s.json" % self.name)
+        dataset_info_path = os.path.join(self.data_path, f'{self.name}.json')
         with open(dataset_info_path, "wt", encoding="utf-8") as fp:
             json.dump(self.current_data, fp, indent=4)
         return True

@@ -1,3 +1,6 @@
+import { http_get, http_post, http_put, http_delete } from "/js/http.js";
+import { joinPath, createStorageFileURL } from "/js/storage_utils.js";
+
 function makeQueryString(o) {
     let s = '?';
     for (const [key, value] of Object.entries(o)) {
@@ -7,7 +10,7 @@ function makeQueryString(o) {
 }
 
 // POST object data from form elements
-function createPostItem(itemSpec) {
+export function createPostItem(itemSpec) {
     const o = new Object();
     for (const [key, id] of itemSpec) {
         o[key] = document.getElementById(id).value;
@@ -25,80 +28,80 @@ function HTTPErrorHandler(err) {
 }
 
 // IMAGE
-async function createExecImage(item) {
+export async function createExecImage(item) {
     const res = await http_post('/api/image/create', item);
     return JSON.parse(res);
 }
 
-async function getExecImageCreationInfo(tagName) {
+export async function getExecImageCreationInfo(tagName) {
     const res = await http_get(`/api/image/create/${tagName}`);
     return JSON.parse(res);
 }
 
-async function removeExecImageCreationInfo(tagName) {
+export async function removeExecImageCreationInfo(tagName) {
     const res = await http_delete(`/api/image/create/${tagName}`, null);
     return JSON.parse(res);
 }
 
-async function getExecImageList() {
+export async function getExecImageList() {
     const res = await http_get("/api/image/list");
     return JSON.parse(res);
 }
 
-async function removeExecImage(tagName) {
+export async function removeExecImage(tagName) {
     const res = await http_delete(`/api/image/item/${tagName}`);
     return JSON.parse(res);
 }
 
 // EXEC
-async function getExecList() {
+export async function getExecList() {
     const res = await http_get("/api/exec/list");
     return JSON.parse(res);
 }
 
-async function createExec(item) {
+export async function createExec(item) {
     const res = await http_post('/api/exec/create', item);
     return JSON.parse(res);
 }
 
-async function getExecInfo(id) {
+export async function getExecInfo(id) {
     const res = await http_get(`/api/exec/info/${id}`);
     return JSON.parse(res);
 }
 
-async function getExecLogs(id) {
+export async function getExecLogs(id) {
     const res = await http_get(`/api/exec/logs/${id}`);
     return JSON.parse(res);
 }
 
-async function stopExec(id) {
+export async function stopExec(id) {
     const res = await http_put(`/api/exec/stop/${id}`);
     return JSON.parse(res);
 }
 
-async function removeExec(id) {
+export async function removeExec(id) {
     const res = await http_delete(`/api/exec/item/${id}`, null);
     return JSON.parse(res);
 }
 
-async function getExecProgress(id) {
+export async function getExecProgress(id) {
     const res = await http_get(`/api/exec/progress/${id}`);
     return JSON.parse(res);
 }
 
-async function getExecResult(id) {
+export async function getExecResult(id) {
     const res = await http_get(`/api/exec/result/${id}`);
     return JSON.parse(res);
 }
 
 // STORAGE
-async function getStorageList() {
+export async function getStorageList() {
     const res = await http_get("/api/storage/list");
     const storageList = JSON.parse(res);
     return storageList;
 }
 
-async function getFileList(storageId, storagePath, page=0, count=0) {
+export async function getFileList(storageId, storagePath, page=0, count=0) {
     let url = joinPath("/api/storage/list", storageId, storagePath);
     const query = makeQueryString({
         page: page,
@@ -112,7 +115,7 @@ async function getFileList(storageId, storagePath, page=0, count=0) {
     return fileList;
 }
 
-async function createStorageFolder(storageId, storagePath) {
+export async function createStorageFolder(storageId, storagePath) {
     const url = joinPath("/api/storage/dir", storageId, storagePath);
     try {
         const res = await http_put(url)
@@ -122,7 +125,7 @@ async function createStorageFolder(storageId, storagePath) {
     }
 }
 
-async function getStorageFileContent(storageId, storagePath, reload=false) {
+export async function getStorageFileContent(storageId, storagePath, reload=false) {
     const url = createStorageFileURL(storageId, storagePath, reload);
     try {
         const res = await http_get(url);
@@ -132,7 +135,7 @@ async function getStorageFileContent(storageId, storagePath, reload=false) {
     }
 }
 
-async function deleteStorageItem(storageId, storagePath) {
+export async function deleteStorageItem(storageId, storagePath) {
     try {
         const url = joinPath("/api/storage/item", storageId, storagePath);
         const res = await http_delete(url);
@@ -142,73 +145,73 @@ async function deleteStorageItem(storageId, storagePath) {
     }
 }
 
-async function uploadFileToStorage(storageId, storagePath, contents, contentType='application/octet-stream') {
+export async function uploadFileToStorage(storageId, storagePath, contents, contentType='application/octet-stream') {
     const url = createStorageFileURL(storageId, storagePath);
     const res = await http_put(url, contents, contentType);
     return JSON.parse(res);
 }
 
-function getUploadItemURL() {
+export function getUploadItemURL() {
     return "/api/storage/upload_item";
 }
 
-async function removeUploadItem(uploadId) {
+export async function removeUploadItem(uploadId) {
     const url = `/api/storage/upload_item/${uploadId}`;
     const res = await http_delete(url)
     return JSON.parse(res);
 }
 
 // DATASET
-async function getDatasetList() {
+export async function getDatasetList() {
     const res = await http_get("/api/dataset/list");
     const datasetList = JSON.parse(res);
     return datasetList;
 }
 
-async function saveDatasetList(datasetList) {
+export async function saveDatasetList(datasetList) {
     const res = await http_post("/api/dataset/list", datasetList);
     return JSON.parse(res);
 }
 
-async function addDatasetToList(dataset) {
+export async function addDatasetToList(dataset) {
     const res = await http_post(`/api/dataset/item/${dataset.name}`, dataset);
     return JSON.parse(res);
 }
 
-async function removeDatasetFromList(datasetName) {
+export async function removeDatasetFromList(datasetName) {
     const res = await http_delete(`/api/dataset/item/${datasetName}`);
     return JSON.parse(res);
 }
 
 // Model
-async function getModelList() {
+export async function getModelList() {
     const res = await http_get("/api/model/list");
     const modelList = JSON.parse(res);
     return modelList;
 }
 
-async function saveModelList(modelList) {
+export async function saveModelList(modelList) {
     const res = await http_post("/api/model/list", modelList);
     return JSON.parse(res);
 }
 
-async function addModelToList(model) {
+export async function addModelToList(model) {
     const res = await http_post(`/api/model/item/${model.name}`, model);
     return JSON.parse(res);
 }
 
-async function removeModelFromList(modelName) {
+export async function removeModelFromList(modelName) {
     const res = await http_delete(`/api/model/item/${modelName}`);
     return JSON.parse(res);
 }
 
 // APP
-async function getAppList() {
+export async function getAppList() {
     const res = await http_get("/api/app/list");
     return JSON.parse(res);
 }
 
-async function runApp(appName, params) {
+export async function runApp(appName, params) {
     try {
         const res = await http_post(`/api/app/run/${appName}`, params);
         return JSON.parse(res);
@@ -218,18 +221,18 @@ async function runApp(appName, params) {
 }
 
 // SYSINFO
-async function getSysInfo() {
+export async function getSysInfo() {
     const res = await http_get("/api/system/info");
     return JSON.parse(res);
 }
 
 // Session
-async function createSession(username) {
+export async function createSession(username) {
     const res = await http_post(`/api/session/create/${username}`);
     return JSON.parse(res);
 }
 
-async function getSession() {
+export async function getSession() {
     try {
         const res = await http_get("/api/session/current");
         return JSON.parse(res);
@@ -238,7 +241,7 @@ async function getSession() {
     }
 }
 
-async function deleteSession() {
+export async function deleteSession() {
     try {
         const res = await http_delete("/api/session/current");
         return JSON.parse(res);
@@ -247,28 +250,28 @@ async function deleteSession() {
     }
 }
 
-async function saveSessionData(data) {
+export async function saveSessionData(data) {
     const res = await http_post("/api/session/data", data);
     return JSON.parse(res);
 }
 
-async function getSessionData() {
+export async function getSessionData() {
     const res = await http_get("/api/session/data");
     return JSON.parse(res);
 }
 
-async function deleteSessionData() {
+export async function deleteSessionData() {
     const res = await http_delete("/api/session/data");
     return JSON.parse(res);
 }
 
 // TENSORBOARD
-async function startTensorboard(execId) {
+export async function startTensorboard(execId) {
     const res = await http_get(`/api/tensorboard/start/${execId}`);
     return JSON.parse(res);
 }
 
-async function stopTensorboard() {
+export async function stopTensorboard() {
     const res = await http_get("/api/tensorboard/stop");
     return JSON.parse(res);
 }

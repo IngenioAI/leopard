@@ -1,6 +1,7 @@
-from fastapi.testclient import TestClient
-import pytest
 import time
+import pytest
+from fastapi.testclient import TestClient
+
 from server import app, init_app, deinit_app
 
 client = TestClient(app)
@@ -10,9 +11,11 @@ def server():
     config = {
         "data_path": "tests/data"
     }
-    init_app(app, config)
+    init_app(config)
     yield
-    deinit_app(app)
+    deinit_app()
+
+# pylint: disable=redefined-outer-name, unused-argument
 
 def test_root(server):
     response = client.get("/")
@@ -76,10 +79,10 @@ def test_storage(server):
     assert response.status_code == 200
     res = response.json()
     assert len(res) > 0
-    storageId = res[0]["id"]
-    assert storageId is not None
+    storage_id = res[0]["id"]
+    assert storage_id is not None
 
-    response = client.get(f'/api/storage/list/{storageId}')
+    response = client.get(f'/api/storage/list/{storage_id}')
     res = response.json()
     assert response.status_code == 200
 
@@ -89,28 +92,28 @@ def test_storage(server):
             dir_exist = True
             break
     if not dir_exist:
-        response = client.put(f'/api/storage/dir/{storageId}/test-pytest')
+        response = client.put(f'/api/storage/dir/{storage_id}/test-pytest')
         assert response.status_code == 200
 
     # Put file item
-    response = client.put(f'/api/storage/file/{storageId}/test-pytest/test.txt',
+    response = client.put(f'/api/storage/file/{storage_id}/test-pytest/test.txt',
                content="sample text")
     assert response.status_code == 200
 
-    response = client.get(f'/api/storage/file/{storageId}/test-pytest/test.txt')
+    response = client.get(f'/api/storage/file/{storage_id}/test-pytest/test.txt')
     res = response.content.decode("utf-8")
     assert res == "sample text"
 
-    response = client.delete(f'/api/storage/item/{storageId}/test-pytest/test.txt')
+    response = client.delete(f'/api/storage/item/{storage_id}/test-pytest/test.txt')
     assert response.status_code == 200
 
-    response = client.get(f'/api/storage/file/{storageId}/test-pytest/test.txt')
+    response = client.get(f'/api/storage/file/{storage_id}/test-pytest/test.txt')
     assert response.status_code == 404
 
-    response = client.delete(f'/api/storage/item/{storageId}/test-pytest')
+    response = client.delete(f'/api/storage/item/{storage_id}/test-pytest')
     assert response.status_code == 200
 
-    response = client.get(f'/api/storage/list/{storageId}')
+    response = client.get(f'/api/storage/list/{storage_id}')
     res = response.json()
     assert response.status_code == 200
 
@@ -126,16 +129,16 @@ def test_exec(server):
     assert response.status_code == 200
     res = response.json()
     assert len(res) > 0
-    storageId = res[0]["id"]
-    response = client.put(f'/api/storage/dir/{storageId}/test-pytest')
-    response = client.put(f'/api/storage/file/{storageId}/test-pytest/test.py',
+    storage_id = res[0]["id"]
+    response = client.put(f'/api/storage/dir/{storage_id}/test-pytest')
+    response = client.put(f'/api/storage/file/{storage_id}/test-pytest/test.py',
                content="print('Hello')")
     assert response.status_code == 200
 
     response = client.post('/api/exec/create',
                 json={
                     "id": "pytest",
-                    "srcPath": f'{storageId}:/test-pytest',
+                    "srcPath": f'{storage_id}:/test-pytest',
                     "command": "python test.py",
                     "imageTag": "python:3.8",
                     "inputPath": "",
@@ -157,9 +160,9 @@ def test_exec(server):
         response = client.get(f'/api/exec/info/{exec_id}')
         res = response.json()
 
-    response = client.delete(f'/api/storage/item/{storageId}/test-pytest/test.py')
+    response = client.delete(f'/api/storage/item/{storage_id}/test-pytest/test.py')
     assert response.status_code == 200
-    response = client.delete(f'/api/storage/item/{storageId}/test-pytest')
+    response = client.delete(f'/api/storage/item/{storage_id}/test-pytest')
     assert response.status_code == 200
 
     response = client.delete(f'/api/exec/item/{exec_id}')

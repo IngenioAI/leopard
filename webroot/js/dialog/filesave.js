@@ -1,3 +1,8 @@
+import { ModalDialogBox } from "./dialogbox.js";
+import { getE, setV, getV, clearE, addE, createE, setT } from "/js/dom_utils.js";
+import { getFileList, getStorageList } from "/js/service.js";
+import { joinPath, changeStorageDir, getFileIcon } from "/js/storage_utils.js";
+
 class FileSaveDialogBox extends ModalDialogBox {
     constructor(options) {
         super("filesave");
@@ -75,7 +80,7 @@ class FileSaveDialogBox extends ModalDialogBox {
         }
     }
 
-    onStorageChange(e) {
+    onStorageChange() {
         const storageSelect = getE("LP_DIALOG_filesave_storage_select");
         this.storageId = storageSelect.value;
         this.storagePath = "/";
@@ -95,14 +100,14 @@ class FileSaveDialogBox extends ModalDialogBox {
     }
 }
 
-function showFileSave(options={}) {
+export function showFileSave(options={}) {
     const dialogBox = new FileSaveDialogBox(options);
     dialogBox.setText("파일 저장 위치 선택", "파일 저장");
     setT("LP_DIALOG_filesave_OK", "저장");
     return dialogBox.exec();
 }
 
-function showSelectPath(options={}) {
+export function showSelectPath(options={}) {
     options.showPathOnly = true;
     const dialogBox = new FileSaveDialogBox(options);
     dialogBox.setText("경로 선택", "경로 지정");

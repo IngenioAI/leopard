@@ -1,3 +1,7 @@
+import { setT } from "/js/dom_utils.js";
+import { getFileSizeString } from "/js/storage_utils.js";
+import { getSysInfo } from "/js/service.js";
+
 async function updateSysInfo() {
     const sysInfo = await getSysInfo();
     setTimeout(updateSysInfo, 1000);
@@ -48,3 +52,5 @@ async function updateSysInfo() {
 async function init() {
     setTimeout(updateSysInfo, 0);
 }
+
+init();

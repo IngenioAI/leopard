@@ -1,3 +1,6 @@
+import { ModalDialogBox } from "./dialogbox.js";
+import { getE, clearE, createE, addE } from "/js/dom_utils.js";
+
 class SelectDialogBox extends ModalDialogBox {
     constructor(items) {
         super('select');
@@ -13,7 +16,7 @@ class SelectDialogBox extends ModalDialogBox {
         }
     }
 
-    onShow(e) {
+    onShow() {
         this.addEvent('LP_DIALOG_select_OK', 'click', this.onOK.bind(this));
         getE('LP_DIALOG_select_select').focus();
     }
@@ -23,9 +26,9 @@ class SelectDialogBox extends ModalDialogBox {
         this.resolve(value);
         this.hide();
     }
-};
+}
 
-function showSelectDialogBox(message, title, items) {
+export function showSelectDialogBox(message, title, items) {
     const dialogBox = new SelectDialogBox(items);
     dialogBox.setText(message, title);
     return dialogBox.exec();

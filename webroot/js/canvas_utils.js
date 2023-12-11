@@ -56,3 +56,5 @@ function loadImage(url) {
         image.src = url;
     });
 }
+
+export { Canvas, loadImage }

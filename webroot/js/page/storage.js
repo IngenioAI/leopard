@@ -1,12 +1,28 @@
+import { createE, getE, clearE, addE, createT } from "/js/dom_utils.js";
+import { getStorageList, getFileList, deleteStorageItem, uploadFileToStorage, createStorageFolder } from "/js/service.js";
+import { splitPath, joinPath, changeStorageDir } from "/js/storage_utils.js";
+import { isViewableFile, isEditableFile, getFileIcon, getDateString, getFileSizeString, createStorageFileURL } from "/js/storage_utils.js";
+import { FileDownloader } from "/js/http.js";
+
+import { ContextMenu } from "/js/control/context_menu.js";
+import { createListGroupItem } from "/js/control/list_group.js";
+import { createPagination } from "/js/control/pagination.js";
+import { showFileView } from "/js/dialog/fileview.js";
+import { showAskMessageBox } from "/js/dialog/ask_messagebox.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showCodeEditor } from "/js/dialog/code_editor.js";
+import { showInputDialogBox } from "/js/dialog/input.js"
+import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
+
 let currentStorageId = "";
 let currentStoragePath = "";
 let currentPage = 1;
 const pageCount = 10;
 let pagination = null;
 const paginationItemCount = 9;
-const queryParam = getQueryParam();
+const queryParam = window.getQueryParam();
 
-function onChangeStorage(e) {
+function onChangeStorage() {
     const selectStorage = document.getElementById("select_storage");
     browseDirectory(selectStorage.value, "/");
 }
@@ -26,9 +42,9 @@ function createFileItem(fileInfo) {
                 { name: "small", text: fileInfo.mtime ? getDateString(new Date(fileInfo.mtime * 1000)) : '' }
             ]
         }],
-        (e) => {
+        () => {
             if (fileInfo.is_dir) {
-                newPath = changeStorageDir(currentStoragePath, fileInfo.name);
+                const newPath = changeStorageDir(currentStoragePath, fileInfo.name);
                 window.history.replaceState(null, "Leopard", `/ui/storage.html?storage_id=${currentStorageId}&storage_path=${newPath}`);
                 browseDirectory(currentStorageId, newPath);
             }
@@ -52,7 +68,7 @@ function createContextMenu(fileInfo) {
         { id: MENU_ID.DELETE, title: "삭제", info: fileInfo },
         { id: MENU_ID.DOWNLOAD, title: "다운로드", info: fileInfo, condition: (info) => !info.is_dir },
         { id: MENU_ID.VIEW, title: "보기", info: fileInfo, condition: (info) => isViewableFile(info) },
-        { id: MENU_ID.EDIT, title: "편집", info: fileInfo, condition: (info) => isEditableFile(fileInfo) }
+        { id: MENU_ID.EDIT, title: "편집", info: fileInfo, condition: (info) => isEditableFile(info) }
     ],
         async (menuId, info) => {
             const storagePath = joinPath(currentStoragePath, info.name);
@@ -96,11 +112,14 @@ async function browseDirectory(storageId, storagePath, page=1) {
     const currentPathDiv = getE("current_path");
     clearE(currentPathDiv);
     let thisPath = "/";
+    addE(currentPathDiv, createE("a", "/", { href: `/ui/storage.html?storage_id=${currentStorageId}&storage_path=/`}))
     for(const path of paths) {
-        addE(currentPathDiv, createT("/"));
         thisPath = joinPath(thisPath, path);
-        let url = `/ui/storage.html?storage_id=${currentStorageId}&storage_path=${thisPath}`;
-        addE(currentPathDiv, createE("a", path, { href: url}))
+        if (path != "") {
+            let url = `/ui/storage.html?storage_id=${currentStorageId}&storage_path=${thisPath}`;
+            addE(currentPathDiv, createE("a", path, { href: url}))
+            addE(currentPathDiv, createT("/"));
+        }
     }
 
     const fileListDiv = getE("file_list");
@@ -114,10 +133,10 @@ async function browseDirectory(storageId, storagePath, page=1) {
         browseDirectory(currentStorageId, currentStoragePath, clickPage);
     });
     if (pagination.totalPage > 1) {
-        getE("btn_page").style = "display: inline";
+        getE("go_page_button").style = "display: inline";
     }
     else {
-        getE("btn_page").style = "display: none";
+        getE("go_page_button").style = "display: none";
     }
     pagination.update(currentPage);
 }
@@ -179,4 +198,11 @@ async function init() {
     }
 
     browseDirectory(selectStorage.value, queryParam && queryParam.storage_path ? queryParam.storage_path : "/", queryParam && queryParam.page ? parseInt(queryParam.page) : 1);
+
+    getE("create_folder_button").addEventListener("click", createFolder);
+    getE("upload_file_button").addEventListener("click", uploadFile);
+    getE("select_storage").addEventListener("change", onChangeStorage);
+    getE("go_page_button").addEventListener("click", goPage);
 }
+
+init();

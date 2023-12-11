@@ -1,3 +1,11 @@
+import { getE, createElem, addE, clearE } from "/js/dom_utils.js";
+import { getStorageName, joinPath } from "/js/storage_utils.js";
+import { getModelList, addModelToList, getStorageList } from "/js/service.js";
+
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showFormDialogBox } from "/js/dialog/formdialog.js";
+import { showFileView } from "/js/dialog/fileview.js";
+
 let storageList;
 let modelList;
 
@@ -20,7 +28,7 @@ function createModelElement(modelInfo) {
                 { name: "div", attributes: { class: "card-footer bg-transparent border-0" }, children: [
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: "스토리지 보기",
                         events: {
-                            click: (e) => {
+                            click: () => {
                                 let url = `/ui/storage.html?storage_id=${modelInfo.storageId}&storage_path=${modelInfo.storagePath}`;
                                 window.open(url, "_self");
                             }
@@ -28,7 +36,7 @@ function createModelElement(modelInfo) {
                     },
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: "메인 소스 보기",
                         events: {
-                            click: (e) => {
+                            click: () => {
                                 const filePath = joinPath(modelInfo.storagePath, modelInfo.mainSrc);
                                 showFileView(`위치: ${modelInfo.storagePath}`, `파일보기 - ${modelInfo.mainSrc}`, modelInfo.storageId, filePath);
                             }
@@ -80,4 +88,7 @@ async function refreshModelList(reload=false) {
 async function init() {
     storageList = await getStorageList();
     refreshModelList(true);
+    getE("create_model_button").addEventListener("click", createModel);
 }
+
+init();

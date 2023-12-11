@@ -1,7 +1,7 @@
 <LP-template use="basepage" />
 
 <LP-content name="head">
-    <script src="/js/control/context_menu.js"></script>
+    <script type="module" src="/js/control/context_menu.js"></script>
 </LP-content>
 
 <LP-content name="main">
@@ -17,8 +17,8 @@
                     </select>
                 </div>
                 <div class="col-2">
-                    <button class="btn btn-outline-secondary" onclick="addDataset()">추가</button>
-                    <button class="btn btn-outline-secondary" onclick="deleteDataset()">모두 삭제</button>
+                    <button class="btn btn-outline-secondary" id="add_dataset_button">추가</button>
+                    <button class="btn btn-outline-secondary" id="delete_dataset_button">모두 삭제</button>
                 </div>
             </div>
         </div>
@@ -34,8 +34,8 @@
                     </select>
                 </div>
                 <div class="col-2">
-                    <button class="btn btn-outline-secondary" onclick="addDataProcessor()">추가</button>
-                    <button class="btn btn-outline-secondary" onclick="deleteDataProcessor()">모두 삭제</button>
+                    <button class="btn btn-outline-secondary" id="add_processor_button">추가</button>
+                    <button class="btn btn-outline-secondary" id="delete_processor_button">모두 삭제</button>
                 </div>
             </div>
         </div>
@@ -51,16 +51,15 @@
                     </select>
                 </div>
                 <div class="col-2">
-                    <button class="btn btn-outline-secondary" onclick="addModel()">추가</button>
-                    <button class="btn btn-outline-secondary" onclick="deleteModel()">모두 삭제</button>
+                    <button class="btn btn-outline-secondary" id="add_model_button">추가</button>
+                    <button class="btn btn-outline-secondary" id="delete_model_button">모두 삭제</button>
                 </div>
             </div>
         </div>
     </div>
 
     <div class="text-center mt-4">
-        <button type="button" id="setting_button" class="btn btn-primary p-2" style="width: 34%"
-            onclick="setting()">설정</button>
+        <button type="button" id="setting_button" class="btn btn-primary p-2" style="width: 34%">설정</button>
     </div>
 
     <div id="exec_table" class="mt-4" style="display:none">
@@ -79,8 +78,7 @@
             </tbody>
         </table>
         <div class="text-center mt-4">
-            <button type="button" class="btn btn-primary p-2" style="width: 34%"
-                onclick="execute()">실행</button>
+            <button type="button" class="btn btn-primary p-2" id="execute_button" style="width: 34%">실행</button>
         </div>
     </div>
 </LP-content>

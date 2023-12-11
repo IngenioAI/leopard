@@ -1,3 +1,5 @@
+import { createElem } from "/js/dom_utils.js"
+
 function createListGroupItem(child, onClick=null, contextMenu=null) {
     let children = [];
     let isHTMLElement = false;
@@ -37,3 +39,5 @@ function createListGroupItem(child, onClick=null, contextMenu=null) {
     }
     return itemElem;
 }
+
+export { createListGroupItem }

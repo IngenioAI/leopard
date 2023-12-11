@@ -1,3 +1,7 @@
+import { ModalDialogBox } from "./dialogbox.js";
+import { getE, clearE, addE } from "/js/dom_utils.js";
+import { createFormGroup, getFormGroupData } from "/js/form_group.js";
+
 class FormDialogBox extends ModalDialogBox {
     constructor(formSpec, data, validator) {
         super("formdialog", { dialog_size: "lg"});
@@ -26,7 +30,7 @@ class FormDialogBox extends ModalDialogBox {
     }
 }
 
-function showFormDialogBox(formSpec, data, message, title, validator=null) {
+export function showFormDialogBox(formSpec, data, message, title, validator=null) {
     const formDialogBox = new FormDialogBox(formSpec, data, validator);
     formDialogBox.setText(message, title);
     return formDialogBox.exec();

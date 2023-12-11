@@ -1,3 +1,8 @@
+import { ModalDialogBox } from "./dialogbox.js";
+import { getE } from "/js/dom_utils.js";
+import { createCodeMirrorForPython, createCodeMirrorForJavascript , createCodeMirror } from "/js/codemirror.js";
+import { getStorageFileContent } from "/js/service.js";
+
 class CodeEditorDialogBox extends ModalDialogBox {
     constructor(storageId, storagePath) {
         super("code_editor");
@@ -32,7 +37,7 @@ class CodeEditorDialogBox extends ModalDialogBox {
         this.content = await getStorageFileContent(this.storageId, this.storagePath);
     }
 
-    onShow(e) {
+    onShow() {
         this.addEvent("LP_DIALOG_code_editor_save", "click", this.onSave.bind(this));
         this.editor.setValue(this.content);
         this.editor.refresh();
@@ -54,3 +59,5 @@ function showCodeEditor(message, title, storageId, storagePath) {
     dialogBox.setText(message, title);
     return dialogBox.exec();
 }
+
+export { CodeEditorDialogBox, showCodeEditor }

@@ -6,18 +6,5 @@
 
 <!-- https://github.com/highlightjs/cdn-release/blob/main/DIGESTS.md -->
 
-<script>
-    function codeHighlight(elem, content, filepath=null) {
-        let highlightedContent = content;
-        if (filepath.endsWith(".py")) {
-            highlightedContent = hljs.highlight(content, {language: 'python'}).value;
-        }
-        else {
-            highlightedContent = hljs.highlightAuto(content).value;
-        }
-        const codeDiv = createE("pre", "", { class: "border p-2 bg-light" })
-        codeDiv.innerHTML = highlightedContent;
-        addE(elem, codeDiv);
-    }
-</script>
+<script type="module" src="/js/code_highlight.js"></script>
 

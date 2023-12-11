@@ -1,3 +1,6 @@
+import { ModalDialogBox  } from "./dialogbox.js";
+import { createE, addE, clearE } from "/js/dom_utils.js";
+
 class AskMessageBox extends ModalDialogBox {
     constructor(buttons) {
         super('ask_messagebox');
@@ -13,7 +16,7 @@ class AskMessageBox extends ModalDialogBox {
                 type: "button",
                 class: "btn btn-primary mx-2"
             }, {
-                click: (e) => this.onClick(i, buttonLabel)
+                click: () => this.onClick(i, buttonLabel)
             });
             addE(buttonsDiv, btn);
         }
@@ -32,3 +35,5 @@ function showAskMessageBox(message, title, buttons) {
     askMessageBox.setText(message, title);
     return askMessageBox.exec();
 }
+
+export { AskMessageBox, showAskMessageBox }

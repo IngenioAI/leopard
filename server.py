@@ -3,7 +3,7 @@ import json
 import argparse
 
 import uvicorn
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
@@ -12,9 +12,9 @@ from starlette.status import HTTP_303_SEE_OTHER
 import data_store
 from html_util import process_include_html
 from fastapi_util import JSONResponseHandler
-from app.manager import AppManager
+from app.manager import app_manager
 from exec import exec_router, exec_manager
-import sysinfo
+from sysinfo import sys_info
 from session import session_router, session_manager
 from image import image_router
 from storage import storage_router
@@ -38,7 +38,7 @@ app.include_router(storage_router)
 @app.get("/ui/{file_path:path}", tags=["UI"])
 async def get_ui_page(file_path: str, req: Request):
     query_param = dict(req.query_params)
-    page_path = "ui/page/%s" % file_path
+    page_path = f'ui/page/{file_path}'
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
@@ -46,7 +46,7 @@ async def get_ui_page(file_path: str, req: Request):
     else:
         with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'error_message': "Page not found: %s" % file_path}, {"file_path": file_path})
+        content = process_include_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
     return HTMLResponse(content, status_code=200)
 
 @app.get("/ui_secure_test/{file_path:path}", tags=["UI"])
@@ -59,7 +59,7 @@ async def get_ui_secure_page(file_path: str, req: Request):
         return RedirectResponse(url="/ui/login.html", status_code=HTTP_303_SEE_OTHER)
     print("Secure page:", session_data)
     query_param = dict(req.query_params)
-    page_path = "ui/page/%s" % file_path
+    page_path = f'ui/page/{file_path}'
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
@@ -67,7 +67,7 @@ async def get_ui_secure_page(file_path: str, req: Request):
     else:
         with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'error_message': "Page not found: %s" % file_path}, {"file_path": file_path})
+        content = process_include_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
     return HTMLResponse(content, status_code=200)
 
 
@@ -132,17 +132,17 @@ async def delete_model(name: str):
 
 @app.get("/api/app/list", tags=["App"])
 async def get_app_list():
-    return JSONResponseHandler(app.app_manager.app_info)
+    return JSONResponseHandler(app_manager.app_info)
 
 @app.post("/api/app/run/{module_id}", tags=["App"])
 async def run_app(module_id: str, req: Request):
     params = await req.json()
-    res = app.app_manager.run(module_id, params)
+    res = app_manager.run(module_id, params)
     return JSONResponseHandler(res)
 
 @app.get("/api/system/info", tags=["System"])
 async def get_sys_info():
-    return JSONResponseHandler(app.sys_info.get_system_info())
+    return JSONResponseHandler(sys_info.get_system_info())
 
 @app.get("/api/tensorboard/start/{exec_id}", tags=["Tensorboard"])
 async def get_start_tensorboard(exec_id: str):
@@ -160,17 +160,15 @@ async def get_stop_tensorboard():
 
 app.mount("/", StaticFiles(directory="webroot"), name="static")
 
-def init_app(app, config=None):
-    app.app_manager = AppManager()
-    app.app_manager.start(config)
-    app.sys_info = sysinfo.SystemInfo()
-    app.sys_info.start(config)
+def init_app(config=None):
+    app_manager.start(config)
+    sys_info.start(config)
     exec_manager.start(config)
     data_store.manager.start(config)
 
-def deinit_app(app):
-    app.app_manager.stop()
-    app.sys_info.stop()
+def deinit_app():
+    app_manager.stop()
+    sys_info.stop()
     exec_manager.stop()
     tensorboard.manager.stop()
 
@@ -181,9 +179,9 @@ def web_main(args):
         if os.path.exists(args.config):
             with open(args.config, "rt", encoding="utf-8") as fp:
                 config = json.load(fp)
-    init_app(app, config)
+    init_app(config)
     uvicorn.run(app, host="127.0.0.1", port=args.port if args else 12700)
-    deinit_app(app)
+    deinit_app()
 
 
 

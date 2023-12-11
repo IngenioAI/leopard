@@ -1,3 +1,10 @@
+import { DialogBox } from "./dialogbox.js";
+import { getE, clearE, addE, createE } from "/js/dom_utils.js";
+import { isImageFile, createStorageFileURL } from "/js/storage_utils.js";
+import { Canvas, loadImage } from "/js/canvas_utils.js";
+import { getStorageFileContent } from "/js/service.js";
+import { codeHighlight } from "/js/code_highlight.js";
+
 class FileViewDialogBox extends DialogBox {
     constructor(storageId, storagePath) {
         super("fileview");
@@ -36,3 +43,5 @@ function showFileView(message, title, storageId, storagePath) {
     dialogBox.setText(message, title);
     dialogBox.show();
 }
+
+export { FileViewDialogBox, showFileView }

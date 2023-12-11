@@ -1,4 +1,12 @@
-const queryParam = getQueryParam();
+import { createElem, getE, addE, clearE, createT, createE } from "/js/dom_utils.js";
+import { joinPath, splitPath, changeStorageDir, isImageFile, createStorageFileURL } from "/js/storage_utils.js";
+import { getFileList } from "/js/service.js";
+
+import { showFileView } from "/js/dialog/fileview.js";
+import { showInputDialogBox } from "/js/dialog/input.js";
+import { createPagination } from "/js/control/pagination.js";
+
+const queryParam = window.getQueryParam();
 const paginationNavCount = 9;
 
 let pagination;
@@ -8,14 +16,12 @@ let currentPage = 1;
 let pageCount = 32;
 let thumbnail_size = 160;
 
-let rootPath = '';
-
 function clickImage(filename) {
     showFileView(`위치: ${currentStoragePath}`, `파일보기 - ${filename}`, currentStorageId, joinPath(currentStoragePath, filename));
 }
 
 function clickFolder(dirname) {
-    newPath = changeStorageDir(currentStoragePath, dirname);
+    const newPath = changeStorageDir(currentStoragePath, dirname);
     window.history.replaceState(null, "Leopard", `/ui/imageview.html?storage_id=${currentStorageId}&storage_path=${newPath}&type=Image`);
     browseDirectory(currentStorageId, newPath);
 }
@@ -81,10 +87,10 @@ async function browseDirectory(storageId, storagePath, page=1) {
         browseDirectory(currentStorageId, currentStoragePath, clickPage);
     });
     if (pagination.totalPage > 1) {
-        getE("btn_page").style = "display: inline";
+        getE("go_page_button").style = "display: inline";
     }
     else {
-        getE("btn_page").style = "display: none";
+        getE("go_page_button").style = "display: none";
     }
     pagination.update(currentPage);
 
@@ -101,6 +107,8 @@ async function browseDirectory(storageId, storagePath, page=1) {
 }
 
 async function init() {
-    rootPath = queryParam.storage_path;
     browseDirectory(queryParam.storage_id, queryParam && queryParam.storage_path ? queryParam.storage_path : "/", queryParam && queryParam.page ? parseInt(queryParam.page) : 1);
+    getE("go_page_button").addEventListener("click", goPage);
 }
+
+init();

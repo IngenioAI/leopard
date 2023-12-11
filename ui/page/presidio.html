@@ -6,126 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
-  <script>
-    let encrypt_items = null;
-
-    async function analyzeText() {
-        const inputText = document.getElementById("input_text").value;
-        const info = await runApp('presidio', {
-            type: 'analyze',
-            input: inputText,
-            entities: ["PERSON", "EMAIL_ADDRESS"],
-            language: "en"
-        });
-        document.getElementById("output_text").value = JSON.stringify(info, null, 4);
-    }
-
-    async function anonymizeText(type) {
-        const inputText = document.getElementById("input_text").value;
-        if (type == 'replace') {
-            const info = await runApp('presidio', {
-                type: 'anonymize',
-                input: inputText,
-                entities: ["PERSON", "EMAIL_ADDRESS"],
-                language: "en",
-                operators: {
-                    "PERSON": {
-                        type: "replace",
-                        params: {
-                            new_value: "***개인정보***"
-                        }
-                    },
-                    "EMAIL_ADDRESS": {
-                        type: "replace",
-                        params: {
-                            new_value: "***이메일주소***"
-                        }
-                    }
-                }
-            });
-            document.getElementById("output_text").value = info.text;
-        }
-        else if (type == 'encrypt') {
-            const info = await runApp("presidio", {
-                type: 'anonymize',
-                input: inputText,
-                entities: ["PERSON", "EMAIL_ADDRESS"],
-                language: "en",
-                operators: {
-                    "PERSON": {
-                        type: "encrypt",
-                        params: {
-                            key: "temp_leopard_key"
-                        }
-                    },
-                    "EMAIL_ADDRESS": {
-                        type: "encrypt",
-                        params: {
-                            key: "temp_leopard_key"
-                        }
-                    }
-                }
-            });
-            encrypt_items = info.items;
-            document.getElementById("output_text").value = info.text;
-        }
-    }
-
-    async function deanonymizeText() {
-        if (encrypt_items == null) {
-            showMessageBox("익명암호화를 먼저 수행해야 합니다", "정보");
-            return;
-        }
-        const inputText = document.getElementById("output_text").value;
-        const info = await runApp("presidio", {
-            type: 'deanonymize',
-            input: inputText,
-            result: encrypt_items,
-            language: "en",
-            operators: {
-                "PERSON": {
-                    type: "decrypt",
-                    params: {
-                        key: "temp_leopard_key"
-                    }
-                },
-                "EMAIL_ADDRESS": {
-                    type: "decrypt",
-                    params: {
-                        key: "temp_leopard_key"
-                    }
-                }
-            }
-        });
-        document.getElementById("restore_text").value = info.text;
-    }
-
-    async function redactImageUpload() {
-        const appStorageId = '0';
-        const presidioStoragePath = 'app/presidio/data';
-        const presidioOutputPath = 'app/presidio/run';
-        const res = await showFileUploadDialogBox(appStorageId, presidioStoragePath);
-        if (res.success) {
-            const imagePath = joinPath(presidioStoragePath, res.files[0]);
-            const image = new Image();
-            image.src = createStorageFileURL(appStorageId, imagePath);
-            image.addEventListener('load', async () => {
-                const info = await runApp("presidio", {
-                    type: 'image_redact',
-                    image_path: res.files[0]
-                });
-                const redactedImage = new Image();
-                redactedImage.src = createStorageFileURL(appStorageId, `${presidioOutputPath}/${info.image_path}`, true);
-                document.getElementById("image_view").appendChild(redactedImage);
-            });
-            document.getElementById("image_view").innerHTML = "";
-            document.getElementById("image_view").appendChild(image);
-        }
-    }
-
-    function init() {
-    }
-  </script>
+  <script type="module" src="/js/page/presidio.js"></script>
 </head>
 
 <body>
@@ -142,20 +23,20 @@
           <div class="container">
             <textarea id="input_text"  class="form-control" rows="10"></textarea>
             <div class="my-2">
-                <button type="button" class="btn btn-primary" onclick="analyzeText()">분석</button>
-                <button type="button" class="btn btn-primary" onclick="anonymizeText('replace')">익명화</button>
-                <button type="button" class="btn btn-primary" onclick="anonymizeText('encrypt')">익명암호화</button>
+                <button type="button" class="btn btn-primary" id="analyze_button">분석</button>
+                <button type="button" class="btn btn-primary" id="anonymize_button">익명화</button>
+                <button type="button" class="btn btn-primary" id="anonymize_encrypt_button">익명암호화</button>
             </div>
             <textarea id="output_text"  class="form-control" rows="10"></textarea>
             <div class="my-2">
-                <button type="button" class="btn btn-primary" onclick="deanonymizeText()">역익명암호화</button>
+                <button type="button" class="btn btn-primary" id="deanonymize_button">역익명암호화</button>
             </div>
             <textarea id="restore_text"  class="form-control" rows="10"></textarea>
           </div>
           <div clas="my-8">&nbsp;</div>
           <h4>이미지 민감 정보 처리</h4>
           <div class="container my-4">
-            <button type="button" class="btn btn-primary" onclick="redactImageUpload()">파일 선택</button>
+            <button type="button" class="btn btn-primary" id="redact_image_button">파일 선택</button>
           </div>
 
           <div id="image_view" style="max-width: 100%;">
@@ -166,7 +47,6 @@
   </div>
   <LP-include-html src="fileupload.html"></LP-include-html>
   <LP-include-html src="messagebox.html"></LP-include-html>
-  <script>init();</script>
 </body>
 
 </html>

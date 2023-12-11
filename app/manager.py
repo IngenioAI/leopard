@@ -36,3 +36,5 @@ class AppManager():
         for info in self.app_info:
             if info['type'] == 'server':
                 self.apps[info['id']].stop()
+
+app_manager = AppManager()

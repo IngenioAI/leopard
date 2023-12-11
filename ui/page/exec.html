@@ -1,9 +1,9 @@
 <LP-template use="basepage" />
 
 <LP-content name="head">
-    <script src="/js/control/context_menu.js"></script>
-    <script src="/js/control/list_group.js"></script>
-    <script src="/js/control/tab.js"></script>
+    <script type="module" src="/js/control/context_menu.js"></script>
+    <script type="module" src="/js/control/list_group.js"></script>
+    <script type="module" src="/js/control/tab.js"></script>
 </LP-content>
 
 <LP-content name="main">
@@ -44,8 +44,8 @@
                         <input type="text" class="form-control" id="input_data_path" value="" readonly>
                     </div>
                     <div class="col-sm-3">
-                        <button class="btn btn-outline-primary" onclick="setInputPath()">설정</button>
-                        <button class="btn btn-outline-primary" onclick="setInputDataset()">데이터 셋</button>
+                        <button class="btn btn-outline-primary" id="set_input_path_button">설정</button>
+                        <button class="btn btn-outline-primary" id="set_input_dataset_button">데이터 셋</button>
                     </div>
                 </div>
 
@@ -55,7 +55,7 @@
                         <input type="text" class="form-control" id="output_data_path" value="" readonly>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-outline-primary" onclick="setOutputPath()">설정</button>
+                        <button class="btn btn-outline-primary" id="set_output_path_button">설정</button>
                     </div>
                 </div>
 
@@ -66,19 +66,18 @@
                         <input type="text" class="form-control" id="src_path" value="" readonly>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-outline-primary" onclick="setSourceCode()">업로드</button>
-                        <button class="btn btn-outline-primary" onclick="setModel()">모델</button>
+                        <button class="btn btn-outline-primary" id="set_source_code_button">업로드</button>
+                        <button class="btn btn-outline-primary" id="set_model_button">모델</button>
                     </div>
                 </div>
 
                 <div class="row mb-2">
                     <label for="command_line" class="col-sm-2 col-form-label">커맨드 라인</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" id="command_line" value="python main.py" readonly
-                            onclick="setCommandLine()">
+                        <input type="text" class="form-control" id="command_line" value="python main.py" readonly>
                     </div>
                     <div class="col-sm-2">
-                        <button class="btn btn-outline-primary" onclick="setCommandLine()">설정</button>
+                        <button class="btn btn-outline-primary" id="set_command_line_button">설정</button>
                     </div>
                 </div>
 
@@ -107,7 +106,7 @@
 
             <div class="text-center">
                 <button type="button" class="btn btn-primary p-4" style="width: 34%"
-                    onclick="createExecution()">실행</button>
+                    id="execute_button">실행</button>
             </div>
         </div>
 

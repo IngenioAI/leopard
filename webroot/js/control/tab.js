@@ -1,3 +1,6 @@
+import { createElem } from "/js/dom_utils.js"
+const bootstrap = window.bootstrap;
+
 function createTab(tabInfo, defaultTab=null, onShow=null, onHide=null) {
     if (defaultTab == null) {
         defaultTab = tabInfo[0].id;
@@ -34,3 +37,5 @@ function showTab(tabId) {
         console.warn("ID not found for Tab:", tabId);
     }
 }
+
+export { createTab, showTab }

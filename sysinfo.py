@@ -1,24 +1,25 @@
 import os
 import sys
 import platform
-import psutil
 import subprocess
 import xml.etree.ElementTree as XMLTree
 import threading
 import time
 
+import psutil
 
-class SystemInfo(object):
+
+class SystemInfo():
     def __init__(self):
-        self.info = dict()
+        self.info = {}
         self.poll_time = 1.0
         self.thread = None
         self.stop_flag = False
 
-    def start(self, config, poll_time=1.0):
+    def start(self, config, poll_time=1.0): # pylint: disable=unused-argument
         self.stop_flag = False
         self.poll_time = poll_time
-        self.thread = threading.Thread(target=lambda: self.run())
+        self.thread = threading.Thread(target=self.run)
         self.thread.start()
 
     def stop(self):
@@ -26,7 +27,7 @@ class SystemInfo(object):
 
     def run(self):
         while not self.stop_flag:
-            system_info = dict()
+            system_info = {}
             system_info['cpu_info'] = platform.processor()
             system_info['cpu_thread_count'] = psutil.cpu_count()
             system_info['cpu_core_count'] = psutil.cpu_count(logical=False)
@@ -67,24 +68,26 @@ class SystemInfo(object):
         nvidia_cmd = [nvidia_smi_path, '-x', '-q']
 
         try:
-            nvidia_process = subprocess.Popen(nvidia_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            stdout, stderr = nvidia_process.communicate()
-            tree_root = XMLTree.fromstring(stdout)
-            gpu_info_list = list()
-            if tree_root.tag == 'nvidia_smi_log':
-                for gpu in tree_root.findall('gpu'):
-                    gpu_info = dict()
-                    gpu_info['name'] = gpu.find('product_name').text
-                    gpu_info['gpu_util'] = gpu.find('utilization').find('gpu_util').text
-                    gpu_info['mem_util'] = gpu.find('utilization').find('memory_util').text
-                    gpu_info['total_mem'] = gpu.find('fb_memory_usage').find('total').text
-                    gpu_info['used_mem'] = gpu.find('fb_memory_usage').find('used').text
-                    gpu_info['free_mem'] = gpu.find('fb_memory_usage').find('free').text
-                    gpu_info['temp'] = gpu.find('temperature').find('gpu_temp').text
-                    gpu_info['power'] = gpu.find('power_readings').find('power_draw').text
-                    gpu_info['power_limit'] = gpu.find('power_readings').find('power_limit').text
-                    gpu_info_list.append(gpu_info)
+            with subprocess.Popen(nvidia_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as nvidia_process:
+                stdout, _ = nvidia_process.communicate()
+                tree_root = XMLTree.fromstring(stdout)
+                gpu_info_list = []
+                if tree_root.tag == 'nvidia_smi_log':
+                    for gpu in tree_root.findall('gpu'):
+                        gpu_info = {}
+                        gpu_info['name'] = gpu.find('product_name').text
+                        gpu_info['gpu_util'] = gpu.find('utilization').find('gpu_util').text
+                        gpu_info['mem_util'] = gpu.find('utilization').find('memory_util').text
+                        gpu_info['total_mem'] = gpu.find('fb_memory_usage').find('total').text
+                        gpu_info['used_mem'] = gpu.find('fb_memory_usage').find('used').text
+                        gpu_info['free_mem'] = gpu.find('fb_memory_usage').find('free').text
+                        gpu_info['temp'] = gpu.find('temperature').find('gpu_temp').text
+                        gpu_info['power'] = gpu.find('power_readings').find('power_draw').text
+                        gpu_info['power_limit'] = gpu.find('power_readings').find('power_limit').text
+                        gpu_info_list.append(gpu_info)
         except FileNotFoundError:
-            gpu_info_list = list()
+            gpu_info_list = []
 
         return gpu_info_list
+
+sys_info = SystemInfo()

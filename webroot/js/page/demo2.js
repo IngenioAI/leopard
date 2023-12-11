@@ -1,3 +1,8 @@
+import { getE, clearE, addE, createElem, createE } from "/js/dom_utils.js";
+import { getDatasetList, getModelList } from "/js/service.js";
+import { ContextMenu } from "/js/control/context_menu.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+
 let datasetList;
 let modelList;
 
@@ -71,6 +76,7 @@ function createContextMenu(info) {
         ],
         async (menuId, info) => {
             if (menuId == MENU_ID.DELETE) {
+                console.log(info);
             }
         });
     return contextMenu.element;
@@ -139,4 +145,15 @@ async function init() {
     }
     selectProcessor.value = "";
     selectModel.value = "";
+
+    getE("add_dataset_button").addEventListener("click", addDataset);
+    getE("delete_dataset_button").addEventListener("click", deleteDataset);
+    getE("add_processor_button").addEventListener("click", addDataProcessor);
+    getE("delete_processor_button").addEventListener("click", deleteDataProcessor);
+    getE("add_model_button").addEventListener("click", addModel);
+    getE("delete_model_button").addEventListener("click", deleteModel);
+    getE("setting_button").addEventListener("click", setting);
+    getE("execute_button").addEventListener("click", execute);
 }
+
+init();

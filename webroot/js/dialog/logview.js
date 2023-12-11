@@ -1,3 +1,8 @@
+import { DialogBox } from "./dialogbox.js";
+import { getE, clearE } from "/js/dom_utils.js";
+
+const Terminal = window.Terminal;
+
 class LogViewDialogBox extends DialogBox {
     constructor() {
         super('LP_DIALOG_logview');
@@ -30,7 +35,7 @@ class LogViewDialogBox extends DialogBox {
     }
 }
 
-function showLogView(message, title) {
+export function showLogView(message, title) {
     const dialogBox = new LogViewDialogBox();
     dialogBox.setText(message, title);
     dialogBox.show();

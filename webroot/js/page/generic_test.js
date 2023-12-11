@@ -1,3 +1,13 @@
+import { getE, clearE, getV, setV, setT, addE, createE } from "/js/dom_utils.js";
+import { joinPath, splitStoragePath, createStorageFileURL } from "/js/storage_utils.js";
+import { getStorageFileContent, runApp, getAppList } from "/js/service.js";
+
+import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
+import { createTab, showTab } from "/js/control/tab.js";
+
+const Terminal = window.Terminal;
+const getQueryParam = window.getQueryParam;
+
 let appInfo;
 
 async function run() {
@@ -45,7 +55,7 @@ async function uploadFile() {
 
     const res = await showFileUploadDialogBox(inputPath[0], inputPath[1]);
     if (res.success) {
-        image_path = joinPath(inputPath[1], res.files[0]);
+        const image_path = joinPath(inputPath[1], res.files[0]);
         const image_url = createStorageFileURL(inputPath[0], image_path);
         const image = new Image();
         image.src = image_url;
@@ -56,7 +66,7 @@ async function uploadFile() {
 
 async function init() {
     const queryParam = getQueryParam();
-    appId = queryParam.app_id;
+    const appId = queryParam.app_id;
     const appList = await getAppList();
     for (const app of appList) {
         if (app.id == appId) {
@@ -71,4 +81,9 @@ async function init() {
         { id: "output", text: "출력 데이터" }
     ]);
     addE("tab_div", tab);
+
+    getE("upload_file_button").addEventListener("click", uploadFile);
+    getE("run_button").addEventListener("click", run);
 }
+
+init();

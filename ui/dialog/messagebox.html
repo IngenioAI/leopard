@@ -1,12 +1,2 @@
 <LP-template use="dialog" />
 <LP-param name="id" value="messagebox" />
-
-<LP-content name="dialog_script">
-    <script>
-        function showMessageBox(message, title) {
-            const messageBox = new ModalDialogBox("messagebox");
-            messageBox.setText(message, title);
-            return messageBox.exec();
-        }
-    </script>
-</LP-content>

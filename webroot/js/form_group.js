@@ -3,7 +3,9 @@
         2023.09
 */
 
-function createFormGroup(formGroupInfo, initValue, idPrefix="") {
+import { createElem, getE } from "./dom_utils.js";
+
+export function createFormGroup(formGroupInfo, initValue, idPrefix="") {
     const mainDiv = createElem({ name: "div" });
     formGroupInfo.forEach((formInfo) => {
         const htmlId = idPrefix + formInfo.id;
@@ -69,7 +71,7 @@ function createFormGroup(formGroupInfo, initValue, idPrefix="") {
     return mainDiv;
 }
 
-function getFormGroupData(formGroupInfo, data=null, idPrefix="") {
+export function getFormGroupData(formGroupInfo, data=null, idPrefix="") {
     if (data == null) {
         data = {};
     }

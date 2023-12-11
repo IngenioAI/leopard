@@ -45,16 +45,16 @@ def get_compressed_filelist(filepath):
     try:
         if ext == ".zip":
             with zipfile.ZipFile(filepath) as zf:
-                unzip_file_list += zf.namelist()
+                file_list += zf.namelist()
         elif ext in [".gz", ".tar", ".tgz"]:
             with tarfile.TarFile(filepath) as zf:
                 file_list += zf.getnames()
-    except:
+    except (zipfile.BadZipFile, zipfile.LargeZipFile):
         print("Invalid zip file:", filepath)
     return file_list
 
-def process_upload_item(uploadId, target_dir, filename):
-    upload_path = os.path.join("storage", "upload", uploadId)
+def process_upload_item(upload_id, target_dir, filename):
+    upload_path = os.path.join("storage", "upload", upload_id)
     if os.path.exists(upload_path):
         if os.path.exists(target_dir):
             shutil.rmtree(target_dir)

@@ -1,3 +1,19 @@
+import { getE, setT, setV, addE, clearE } from "/js/dom_utils.js";
+import { createPostItem, createExec, stopExec, removeExec, getExecInfo,
+    getExecLogs, getExecList, getExecProgress, startTensorboard, removeUploadItem,
+    getDatasetList, getModelList, getExecImageList } from "/js/service.js";
+
+import { showLogView } from "/js/dialog/logview.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showSelectPath } from "/js/dialog/filesave.js";
+import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
+import { showInputDialogBox } from "/js/dialog/input.js";
+import { showSelectDialogBox } from "/js/dialog/select.js";
+
+import { ContextMenu } from "/js/control/context_menu.js";
+import { createListGroupItem } from "/js/control/list_group.js";
+import { createTab, showTab } from "/js/control/tab.js";
+
 let sourceUploadInfo = null;
 let currentLogId = null;
 let logWindow = null;
@@ -64,7 +80,7 @@ function createExecItem(execInfo, initState="실행 중") {
             },
             { name: "div", text: initState, attributes: { id: `state_${execInfo.id}` } }
         ],
-        (e) => {    // listItemClick
+        () => {    // listItemClick
             logWindow = showLogView(`${execInfo.command_line} on ${execInfo.base_image}`, "실행 로그");
             logWindow.clearLog();
             currentLogId = execInfo.id;
@@ -267,7 +283,7 @@ async function init() {
         { id: "current_exec", text: "실행 중" },
         { id: "completed_exec", text: "실행 완료" }],
         null,
-        (event) => {
+        () => {
             //console.log(event.target.id);
             refreshExecList();
         });
@@ -278,10 +294,21 @@ async function init() {
 
     setInterval(checkProgress, 1000);
 
-    window.addEventListener("beforeunload", (e) => {
+    getE("execute_button").addEventListener("click", createExecution);
+    getE("set_input_path_button").addEventListener("click", setInputPath);
+    getE("set_input_dataset_button").addEventListener("click", setInputDataset);
+    getE("set_output_path_button").addEventListener("click", setOutputPath);
+    getE("set_source_code_button").addEventListener("click", setSourceCode);
+    getE("set_model_button").addEventListener("click", setModel);
+    getE("set_command_line_button").addEventListener("click", setCommandLine);
+    getE("command_line").addEventListener("click", setCommandLine);
+
+    window.addEventListener("beforeunload", () => {
         if (sourceUploadInfo) {
             removeUploadItem(sourceUploadInfo.upload_id);
             console.log('remove:', sourceUploadInfo.upload_id)
         }
     });
 }
+
+init();

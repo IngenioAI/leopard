@@ -1,12 +1,13 @@
+import { getE, clearE, addE, createElem, createE } from "/js/dom_utils.js";
+import { getDatasetList, getExecResult, getModelList, getExecList } from "/js/service.js";
+
+const echarts = window.echarts;
+
 let datasetList;
 let modelList;
 let execList;
 
 async function compare() {
-    for (const exec of execList) {
-        const resultInfo = await getExecResult(exec.id);
-    }
-
     const selectedDataset = [];
     let n = 0;
     let elemId = `check_dataset_${n}`;
@@ -100,7 +101,8 @@ async function compare() {
         series: dataSeries
     };
 
-    myChart.setOption(option, notMerge=true);
+    //myChart.setOption(option, notMerge=true);
+    myChart.setOption(option);
 }
 
 async function selectFamily() {
@@ -152,11 +154,16 @@ async function init() {
 
     const familySet = new Set();
     datasetList.map((item) => familySet.add(item.family));
-    const selectFamily = getE("dataset_family_select");
-    clearE(selectFamily);
+    const select = getE("dataset_family_select");
+    clearE(select);
     for (const family of familySet) {
         const option = createE("option", family);
-        addE(selectFamily, option);
-        selectFamily.value = "";
+        addE(select, option);
+        select.value = "";
     }
+
+    getE("dataset_family_select").addEventListener("change", selectFamily);
+    getE("compare_button").addEventListener("click", compare);
 }
+
+init();

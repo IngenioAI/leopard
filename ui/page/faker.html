@@ -7,41 +7,7 @@
   <title>Leopard</title>
   <LP-include-html src="head.html"></LP-include-html>
   <LP-include-html src="csv-grid.html"></LP-include-html>
-  <script>
-    let csvData = null;
-    let csvFilePath = "";
-
-    async function generateData(type) {
-      // clear previous data
-      document.getElementById("view_csv").innerText = "";
-      document.getElementById("view_csv").style = "display:none";
-      csvToGrid("myGrid", "");
-
-      const dataCount = parseInt(getV('input_count'));
-      const res = await runApp("faker", {
-                type: type,
-                count: dataCount
-              });
-      csvFilePath = res.text_path;
-      csvData = await getStorageFileContent('0', joinPath('/app/faker/run', csvFilePath));
-      csvToGrid("myGrid", csvData);
-    }
-    function showRawData() {
-      document.getElementById("view_csv").innerText = csvData;
-      document.getElementById("view_csv").style = "display:block; max-height:600px";
-    }
-    function downloadCsv() {
-      downloadStorageFile('0', joinPath("/app/faker/run", csvFilePath), "faker_data.csv");
-    }
-    async function saveCsv() {
-      const filePath = await showFileSave({defaultFilename: 'faker_data.csv'});
-      const storagePath = filePath.split(":");
-      await uploadFileToStorage(storagePath[0], storagePath[1], csvData);
-    }
-    function init() {
-    }
-
-    </script>
+  <script type="module" src="/js/page/faker.js"></script>
 </head>
 
 <body>
@@ -55,8 +21,8 @@
             <div class="p-3 bg-body-tertiary" style="width:100%;">
                 <h2>페이커 (Faker)</h2>
             <div class="my-4">
-              <button type="button" class="btn btn-primary" onclick="generateData('personal')">개인정보 데이터 생성</button>
-              <button type="button" class="btn btn-primary" onclick="generateData('log')">로그 데이터 생성</button>
+              <button type="button" class="btn btn-primary" id="generate_personal_data_button">개인정보 데이터 생성</button>
+              <button type="button" class="btn btn-primary" id="generate_log_data_button">로그 데이터 생성</button>
             </div>
             <div class="d-flex flex-row align-items-center my-2">
               <div class="px-2">생성할 데이터 개수: </div><div class="flex-grow-1"><input type="number" id="input_count" class="form-control" value="10"/></div>
@@ -65,9 +31,9 @@
             <div id="myGrid" class="ag-theme-alpine" style="height: 500px"></div>
 
             <div class="my-4">
-              <button type="button" class="btn btn-outline-primary" onclick="showRawData()">원문 보기</button>
-              <button type="button" class="btn btn-outline-primary" onclick="downloadCsv()">다운로드</button>
-              <button type="button" class="btn btn-outline-primary" onclick="saveCsv()">스토리지 저장</button>
+              <button type="button" class="btn btn-outline-primary" id="show_raw_data_button">원문 보기</button>
+              <button type="button" class="btn btn-outline-primary" id="download_csv_button">다운로드</button>
+              <button type="button" class="btn btn-outline-primary" id="save_csv_button">스토리지 저장</button>
             </div>
 
             <pre class="container" id="view_csv" style="display:none">
@@ -78,7 +44,6 @@
     </div>
   </div>
   <LP-include-html src="filesave.html"></LP-include-html>
-  <script>init();</script>
 </body>
 
 </html>

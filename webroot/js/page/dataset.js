@@ -1,3 +1,8 @@
+import { createElem, clearE, addE, getE } from "/js/dom_utils.js";
+import { addDatasetToList, getDatasetList, getStorageList } from "/js/service.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showFormDialogBox } from "/js/dialog/formdialog.js";
+
 let storageList;
 let datasetList;
 
@@ -28,7 +33,7 @@ function createDatasetElement(datasetInfo) {
                 { name: "div", attributes: { class: "card-footer bg-transparent border-0" }, children: [
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: "스토리지 보기",
                         events: {
-                            click: (e) => {
+                            click: () => {
                                 let url = `/ui/storage.html?storage_id=${datasetInfo.storageId}&storage_path=${datasetInfo.storagePath}`;
                                 window.open(url, "_self");
                             }
@@ -36,7 +41,7 @@ function createDatasetElement(datasetInfo) {
                     },
                     { name: "button", attributes: { class: "btn btn-outline-primary m-1" }, text: datasetInfo.type == "Image" ? "이미지 보기" : "데이터 보기",
                         events: {
-                            click: (e) => {
+                            click: () => {
                                 if (datasetInfo.type == "Image") {
                                     let url = `/ui/imageview.html?storage_id=${datasetInfo.storageId}&storage_path=${datasetInfo.storagePath}&type=${datasetInfo.type}`;
                                     window.open(url, "_self");
@@ -109,4 +114,7 @@ async function refreshDataset(reload=false) {
 async function init() {
     storageList = await getStorageList();
     refreshDataset(true);
+    getE("create_button").addEventListener("click", createDataset);
 }
+
+init();

@@ -3,7 +3,7 @@
         short-cut functions for DOM access
  */
 
-function getE(id) {
+export function getE(id) {
     if (typeof id == 'string') {
         return document.getElementById(id);
     }
@@ -12,7 +12,7 @@ function getE(id) {
     }
 }
 
-function getV(id) {
+export function getV(id) {
     const elem = getE(id);
     if ('value' in elem) {
         return elem.value;
@@ -20,19 +20,19 @@ function getV(id) {
     return null;
 }
 
-function setV(id, value) {
+export function setV(id, value) {
     getE(id).value = value;
 }
 
-function getT(id) {
+export function getT(id) {
     return getE(id).innerText;
 }
 
-function setT(id, text) {
+export function setT(id, text) {
     getE(id).innerText = text;
 }
 
-function createE(tagName, text=null, attributes=null, events=null) {
+export function createE(tagName, text=null, attributes=null, events=null) {
     const elem = document.createElement(tagName);
     if (text) {
         elem.innerText = text;
@@ -51,23 +51,23 @@ function createE(tagName, text=null, attributes=null, events=null) {
     return elem;
 }
 
-function createT(text) {
+export function createT(text) {
     return document.createTextNode(text);
 }
 
-function addE(parent, child) {
+export function addE(parent, child) {
     const parentElem = getE(parent);
     parentElem.appendChild(child);
     return parentElem;
 }
 
-function clearE(elem) {
+export function clearE(elem) {
     const e =getE(elem);
     e.replaceChildren();
     return e;
 }
 
-function createElem(o) {
+export function createElem(o) {
     const elem = createE(o.name, o.text, o.attributes, o.events);
     if ('children' in o) {
         for (const child of o.children) {
@@ -78,7 +78,7 @@ function createElem(o) {
     return elem;
 }
 
-function elementToJson(id) {
+export function elementToJson(id) {
     const element = getE(id);
     const o = {
         name: element.nodeName.toLowerCase()
@@ -86,7 +86,7 @@ function elementToJson(id) {
     if (element.attributes != null) {
         if (element.attributes.length) {
             o["attributes"] = {};
-            for (var i = 0; i < element.attributes.length; i++) {
+            for (let i = 0; i < element.attributes.length; i++) {
                 o["attributes"][element.attributes[i].nodeName] = element.attributes[i].nodeValue;
             }
         }
@@ -95,7 +95,7 @@ function elementToJson(id) {
     var nodeList = element.childNodes;
     if (nodeList != null) {
         if (nodeList.length) {
-            for (var i = 0; i < nodeList.length; i++) {
+            for (let i = 0; i < nodeList.length; i++) {
                 if (nodeList[i].nodeType == 3) {
                     o['text'] = nodeList[i].nodeValue.trim();
                 } else {
@@ -108,11 +108,11 @@ function elementToJson(id) {
     return o;
 }
 
-function elementToString(id) {
+export function elementToString(id) {
     const element = getE(id);
     return element.outerHTML;
 }
 
-function isJSONEmpty(object) {
+export function isJSONEmpty(object) {
     return JSON.stringify(object) === "{}";
 }

@@ -19,74 +19,9 @@
 
     </style>
     <LP-include-html src="head.html"></LP-include-html>
-    <script src="/js/canvas_utils.js"></script>
-    <script src="/js/dom_utils.js"></script>
-    <script>
-
-    let canvas1, canvas2;
-    let scale = 1.0;
-    let image_path = undefined;
-
-    async function uploadFile() {
-        const res = await showFileUploadDialogBox('0', 'app/mtcnn/data');
-        if (res.success) {
-            image_path = res.files[0];
-            const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data", image_path));
-            const image = await loadImage(image_url);
-            canvas1.clear();
-            canvas2.clear();
-            scale = canvas1.drawImageFit(image);
-        }
-    }
-
-    async function detectFace() {
-        if(!image_path){
-            showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
-            return;
-        }
-        const faceList = await runApp("mtcnn", { mode:'detect', image_path: image_path});
-
-        if (isJSONEmpty(faceList)) {
-            showMessageBox("검출된 정보가 없습니다.", "정보");
-            return;
-        }
-
-        for (const face of faceList) {
-            console.log(face.box, face.confidence);
-            canvas2.drawRect(face.box[0] * scale, face.box[1] * scale,
-                face.box[2] * scale, face.box[3] * scale, 3, 'lime');
-        }
-        box_created_bool = true;
-    }
-    async function anonymizeFace() {
-        if(!image_path){
-            showMessageBox("이미지를 먼저 업로드해 주세요", "정보");
-            return;
-        }
-        const result = await runApp("mtcnn", { mode:'anonymize', image_path: image_path});
-
-        if (isJSONEmpty(result)) {
-            showMessageBox("검출된 정보가 없습니다.", "정보");
-            return;
-        }
-
-        const img_name = result.image_path;
-        image_path = img_name;
-        const image_url = createStorageFileURL("0", joinPath("app/mtcnn/data/", img_name));
-        const image = await loadImage(image_url);
-        canvas1.clear();
-        scale = canvas1.drawImageFit(image);
-    }
-
-
-    function init() {
-      canvas1 = new Canvas('canvas1');
-      canvas1.init(1200, 700);
-      canvas2 = new Canvas('canvas2');
-      canvas2.init(1200, 700);
-    }
-
-    </script>
+    <script type="module" src="/js/canvas_utils.js"></script>
+    <script type="module" src="/js/dom_utils.js"></script>
+    <script type="module" src="/js/page/face_detect.js"></script>
 </head>
 
 <body>
@@ -101,10 +36,10 @@
                 <h2>얼굴 검출</h2>
 
                 <div class="container my-4">
-                    <button type="button" class="btn btn-primary" id="fileupload_upload" onclick="uploadFile()">이미지 선택
+                    <button type="button" class="btn btn-primary" id="fileupload_upload">이미지 선택
                     </button>
-                    <button type="button" class="btn btn-primary" id="face_get" onclick="detectFace()">얼굴 검출</button>
-                    <button type="button" class="btn btn-primary" id="face_blur" onclick="anonymizeFace()">얼굴 비 식별화
+                    <button type="button" class="btn btn-primary" id="face_get">얼굴 검출</button>
+                    <button type="button" class="btn btn-primary" id="face_blur">얼굴 비 식별화
                     </button>
                 </div>
 
@@ -121,7 +56,6 @@
 </div>
 <LP-include-html src="fileupload.html"></LP-include-html>
 <LP-include-html src="messagebox.html"></LP-include-html>
-<script>init();</script>
 </body>
 
 </html>

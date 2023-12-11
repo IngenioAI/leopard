@@ -12,8 +12,8 @@ storage_router = APIRouter(prefix="/api/storage", tags=["Storage"])
 
 @storage_router.get("/list")
 async def get_storage_list():
-    userStorageList = storage_util.get_storage_info("user")
-    return JSONResponseHandler([{"id": x["id"], "name": x["name"]} for x in userStorageList])
+    user_storage_list = storage_util.get_storage_info("user")
+    return JSONResponseHandler([{"id": x["id"], "name": x["name"]} for x in user_storage_list])
 
 
 @storage_router.get("/list/{storage_id}")
@@ -68,8 +68,7 @@ async def get_storage_file(storage_id: str, file_path: str):
     if os.path.exists(storage_file_path) and not os.path.isdir(storage_file_path):
         if os.access(storage_file_path, os.R_OK):
             return FileResponse(storage_file_path)
-        else:
-            raise HTTPException(status_code=503, detail="File access not allowed")
+        raise HTTPException(status_code=503, detail="File access not allowed")
     raise HTTPException(status_code=404, detail="File not found")
 
 
@@ -78,7 +77,7 @@ async def post_storage_file(storage_id: str, file_path: str, req: Request):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if not os.path.exists(storage_file_path):
         raise HTTPException(status_code=404, detail="Path not found")
-    file_list, metadata = await upload_util.handle_upload(req, storage_file_path)
+    file_list, _ = await upload_util.handle_upload(req, storage_file_path)
     return JSONResponseHandler({
         'success': True,
         'files': file_list
@@ -109,7 +108,7 @@ async def delete_storage_file(storage_id: str, file_path: str):
                 'success': True
             })
         except Exception as e:
-            raise HTTPException(status_code=400, detail=str(e))
+            raise HTTPException(status_code=400, detail=str(e)) from e
     else:
         raise HTTPException(status_code=404, detail="File not found")
 
@@ -135,7 +134,7 @@ async def delete_upload_item(upload_id: str):
     if os.path.exists(target_dir):
         try:
             shutil.rmtree(target_dir)
-        except:
+        except OSError:
             pass
     return JSONResponseHandler({
         "success": True

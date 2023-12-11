@@ -1,3 +1,12 @@
+import { getE, addE, clearE, createE, createElem } from "/js/dom_utils.js";
+import { createExecImage, getExecImageCreationInfo, removeExecImageCreationInfo, removeExecImage, getExecImageList } from "/js/service.js";
+import { getElapsedTimeString, getFileSizeString } from "/js/storage_utils.js";
+
+import { showFormDialogBox } from "/js/dialog/formdialog.js";
+import { showLogView } from "/js/dialog/logview.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { ContextMenu } from "/js/control/context_menu.js";
+
 let logView;
 
 async function onClickLeopardOnly() {
@@ -24,12 +33,14 @@ async function onCreateImage() {
         { id: "pipInstall", title: "pip 설치", type: "text" },
         { id: "additionalCommand", title: "추가 명령 실행", type: "text" }
     ], null, "다음 값으로 이미지를 생성합니다", "이미지 생성");
-    data['update'] = true;
+    if (data) {
+        data['update'] = true;
 
-    const result = await createExecImage(data);
-    if (result.success) {
-        logView = showLogView(`${data['name']} 이미지 생성`, "이미지 생성 로그");
-        setTimeout(checkBuild, 100, data['name']);
+        const result = await createExecImage(data);
+        if (result.success) {
+            logView = showLogView(`${data['name']} 이미지 생성`, "이미지 생성 로그");
+            setTimeout(checkBuild, 100, data['name']);
+        }
     }
 }
 
@@ -66,14 +77,14 @@ async function refreshImageTable() {
 
     clearE("image_tbody");
     for (const imageInfo of imageList) {
-        if (!getE("check_leopard_only").checked || imageInfo.RepoTags[0].startsWith("leopard/")) {
+        if (!getE("leopard_only_checkbox").checked || imageInfo.RepoTags[0].startsWith("leopard/")) {
             const tr = createElem({
                 name: "tr", children: [
                     {
                         name: "td", children: [{
                             name: "a", text: imageInfo.RepoTags[0], attributes: { href: "#", class: "text-decoration-none" },
                             events: {
-                                click: (e) => {
+                                click: () => {
                                     console.log("click", imageInfo.RepoTags[0]);
                                 }
                             }
@@ -94,4 +105,8 @@ async function refreshImageTable() {
 
 async function init() {
     refreshImageTable();
+    getE("leopard_only_checkbox").addEventListener("click", onClickLeopardOnly);
+    getE("create_image_button").addEventListener("click", onCreateImage);
 }
+
+init();

@@ -1,3 +1,6 @@
+import { createElem, addE, clearE } from "/js/dom_utils.js";
+import { getAppList, getExecImageList, getExecList } from "/js/service.js";
+
 function getState(appInfo, execList, imageList) {
     const tagName = appInfo.image.tag;
     for (const execInfo of execList) {
@@ -51,3 +54,5 @@ async function init() {
         addE(appTBody, tr);
     }
 }
+
+init();

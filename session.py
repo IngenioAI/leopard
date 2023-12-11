@@ -1,7 +1,7 @@
-from pydantic import BaseModel
-from fastapi import HTTPException, APIRouter, Request, Response, Depends
 from uuid import UUID, uuid4
 
+from pydantic import BaseModel
+from fastapi import HTTPException, APIRouter, Request, Response, Depends
 from fastapi_sessions.backends.implementations import InMemoryBackend
 from fastapi_sessions.session_verifier import SessionVerifier
 from fastapi_sessions.frontends.implementations import SessionCookie, CookieParameters

@@ -1,4 +1,8 @@
-function csvToGrid(gridId, csvData) {
+import { CSV } from "./csv.js";
+
+const agGrid = window.agGrid;
+
+export function csvToGrid(gridId, csvData) {
     const csvLines = CSV.parse(csvData)
     const headers = csvLines[0];
     const columnDefs = [];
@@ -15,7 +19,7 @@ function csvToGrid(gridId, csvData) {
     }
     const gridOptions = {
         columnDefs: columnDefs,
-        rowData, rowData
+        rowData: rowData
     };
     const gridDiv = document.getElementById(gridId);
     gridDiv.innerHTML = "";
