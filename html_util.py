@@ -149,7 +149,95 @@ def get_inner_html(tag, tag_name):
     return ""
 
 
-def process_include_html(content, params=None, template_content=None):
+def process_template(tag, template_content, params):
+    new_params = dict.copy(params)
+    new_template_content = dict.copy(template_content)
+
+    use_template = get_html_attribute(tag, "use")
+    # print("use template:", use_template)
+    template_filepath = f'ui/template/{use_template}.html'
+
+    inner_html = get_inner_html(tag, "LP-template")
+
+    _, tag, p2 = split_html_content(inner_html, "LP-param")
+    while tag is not None:
+        values = get_html_attribute(tag, ["name", "value"])
+        new_params[values[0]] = values[1]
+        _, tag, p2 = split_html_content(p2, "LP-param")
+
+    _, tag, p2 = split_html_content(inner_html, "LP-content")
+    while tag is not None:
+        content_name = get_html_attribute(tag, "name")
+        # print("add template content:", content_name)
+        new_template_content[content_name] = get_inner_html(tag, "LP-content")
+        _, tag, p2 = split_html_content(p2, "LP-content")
+
+    with open(template_filepath, "rt", encoding="utf-8") as fp:
+        base_content = fp.read()
+
+    return process_lp_html(base_content, new_params, new_template_content)
+
+
+def process_include_content(tag, template_content):
+    content_name = get_html_attribute(tag, "name")
+    if content_name in template_content:
+        # print("get template content:", content_name)
+        sub_content = template_content[content_name]
+    else:
+        # print("get template content (default):", content_name)
+        default_content = get_inner_html(tag, "LP-include-content")
+        sub_content = default_content
+    return sub_content
+
+def process_include_html_tag(tag):
+    src_name = get_html_attribute(tag, "src")
+    # print("Load template:", src_name)
+    src_file_path = f'ui/fragment/{src_name}'
+    if not os.path.exists(src_file_path):
+        src_file_path = f'ui/dialog/{src_name}'
+    if os.path.exists(src_file_path):
+        with open(src_file_path, "rt", encoding="UTF-8") as fp:
+            return fp.read()
+    return ""
+
+def process_include_script(tag, template_content):
+    src_name = get_html_attribute(tag, "src")
+    if src_name == "":
+        file_title, _ = os.path.splitext(template_content["file_path"])
+        src_name = f'/js/page/{file_title}.js'
+    script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
+    if os.path.exists(script_path):
+        return f'<script type="module" src="{src_name}" charset="utf-8"></script>'
+    return ""
+
+
+def process_include_dialog_script(tag, params):
+    src_name = get_html_attribute(tag, "src")
+    if src_name == "":
+        file_title = params['id']
+        src_name = f'/js/dialog/{file_title}.js'
+    script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
+    if os.path.exists(script_path):
+        return f'<script type="module" src="{src_name}" charset="utf-8"></script>'
+    return ""
+
+
+def process_include_string(tag, template_content, params):
+    var_name = get_html_attribute(tag, "var")
+    if var_name in params:
+        sub_content = params[var_name]
+        sub_content = process_lp_html(sub_content, params, template_content)
+    else:
+        default_var = get_html_attribute(tag, "default")
+        if default_var is not None:
+            sub_content = default_var
+        else:
+            print("var name not found (no default):", var_name)
+            sub_content = ''
+    return sub_content
+
+
+def process_lp_html(content, params=None, template_content=None):
     if content is None or content == "":
         return ""
 
@@ -167,92 +255,31 @@ def process_include_html(content, params=None, template_content=None):
         return content
 
     if content[p+1:].startswith("LP-template"):
-        new_params = dict.copy(params)
-        new_template_content = dict.copy(template_content)
         p1, tag, p2 = split_html_content(content, "LP-template", p)
-        use_template = get_html_attribute(tag, "use")
-        # print("use template:", use_template)
-        template_filepath = f'ui/template/{use_template}.html'
-
-        p1, tag, p2 = split_html_content(p2, "LP-param")
-        while tag is not None:
-            values = get_html_attribute(tag, ["name", "value"])
-            new_params[values[0]] = values[1]
-            p1, tag, p2 = split_html_content(p2, "LP-param")
-
-        p1, tag, p2 = split_html_content(p2, "LP-content")
-        while tag is not None:
-            content_name = get_html_attribute(tag, "name")
-            # print("add template content:", content_name)
-            new_template_content[content_name] = get_inner_html(tag, "LP-content")
-            p1, tag, p2 = split_html_content(p2, "LP-content")
-
-        with open(template_filepath, "rt", encoding="utf-8") as fp:
-            base_content = fp.read()
-            return process_include_html(base_content, new_params, new_template_content)
+        sub_content = process_template(tag, template_content, params)
     elif content[p+1:].startswith("LP-include-content"):
         p1, tag, p2 = split_html_content(content, "LP-include-content", p)
         # print("include-content", tag)
-        content_name = get_html_attribute(tag, "name")
-        if content_name in template_content:
-            # print("get template content:", content_name)
-            sub_content = template_content[content_name]
-        else:
-            # print("get template content (default):", content_name)
-            default_content = get_inner_html(tag, "LP-include-content")
-            sub_content = default_content
-        sub_content = process_include_html(sub_content, params, template_content)
+        sub_content = process_include_content(tag, template_content)
+        sub_content = process_lp_html(sub_content, params, template_content)
     elif content[p+1:].startswith("LP-include-html"):
         p1, tag, p2 = split_html_content(content, "LP-include-html", p)
-        src_name = get_html_attribute(tag, "src")
-        # print("Load template:", src_name)
-        src_file_path = f'ui/fragment/{src_name}'
-        if not os.path.exists(src_file_path):
-            src_file_path = f'ui/dialog/{src_name}'
-        if os.path.exists(src_file_path):
-            with open(src_file_path, "rt", encoding="UTF-8") as fp:
-                sub_content = fp.read()
-            sub_content = process_include_html(sub_content, params, template_content)
+        sub_content = process_include_html_tag(tag)
+        sub_content = process_lp_html(sub_content, params, template_content)
     elif content[p+1:].startswith("LP-include-script"):
         p1, tag, p2 = split_html_content(content, "LP-include-script", p)
-        src_name = get_html_attribute(tag, "src")
-        if src_name == "":
-            file_title, _ = os.path.splitext(template_content["file_path"])
-            src_name = f'/js/page/{file_title}.js'
-        script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
-        if os.path.exists(script_path):
-            sub_content = f'<script type="module" src="{src_name}" charset="utf-8"></script>'
-        else:
-            sub_content = ""
+        sub_content = process_include_script(tag, template_content)
     elif content[p+1:].startswith("LP-include-dialog-script"):
         p1, tag, p2 = split_html_content(content, "LP-include-dialog-script", p)
-        src_name = get_html_attribute(tag, "src")
-        if src_name == "":
-            file_title = params['id']
-            src_name = f'/js/dialog/{file_title}.js'
-        script_path = os.path.join("webroot", src_name[1:] if src_name[0] == "/" else src_name)
-        if os.path.exists(script_path):
-            sub_content = f'<script type="module" src="{src_name}" charset="utf-8"></script>'
-        else:
-            sub_content = ""
+        sub_content = process_include_dialog_script(tag, params)
     elif content[p+1:].startswith("LP-include-string"):
         p1, tag, p2 = split_html_content(content, "LP-include-string", p)
-        var_name = get_html_attribute(tag, "var")
-        if var_name in params:
-            sub_content = params[var_name]
-            sub_content = process_include_html(sub_content, params, template_content)
-        else:
-            default_var = get_html_attribute(tag, "default")
-            if default_var is not None:
-                sub_content = default_var
-            else:
-                print("var name not found (no default):", var_name)
-                sub_content = ''
+        sub_content = process_include_string(tag, template_content, params)
     else:
         print("Unknown LP Tag:", content[p:p + 32])
         p1 = content[:p]
         sub_content = ' Content Parse Error: '
         p2 = content[p:p + 32]
-    p2 = process_include_html(p2, params, template_content)
+    p2 = process_lp_html(p2, params, template_content)
     content = p1 + sub_content + p2
     return content

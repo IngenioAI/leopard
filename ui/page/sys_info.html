@@ -1,75 +1,77 @@
-<LP-template use="basepage" />
+<LP-template use="basepage">
 
-<LP-content name="head">
-</LP-content>
+    <LP-content name="head">
+    </LP-content>
 
-<LP-content name="main">
-    <h2 class="mb-2">시스템 정보</h2>
+    <LP-content name="main">
+        <h2 class="mb-2">시스템 정보</h2>
 
-    <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 text-center">
-        <div class="col">
-            <div class="card mb-2 shadow-sm">
-                <div class="card-header">
-                <h4 class="my-0 font-weight-normal">CPU</h4>
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4 text-center">
+            <div class="col">
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">CPU</h4>
+                    </div>
+                    <div class="card-body">
+                    <h1 class="card-title"><span id="cpu_util">0</span> <small class="text-muted">%</small></h1>
+                        <ul class="list-unstyled mt-2 mb-2">
+                            <li><span id="cpu_info">Intel</span></li>
+                            <li>Core: <span id="cpu_core_count"></span>, Thread: <span id="cpu_thread_count"></span></li>
+                        </ul>
+                    </div>
                 </div>
-                <div class="card-body">
-                <h1 class="card-title"><span id="cpu_util">0</span> <small class="text-muted">%</small></h1>
-                    <ul class="list-unstyled mt-2 mb-2">
-                        <li><span id="cpu_info">Intel</span></li>
-                        <li>Core: <span id="cpu_core_count"></span>, Thread: <span id="cpu_thread_count"></span></li>
-                    </ul>
+            </div>
+            <div class="col">
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Memory</h4>
+                    </div>
+                    <div class="card-body">
+                    <h1 class="card-title"><span id="mem_util">0</span> <small class="text-muted">%</small></h1>
+                        <ul class="list-unstyled mt-2 mb-2">
+                            <li>Available: <span id="available_memory"></span></li>
+                            <li>Total: <span id="total_memory"></span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card mb-2 shadow-sm">
+                    <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Disk</h4>
+                    </div>
+                    <div class="card-body">
+                    <h1 class="card-title"><span id="disk_util">0</span> <small class="text-muted">%</small></h1>
+                        <ul class="list-unstyled mt-2 mb-2">
+                            <li>Available: <span id="available_disk"></span></li>
+                            <li>Total: <span id="total_disk"></span></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="col">
-            <div class="card mb-2 shadow-sm">
-                <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Memory</h4>
-                </div>
-                <div class="card-body">
-                <h1 class="card-title"><span id="mem_util">0</span> <small class="text-muted">%</small></h1>
-                    <ul class="list-unstyled mt-2 mb-2">
-                        <li>Available: <span id="available_memory"></span></li>
-                        <li>Total: <span id="total_memory"></span></li>
-                    </ul>
-                </div>
-            </div>
+
+        <h4 class="mt-5">GPU List</h4>
+        <div class="table-responsive">
+            <table class="table table-sm">
+            <thead>
+                <tr>
+                <th style="width:15%"></th>
+                <th style="width:30%">Name</th>
+                <th style="width:20%">Core Usage</th>
+                <th style="width:20%">Memory Usage</th>
+                <th style="width:15%">Temperature</th>
+                </tr>
+            </thead>
+            <tbody id="gpu_list_tbody">
+            </tbody>
+            </table>
         </div>
-        <div class="col">
-            <div class="card mb-2 shadow-sm">
-                <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Disk</h4>
-                </div>
-                <div class="card-body">
-                <h1 class="card-title"><span id="disk_util">0</span> <small class="text-muted">%</small></h1>
-                    <ul class="list-unstyled mt-2 mb-2">
-                        <li>Available: <span id="available_disk"></span></li>
-                        <li>Total: <span id="total_disk"></span></li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    <h4 class="mt-5">GPU List</h4>
-    <div class="table-responsive">
-        <table class="table table-sm">
-          <thead>
-            <tr>
-              <th style="width:15%"></th>
-              <th style="width:30%">Name</th>
-              <th style="width:20%">Core Usage</th>
-              <th style="width:20%">Memory Usage</th>
-              <th style="width:15%">Temperature</th>
-            </tr>
-          </thead>
-          <tbody id="gpu_list_tbody">
-          </tbody>
-        </table>
-    </div>
+    </LP-content>
 
-</LP-content>
+    <LP-content name="dialog">
+        <LP-include-html src="messagebox.html"></LP-include-html>
+    </LP-content>
 
-<LP-content name="dialog">
-    <LP-include-html src="messagebox.html"></LP-include-html>
-</LP-content>
+</LP-template>

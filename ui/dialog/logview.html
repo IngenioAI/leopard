@@ -1,12 +1,13 @@
-<LP-template use="dialog" />
-<LP-param name="id" value="logview" />
-<LP-param name="size" value="modal-xl" />
+<LP-template use="dialog">
+    <LP-param name="id" value="logview" />
+    <LP-param name="size" value="modal-xl" />
 
-<LP-content name="dialog_main">
-    <div id="LP_DIALOG_logview_content" class="console_like">로그 내용</div>
-</LP-content>
+    <LP-content name="dialog_main">
+        <div id="LP_DIALOG_logview_content" class="console_like">로그 내용</div>
+    </LP-content>
 
-<LP-content name="dialog_script">
-    <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
-    <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
-</LP-content>
+    <LP-content name="dialog_script">
+        <script src="https://cdn.jsdelivr.net/npm/xterm@5.3.0/lib/xterm.min.js"></script>
+        <link href="https://cdn.jsdelivr.net/npm/xterm@5.3.0/css/xterm.min.css" rel="stylesheet">
+    </LP-content>
+</LP-template>

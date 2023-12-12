@@ -1,48 +1,22 @@
-<LP-template use="basepage" />
-<LP-content name="head">
-    <LP-include-html src="codemirror.html"></LP-include-html>
-    <script>
-        async function login() {
-            const res = await createSession(getV("input_user"));
-            await saveSessionData({"test": "test string"})
-            refresh();
-        }
-        async function logout() {
-            const res = await deleteSession();
-            refresh();
-        }
-        async function refresh() {
-            const session = await getSession();
-            if (session.success) {
-                setT("username", session.username);
-                const data = await getSessionData();
-                console.log(data);
-            }
-            else {
-                setT("username", "사용자 없음");
-            }
+<LP-template use="basepage">
+    <LP-content name="head">
+        <LP-include-html src="codemirror.html"></LP-include-html>
+    </LP-content>
 
-        }
+    <LP-content name="main">
+        <h1>TEST</h1>
+        <h2>User Session 테스트</h2>
+        <div>로그인된 사용자: <span id="username"></span></div>
+        <button class="btn btn-primary" onclick="logout()">로그아웃</button>
+        <div class="my-2">
+            <a href="/ui_secure_test/test2.html">로그인이 필요한 페이지로</a>
+        </div>
 
-        async function init() {
-            refresh();
-            createCodeMirrorForPython(getE("code_test"));
-        }
-    </script>
-</LP-content>
+        <textarea id="code_test"></textarea>
+        <button class="btn btn-primary" id="test_button">테스트</button>
+    </LP-content>
 
-<LP-content name="main">
-    <h1>TEST</h1>
-    <h2>User Session 테스트</h2>
-    <div>로그인된 사용자: <span id="username"></span></div>
-    <button class="btn btn-primary" onclick="logout()">로그아웃</button>
-    <div class="my-2">
-        <a href="/ui_secure_test/test2.html">로그인이 필요한 페이지로</a>
-    </div>
-
-    <textarea id="code_test"></textarea>
-</LP-content>
-
-<LP-content name="dialog">
-    <LP-include-html src="messagebox.html"></LP-include-html>
-</LP-content>
+    <LP-content name="dialog">
+        <LP-include-html src="testdlg.html"></LP-include-html>
+    </LP-content>
+</LP-template>

@@ -10,7 +10,7 @@ from fastapi.exceptions import HTTPException
 from starlette.status import HTTP_303_SEE_OTHER
 
 import data_store
-from html_util import process_include_html
+from html_util import process_lp_html
 from fastapi_util import JSONResponseHandler
 from app.manager import app_manager
 from exec import exec_router, exec_manager
@@ -42,11 +42,11 @@ async def get_ui_page(file_path: str, req: Request):
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'query_param': json.dumps(query_param)}, {"file_path": file_path})
+        content = process_lp_html(content, {'query_param': json.dumps(query_param)}, {"file_path": file_path})
     else:
         with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
+        content = process_lp_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
     return HTMLResponse(content, status_code=200)
 
 @app.get("/ui_secure_test/{file_path:path}", tags=["UI"])
@@ -63,11 +63,11 @@ async def get_ui_secure_page(file_path: str, req: Request):
     if os.path.exists(page_path):
         with open(page_path, "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'query_param': json.dumps(query_param)}, {"file_path": file_path})
+        content = process_lp_html(content, {'query_param': json.dumps(query_param)}, {"file_path": file_path})
     else:
         with open("ui/page/error.html", "rt", encoding="UTF-8") as fp:
             content = fp.read()
-        content = process_include_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
+        content = process_lp_html(content, {'error_message': f'Page not found: {file_path}'}, {"file_path": file_path})
     return HTMLResponse(content, status_code=200)
 
 
