@@ -1,11 +1,17 @@
-import { getE, setT } from "/js/dom_utils.js";
-import { getSession, deleteSession, getSessionData } from "/js/service.js";
-import { createCodeMirrorForPython } from "/js/codemirror.js";
+import { getE, getV, setT } from "/js/dom_utils.js";
+import { createSession, saveSessionData, deleteSession, getSession, getSessionData } from "/js/service.js";
+
+async function login() {
+    await createSession(getV("input_user"));
+    await saveSessionData({ "test": "test string" })
+    refresh();
+}
 
 async function logout() {
     await deleteSession();
     refresh();
 }
+
 async function refresh() {
     const session = await getSession();
     if (session.success) {
@@ -21,8 +27,8 @@ async function refresh() {
 
 async function init() {
     refresh();
-    createCodeMirrorForPython(getE("code_test"));
 
+    getE("login_button").addEventListener("click", login);
     getE("logout_button").addEventListener("click", logout);
 }
 

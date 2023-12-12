@@ -1,40 +1,10 @@
 <LP-template use="basepage">
-    <LP-content name="head">
-        <script>
-            async function login() {
-                const res = await createSession(getV("input_user"));
-                await saveSessionData({"test": "test string"})
-                refresh();
-            }
-            async function logout() {
-                const res = await deleteSession();
-                refresh();
-            }
-            async function refresh() {
-                const session = await getSession();
-                if (session.success) {
-                    setT("username", session.username);
-                    const data = await getSessionData();
-                    console.log(data);
-                }
-                else {
-                    setT("username", "사용자 없음");
-                }
-
-            }
-
-            async function init() {
-                refresh();
-            }
-        </script>
-    </LP-content>
-
     <LP-content name="main">
         <h1>로그인</h1>
         <div>로그인된 사용자: <span id="username"></span></div>
         <div class="my-2">사용자명: <input type="text" value="user1" id="input_user"/></div>
-        <button class="btn btn-primary" onclick="login()">로그인</button>
-        <button class="btn btn-primary" onclick="logout()">로그아웃</button>
+        <button class="btn btn-primary" id="login_button">로그인</button>
+        <button class="btn btn-primary" id="logout_button">로그아웃</button>
 
     </LP-content>
 
