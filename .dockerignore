@@ -1,0 +1,9 @@
+__pycache__/
+.git/
+.pytest_cache/
+.vscode/
+data/
+docker/
+misc/
+storage/
+.coverage

@@ -180,7 +180,7 @@ def web_main(args):
             with open(args.config, "rt", encoding="utf-8") as fp:
                 config = json.load(fp)
     init_app(config)
-    uvicorn.run(app, host="127.0.0.1", port=args.port if args else 12700)
+    uvicorn.run(app, host="0.0.0.0", port=args.port if args else 12700)
     deinit_app()
 
 

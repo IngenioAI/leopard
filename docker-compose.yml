@@ -1,0 +1,24 @@
+version: "3.9"
+
+services:
+  leopard:
+    image: leopard/leopard
+    container_name: "leopard"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    ports:
+      - 12700:12700
+      - 12760:12760
+    volumes:
+      - ./docker/data:/app/data
+      - ./docker/storage:/app/storage
+      - ./docker/docker:/var/lib/docker
+    privileged: true

@@ -1,7 +1,7 @@
 import { Canvas, loadImage } from "/js/canvas_utils.js";
 import { getE, isJSONEmpty } from "/js/dom_utils.js";
 import { joinPath, createStorageFileURL } from "/js/storage_utils.js";
-import { runApp } from "/js/service.js";
+import { runApp, createStorageFolder } from "/js/service.js";
 
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 import { showMessageBox } from "/js/dialog/messagebox.js";
@@ -11,6 +11,7 @@ let scale = 1.0;
 let image_path = undefined;
 
 async function uploadFile() {
+    await createStorageFolder('0', 'app/mtcnn/data');   // ensure upload directory
     const res = await showFileUploadDialogBox('0', 'app/mtcnn/data');
     if (res.success) {
         image_path = res.files[0];
