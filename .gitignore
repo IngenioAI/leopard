@@ -2,6 +2,7 @@ __pycache__/
 misc/
 storage/*
 data/*
+docker/
 .coverage
 tests/data/model.json
 tests/data/dataset.json

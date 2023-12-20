@@ -1,52 +1,62 @@
-FROM nvidia/cuda:11.4.1-base-ubuntu20.04
+ARG UBUNTU_RELEASE=22.04
+FROM ubuntu:${UBUNTU_RELEASE}
 
-ARG DEBIAN_FRONTEND=noninteractive
-ENV TZ=Asia/Seoul
-# ENV DOCKER_DRIVER=overlay2
+LABEL maintainer "https://github.com/ehfd"
 
-RUN apt-key adv --keyserver keyserver.ubuntu.com --recv-keys A4B469963BF863CC
+ARG UBUNTU_RELEASE
 
-# install python and PIP
-RUN apt update && apt -y upgrade \
-  && apt-get -y install \
-       python3 python3-dev \
-       libffi-dev libssl-dev build-essential git curl bash \
-       cargo gcc musl-dev \
-  && curl 'https://bootstrap.pypa.io/get-pip.py' -o get-pip.py \
-  && python3 get-pip.py \
-  && rm get-pip.py
+RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
+        apt-transport-https \
+        apt-utils \
+        ca-certificates \
+        openssh-client \
+        curl \
+        iptables \
+        git \
+        gnupg \
+        software-properties-common \
+        supervisor \
+        wget && \
+    rm -rf /var/lib/apt/list/*
 
-# install docker
-RUN apt-get -y install apt-transport-https \
-      ca-certificates \
-      gnupg2 \
-      software-properties-common && \
-    curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg > /tmp/dkey; apt-key add /tmp/dkey && \
-    add-apt-repository \
-      "deb [arch=amd64] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
-      $(lsb_release -cs) \
-      stable" && \
-   apt-get update && \
-   apt-get -y install docker-ce
+# NVIDIA Container Toolkit and Docker
+RUN mkdir -pm755 /etc/apt/keyrings && curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && chmod a+r /etc/apt/keyrings/docker.gpg && \
+    mkdir -pm755 /etc/apt/sources.list.d && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(grep UBUNTU_CODENAME= /etc/os-release | cut -d= -f2 | tr -d '\"') stable" > /etc/apt/sources.list.d/docker.list && \
+    mkdir -pm755 /usr/share/keyrings && curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg && \
+    curl -fsSL "https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list" | sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | tee /etc/apt/sources.list.d/nvidia-container-toolkit.list > /dev/null && \
+    apt-get update && apt-get install --no-install-recommends -y \
+        docker-ce \
+        docker-ce-cli \
+        containerd.io \
+        docker-buildx-plugin \
+        docker-compose-plugin \
+        nvidia-container-toolkit && \
+    rm -rf /var/lib/apt/list/* && \
+    nvidia-ctk runtime configure --runtime=docker
 
-# install nvidia-container toolkit
-RUN apt-get -y install nvidia-container-toolkit
-   
-RUN groupadd -f docker
+COPY nvidia-dind/modprobe nvidia-dind/start-docker.sh nvidia-dind/entrypoint.sh /usr/local/bin/
+COPY nvidia-dind/supervisor/ /etc/supervisor/conf.d/
+COPY nvidia-dind/logger.sh /opt/bash-utils/logger.sh
 
-# update pip
+RUN chmod +x /usr/local/bin/start-docker.sh /usr/local/bin/entrypoint.sh /usr/local/bin/modprobe
+
+VOLUME /var/lib/docker
+
+# install python
+RUN apt upgrade python3
+RUN apt install pip -y
+
+# update pip & poetry
 RUN pip install --upgrade pip
+RUN pip install "poetry==1.1.13"
 
 WORKDIR /app
 COPY . .
 
-#install poetry with pip
-RUN pip install "poetry==1.1.13"
+# install package with poetry
 RUN poetry config virtualenvs.create false && poetry install --no-interaction --no-ansi
 
-
+ENTRYPOINT ["entrypoint.sh"]
 CMD ["python3", "server.py"]
 
-EXPOSE 12700
-
-# 현재 도커를 쓰면 도커안의 도커에서 볼륨 파일에 접근할 수 없는 문제가 있다
+EXPOSE 12700 12760
