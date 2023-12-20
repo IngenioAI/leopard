@@ -1,8 +1,6 @@
 ARG UBUNTU_RELEASE=22.04
 FROM ubuntu:${UBUNTU_RELEASE}
 
-LABEL maintainer "https://github.com/ehfd"
-
 ARG UBUNTU_RELEASE
 
 RUN apt-get clean && apt-get update && apt-get upgrade -y && apt-get install --no-install-recommends -y \
