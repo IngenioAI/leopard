@@ -1,6 +1,6 @@
 [MAIN]
 
-ignore-paths=misc, app/*
+ignore-paths=misc, docker, app/*
 
 extension-pkg-whitelist=pydantic
 
