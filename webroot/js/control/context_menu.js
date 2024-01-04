@@ -12,12 +12,12 @@ class ContextMenu {
             children: [{
                 name: "button",
                 attributes: {
-                    type: "button", class: "btn LP-menu-button",
+                    type: "button", class: "btn LP-menu-button align-top",
                     'data-bs-toggle': "dropdown", 'data-bs-auto-close': "true", 'aria-expanded': "false"
                 },
                 children: [buttonSpec ? buttonSpec : {
                     name: "span",
-                    attributes: { class: "bi bi-three-dots-vertical"}
+                    attributes: { class: "bi bi-three-dots-vertical align-top"}
                 }]
             }, {
                 name: "ul",

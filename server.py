@@ -96,6 +96,14 @@ async def add_dataset(req: Request):
         "success": res
     })
 
+@app.put("/api/dataset/item/{name}", tags=["Dataset"])
+async def update_dataset(req: Request):
+    dataset = await req.json()
+    res = data_store.manager.update_data_in_list("dataset", dataset, "name")
+    return JSONResponseHandler({
+        "success": res
+    })
+
 @app.delete("/api/dataset/item/{name}", tags=["Dataset"])
 async def delete_dataset(name: str):
     data_store.manager.remove_data_from_list("dataset", "name", name)
@@ -119,6 +127,14 @@ async def post_model_list(req: Request):
 async def add_model(req: Request):
     model = await req.json()
     res = data_store.manager.add_data_to_list("model", model)
+    return JSONResponseHandler({
+        "success": res
+    })
+
+@app.put("/api/model/item/{name}", tags=["Model"])
+async def update_model(req: Request):
+    model = await req.json()
+    res = data_store.manager.update_data_in_list("model", model, "name")
     return JSONResponseHandler({
         "success": res
     })

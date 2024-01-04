@@ -1,6 +1,18 @@
 import os
 import json
 
+def update_dict(dst, src, replace=False):
+    if replace:
+        old_keys = list(dst.keys())
+    for k, v in src.items():
+        dst[k] = v
+        if replace:
+            if k in old_keys:
+                old_keys.remove(k)
+    if replace:
+        for deleted_key in old_keys:
+            del dst[deleted_key]
+
 class DataStore():
     def __init__(self, name, data_path="data", data_type="list") -> None:
         self.name = name
@@ -115,6 +127,20 @@ class DataStoreManager():
             print("datastore not found:", name)
             return False
         return True
+
+    def update_data_in_list(self, name, data, id_key="id"):
+        datastore = self.get_datastore_by_name(name)
+        if datastore is not None:
+            data_list = datastore.get()
+            for data_item in data_list:
+                if data_item[id_key] == data[id_key]:
+                    update_dict(data_item, data, True)
+                    datastore.save()
+                    return True
+            print("item not found in datastore:", data[id_key], name)
+            return False
+        print("datastore not found:", name)
+        return False
 
     def remove_data_from_list(self, name, key, value):
         datastore = self.get_datastore_by_name(name)

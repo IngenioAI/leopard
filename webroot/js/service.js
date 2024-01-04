@@ -178,6 +178,11 @@ export async function addDatasetToList(dataset) {
     return JSON.parse(res);
 }
 
+export async function updateDatasetInList(dataset) {
+    const res = await http_put(`/api/dataset/item/${dataset.name}`, dataset);
+    return JSON.parse(res);
+}
+
 export async function removeDatasetFromList(datasetName) {
     const res = await http_delete(`/api/dataset/item/${datasetName}`);
     return JSON.parse(res);
@@ -197,6 +202,11 @@ export async function saveModelList(modelList) {
 
 export async function addModelToList(model) {
     const res = await http_post(`/api/model/item/${model.name}`, model);
+    return JSON.parse(res);
+}
+
+export async function updateModelInList(model) {
+    const res = await http_put(`/api/model/item/${model.name}`, model);
     return JSON.parse(res);
 }
 
