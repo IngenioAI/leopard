@@ -14,8 +14,13 @@ class AppManager():
         if config is not None and "app_path" in config:
             self.app_path = config["app_path"]
 
-        with open(os.path.join(self.app_path, "appinfo.json"), "rt", encoding="utf-8") as fp:
-            self.app_info = json.load(fp)
+        app_dirs = os.listdir(self.app_path)
+        for app_dir in app_dirs:
+            appinfo_dir = os.path.join(self.app_path, app_dir)
+            appinfo_path = os.path.join(appinfo_dir, "appinfo.json")
+            if os.path.isdir(appinfo_dir) and os.path.exists(appinfo_path):
+                with open(appinfo_path, "rt", encoding="utf-8") as fp:
+                    self.app_info.append(json.load(fp))
 
         for info in self.app_info:
             if 'module' in info and 'class' in info:

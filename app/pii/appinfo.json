@@ -1,0 +1,21 @@
+{
+    "id": "pii",
+    "name": "개인정보 보호도구",
+    "type": "script",
+    "image": {
+        "tag": "leopard/pii:1.0.0",
+        "build": {
+            "base": "python:3.8",
+            "update": false,
+            "apt": "",
+            "pip": "pandas python-dateutil spacy pyyaml regex tldextract phonenumbers pycryptodome fastapi uvicorn",
+            "additional_command": "python -m spacy download en_core_web_lg && python -m spacy download ko_core_news_lg"
+        }
+    },
+    "execution": {
+        "src": "app/pii/src",
+        "command_params": [],
+        "input": "storage/0/app/pii/data",
+        "output": "storage/0/app/pii/run"
+    }
+}

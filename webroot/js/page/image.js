@@ -29,12 +29,13 @@ async function onCreateImage() {
     const data = await showFormDialogBox([
         { id: "name", title: "이름", type: "text", default: "leopard/" },
         { id: "baseImage", title: "기본 이미지", type: "text", default: "python:3.8" },
+        { id: "update", title: "업데이트", type: "bool", default: true },
         { id: "aptInstall", title: "apt 설치", type: "text" },
         { id: "pipInstall", title: "pip 설치", type: "text" },
         { id: "additionalCommand", title: "추가 명령 실행", type: "text" }
     ], null, "다음 값으로 이미지를 생성합니다", "이미지 생성");
     if (data) {
-        data['update'] = true;
+        //data['update'] = true;
 
         const result = await createExecImage(data);
         if (result.success) {
@@ -53,9 +54,7 @@ function createContextMenu(imageInfo) {
     };
     const contextMenu = new ContextMenu([
             { id: MENU_ID.DELETE, title: "삭제", info: imageInfo },
-            { id: MENU_ID.VIEW, title: "세부 정보", info: imageInfo },
-            { id: MENU_ID.EDIT, title: "수정", info: imageInfo },
-            { id: MENU_ID.BUILD, title: "빌드", info: imageInfo }
+            { id: MENU_ID.VIEW, title: "세부 정보", info: imageInfo }
         ],
         async (menuId, info) => {
             if (menuId == MENU_ID.DELETE) {

@@ -108,7 +108,7 @@ class App():
                 return { "success": False, "error_message": "output file not found", "log": logs}
 
         if is_server:
-            timeout = 10
+            timeout = 30
             while timeout > 0:
                 if self.ping_server():
                     break

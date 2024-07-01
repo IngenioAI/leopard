@@ -1,0 +1,21 @@
+{
+    "id": "mtcnn",
+    "name": "얼굴검출 (MTCNN)",
+    "type": "server",
+    "image": {
+        "tag": "leopard/mtcnn:1.0.1",
+        "build": {
+            "base": "tensorflow/tensorflow:2.11.0-gpu",
+            "update": true,
+            "apt": "libcudnn8=8.2.4.15-1+cuda11.4 libgl1-mesa-glx libglib2.0-0",
+            "pip": "opencv-python mtcnn fastapi uvicorn"
+        }
+    },
+    "execution": {
+        "src": "app/mtcnn/src",
+        "command_params": [],
+        "input": "storage/0/app/mtcnn/data",
+        "output": "storage/0/app/mtcnn/run",
+        "port": 12710
+    }
+}

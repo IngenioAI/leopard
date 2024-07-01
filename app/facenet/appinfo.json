@@ -1,0 +1,22 @@
+{
+    "id": "facenet",
+    "name": "얼굴인식기",
+    "type": "server",
+    "image": {
+        "tag": "leopard/facenet:1.0.0",
+        "build": {
+            "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+            "update": false,
+            "apt": "",
+            "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+            "additional_command": ""
+        }
+    },
+    "execution": {
+        "src": "app/facenet/src",
+        "command_params": [],
+        "input": "storage/0/app/facenet/data",
+        "output": "storage/0/app/facenet/run",
+        "port": 12720
+    }
+}
