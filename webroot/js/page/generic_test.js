@@ -1,6 +1,6 @@
 import { getE, clearE, getV, setV, setT, addE, createE } from "/js/dom_utils.js";
 import { joinPath, splitStoragePath, createStorageFileURL } from "/js/storage_utils.js";
-import { getStorageFileContent, runApp, getAppList } from "/js/service.js";
+import { getStorageFileContent, runApp, getAppList, getAppProgress, getAppLogs, getAppResult, removeApp } from "/js/service.js";
 
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 import { createTab, showTab } from "/js/control/tab.js";
@@ -10,31 +10,33 @@ const getQueryParam = window.getQueryParam;
 
 let appInfo;
 
-async function run() {
-    clearE("output_data");
-    clearE("output_log");
-    setV("output_text", "");
-
-    let automaticLog = false;
-    const outputPath = splitStoragePath(appInfo.execution.output);
-
-    const data = JSON.parse(getV("input_text"));
-    if (!("with_log" in data)) {
-        data["with_log"] = true;
-        automaticLog = true;
+async function checkProgress() {
+    const progressInfo = await getAppProgress(appInfo.id);
+    setT("output_progress", JSON.stringify(progressInfo, null, 4))
+    if (progressInfo.status != "running") {
+        const logs = await getAppLogs(appInfo.id);
+        setLogs(logs.logs);
+        const result = await getAppResult(appInfo.id);
+        setOutput(result);
+        removeApp(appInfo.id);
     }
-    const res = await runApp(appInfo.id, data)
-    if ("log" in res) {
-        //setT("output_log", res.log);
-        const term = new Terminal({ convertEol: true });
-        term.open(getE("output_log"));
-        term.resize(120, 25);
-        term.write(res.log);
-        if (automaticLog) {
-            delete res['log'];
-        }
+    else {
+        setTimeout(checkProgress, 1000);
     }
-    setV("output_text", JSON.stringify(res));
+}
+
+function setLogs(logs) {
+    setT("output_log", logs);
+    /*
+    const term = new Terminal({ convertEol: true });
+    term.open(getE("output_log"));
+    term.resize(120, 25);
+    term.write(logs);
+    */
+}
+
+async function setOutput(res) {
+    setV("output_text", JSON.stringify(res, null, 4));
     if (res.image_path) {
         const image = new Image();
         image.src = createStorageFileURL(outputPath[0], `${outputPath[1]}/${res.image_path}`, true);
@@ -44,6 +46,26 @@ async function run() {
         const contents = await getStorageFileContent(outputPath[0], `${outputPath[1]}/${res.text_path}`, true);
         addE("output_data", createE("pre", contents));
     }
+}
+
+async function run() {
+    clearE("output_data");
+    clearE("output_log");
+    clearE("output_progress");
+    setV("output_text", "");
+
+    const data = JSON.parse(getV("input_text"));
+
+    const res = await runApp(appInfo.id, data);
+    if (res.container_id) {
+        // run with no_wait
+        setTimeout(checkProgress, 1000);
+        showTab("progress");
+        return;
+    }
+    const logs = await getAppLogs(appInfo.id);
+    setLogs(logs.logs);
+    setOutput(res);
 
     showTab("output");
 }
@@ -77,6 +99,7 @@ async function init() {
     }
     const tab = createTab([
         { id: "input", text: "입력 데이터" },
+        { id: "progress", text: "Progress" },
         { id: "log", text: "출력 로그" },
         { id: "output", text: "출력 데이터" }
     ]);

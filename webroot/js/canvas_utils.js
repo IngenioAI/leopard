@@ -18,6 +18,12 @@ class Canvas {
         context.clearRect(0, 0, canvas.width, canvas.height);
     }
 
+    drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH) {
+        const canvas = document.getElementById(this.canvasId);
+        const context = canvas.getContext('2d');
+        context.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);
+    }
+
     drawImageFit(image) {
         const canvas = document.getElementById(this.canvasId);
         let scale = 100.0;
@@ -41,6 +47,15 @@ class Canvas {
         context.rect(x, y, w, h);
         context.stroke();
         context.closePath();
+    }
+
+    fillText(x, y, text, font='18px Arial') {
+        const canvas = document.getElementById(this.canvasId);
+        const context = canvas.getContext('2d');
+        context.save();
+        context.font = font;
+        context.fillText(text, x, y);
+        context.restore();
     }
 }
 

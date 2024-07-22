@@ -1,22 +1,81 @@
-{
-    "id": "facenet",
-    "name": "얼굴인식기",
-    "type": "server",
-    "image": {
-        "tag": "leopard/facenet:1.0.0",
-        "build": {
-            "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
-            "update": false,
-            "apt": "",
-            "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
-            "additional_command": ""
+[
+    {
+        "id": "facenet",
+        "name": "FaceNet 얼굴인식",
+        "type": "server",
+        "image": {
+            "tag": "leopard/facenet:1.0.0",
+            "build": {
+                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "update": false,
+                "apt": "",
+                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/facenet/src",
+            "command_params": [],
+            "input": "storage/0/app/facenet/input",
+            "binds": [
+                ["/model", "storage/0/app/facenet/model"]
+            ],
+            "port": 12720
         }
     },
-    "execution": {
-        "src": "app/facenet/src",
-        "command_params": [],
-        "input": "storage/0/app/facenet/data",
-        "output": "storage/0/app/facenet/run",
-        "port": 12720
+    {
+        "id": "facenet_train",
+        "name": "FaceNet 학습/언러닝",
+        "type": "script",
+        "image": {
+            "tag": "leopard/facenet:1.0.0",
+            "build": {
+                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "update": false,
+                "apt": "",
+                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/facenet/src",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/facenet/input",
+            "output": "storage/0/app/facenet/output",
+            "run_path": "storage/0/app/facenet/run",
+            "binds": [
+                ["/dataset", "storage/0/app/facenet/data"],
+                ["/model", "storage/0/app/facenet/model"]
+            ]
+        }
+    },
+    {
+        "id": "vggface2_dataset",
+        "name": "VGGFace2 데이터 생성",
+        "type": "script",
+        "image": {
+            "tag": "leopard/facenet:1.0.0",
+            "build": {
+                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "update": false,
+                "apt": "",
+                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/facenet/src",
+            "main": "vggface2_data_gen.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/facenet/input",
+            "output": "storage/0/app/facenet/output",
+            "run_path": "storage/0/app/facenet/run",
+            "binds": [
+                ["/vggface2", "/data/hkroh/VGG-Face2"],
+                ["/dataset", "storage/0/app/facenet/data"]
+            ]
+        }
     }
-}
+]

@@ -1,0 +1,41 @@
+<LP-template use="basepage">
+
+    <LP-content name="head">
+        <style>
+            #view {
+                background-color: white;
+                max-width: 100%;
+                max-height: 100%;
+                position: relative;
+            }
+            #view canvas {
+                position: absolute;
+                background-color: transparent;
+            }
+        </style>
+        <script type="module" src="/js/canvas_utils.js"></script>
+        <script type="module" src="/js/dom_utils.js"></script>
+    </LP-content>
+
+    <LP-content name="main">
+        <div class="p-3" style="width:100%;">
+            <div class="container my-2">
+                <button type="button" class="btn btn-primary" id="fileupload_upload">얼굴 인식 파일 업로드</button>
+            </div>
+
+            <div id="view">
+                <canvas id="canvas1" style="display:none">
+                </canvas>
+                <canvas id="canvas2" style="display:none">
+                </canvas>
+                <canvas id="info_canvas1" style="display:none">
+                </canvas>
+            </div>
+
+        </div>
+    </LP-content>
+    <LP-content name="dialog">
+        <LP-include-html src="fileupload.html"></LP-include-html>
+        <LP-include-html src="messagebox.html"></LP-include-html>
+    </LP-content>
+</LP-template>

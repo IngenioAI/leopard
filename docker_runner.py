@@ -115,6 +115,14 @@ class DockerRunner():
 
             binds.append(f'{os.path.abspath(options["run_path"])}:/apprun')
 
+        if options is not None and "binds" in options:
+            binds_list = options["binds"]
+            for bind_info in binds_list:
+                target_path, src_path = bind_info
+                if not os.path.exists(src_path):
+                    os.makedirs(src_path)
+                binds.append(f'{os.path.abspath(src_path)}:{target_path}')
+
         #print("Binds:", binds)
         if isinstance(command, str):
             command_list = command.split(" ")

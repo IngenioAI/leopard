@@ -20,7 +20,8 @@ function getAppRunLink(appInfo) {
     const linkInfo = [
         ["mtcnn", "face_detect.html"],
         ["faker", "faker.html"],
-        ["presidio", "presidio.html"]
+        ["presidio", "presidio.html"],
+        ["facenet", "facenet.html"]
     ];
     for (const info of linkInfo) {
         if (info[0] == appInfo.id) {

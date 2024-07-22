@@ -156,6 +156,34 @@ async def run_app(module_id: str, req: Request):
     res = app_manager.run(module_id, params)
     return JSONResponseHandler(res)
 
+@app.get("/api/app/progress/{module_id}", tags=["App"])
+async def get_app_progress(module_id: str):
+    res = app_manager.get_progress(module_id)
+    return JSONResponseHandler(res)
+
+@app.get("/api/app/logs/{module_id}", tags=["App"])
+async def get_app_logs(module_id: str):
+    logs = app_manager.get_logs(module_id)
+    return JSONResponseHandler({
+        "success": True,
+        "logs": logs
+    })
+
+@app.get("/api/app/result/{module_id}", tags=["App"])
+async def get_app_result(module_id: str):
+    res = app_manager.get_result(module_id)
+    return JSONResponseHandler(res)
+
+@app.get("/api/app/stop/{module_id}", tags=["App"])
+async def stop_app(module_id: str):
+    res = app_manager.stop_app(module_id)
+    return JSONResponseHandler(res)
+
+@app.get("/api/app/remove/{module_id}", tags=["App"])
+async def remove_app(module_id: str):
+    res = app_manager.remove_app(module_id)
+    return JSONResponseHandler(res)
+
 @app.get("/api/system/info", tags=["System"])
 async def get_sys_info():
     return JSONResponseHandler(sys_info.get_system_info())

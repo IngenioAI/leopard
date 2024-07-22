@@ -27,6 +27,15 @@ function HTTPErrorHandler(err) {
     }
 }
 
+async function GetJsonHandler(url) {
+    try {
+        const res = await http_get(url);
+        return JSON.parse(res);
+    } catch(err) {
+        return HTTPErrorHandler(err);
+    }
+}
+
 // IMAGE
 export async function createExecImage(item) {
     const res = await http_post('/api/image/create', item);
@@ -221,13 +230,33 @@ export async function getAppList() {
     return JSON.parse(res);
 }
 
-export async function runApp(appName, params) {
+export async function runApp(appId, params) {
     try {
-        const res = await http_post(`/api/app/run/${appName}`, params);
+        const res = await http_post(`/api/app/run/${appId}`, params);
         return JSON.parse(res);
     } catch(err) {
         return HTTPErrorHandler(err);
     }
+}
+
+export async function getAppProgress(appId) {
+    return GetJsonHandler(`/api/app/progress/${appId}`);
+}
+
+export async function getAppLogs(appId) {
+    return GetJsonHandler(`/api/app/logs/${appId}`)
+}
+
+export async function getAppResult(appId) {
+    return GetJsonHandler(`/api/app/result/${appId}`);
+}
+
+export async function stopApp(appId) {
+    return GetJsonHandler(`/api/app/stop/${appId}`);
+}
+
+export async function removeApp(appId) {
+    return GetJsonHandler(`/api/app/remove/${appId}`);
 }
 
 // SYSINFO

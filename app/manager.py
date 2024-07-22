@@ -20,7 +20,11 @@ class AppManager():
             appinfo_path = os.path.join(appinfo_dir, "appinfo.json")
             if os.path.isdir(appinfo_dir) and os.path.exists(appinfo_path):
                 with open(appinfo_path, "rt", encoding="utf-8") as fp:
-                    self.app_info.append(json.load(fp))
+                    appinfo = json.load(fp)
+                    if type(appinfo) == list:
+                        self.app_info += appinfo
+                    else:
+                        self.app_info.append(appinfo)
 
         for info in self.app_info:
             if 'module' in info and 'class' in info:
@@ -35,6 +39,36 @@ class AppManager():
         for info in self.app_info:
             if info['id'] == module_id:
                 return self.apps[module_id].run(params)
+        return None
+
+    def get_progress(self, module_id):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                return self.apps[module_id].get_progress()
+        return None
+
+    def get_logs(self, module_id):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                return self.apps[module_id].logs()
+        return None
+
+    def get_result(self, module_id):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                return self.apps[module_id].get_result()
+        return None
+
+    def stop_app(self, module_id):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                return self.apps[module_id].stop(remove=False)
+        return None
+
+    def remove_app(self, module_id):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                return self.apps[module_id].remove()
         return None
 
     def stop(self):

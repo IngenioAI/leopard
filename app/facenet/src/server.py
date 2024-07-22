@@ -1,8 +1,9 @@
 '''
-    Facenet as server
+    Facenet inference server
 '''
 import argparse
 import os
+import json
 import torch
 import PIL
 from torchvision import transforms
@@ -16,10 +17,17 @@ import uvicorn
 app = FastAPI()
 
 class FaceNetServer():
-    def __init__(self, model_path):
-        self.num_classes = 10
-        self.freeze = False
+    def __init__(self, model_path, label_path=None, freeze=False):
+        self.freeze = freeze
         self.model_path = model_path
+
+        if label_path is not None:
+            with open(label_path, "rt", encoding="utf-8") as fp:
+                self.label = json.load(fp)
+            self.num_classes = len(self.label.items())
+        else:
+            self.label = None
+            self.num_classes = 10
 
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -45,13 +53,14 @@ class FaceNetServer():
         self.model.to(self.device)
         if os.path.exists(self.model_path):
             self.model.load_state_dict(torch.load(self.model_path))
+        else:
+            print("Trained model is NOT found:", self.model_path)
 
         self.mtcnn = MTCNN(
             image_size=160, margin=0, min_face_size=20,
             thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
             device=self.device
         )
-
 
     def face_recognize(self, image_path):
         trans = transforms.Compose([
@@ -71,9 +80,10 @@ class FaceNetServer():
             faces = torch.stack(faces, dim=0).to(self.device)
             self.model.eval()
             outputs = self.model(faces)
+            outputs = outputs.tolist()
         else:
             outputs = []
-        return boxes.tolist(), probs.tolist(), outputs.tolist()
+        return boxes.tolist(), probs.tolist(), outputs
 
 @app.get("/api/ping")
 async def server_ping():
@@ -89,25 +99,25 @@ async def run_app(req: Request):
     boxes, probs, preds = app.model.face_recognize(image_path)
     return JSONResponse({
         "boxes": boxes,
-        "probabilities": probs,
+        "face_confidence": probs,
         "predictions": preds,
-        "max_index": [p.index(max(p)) for p in preds]
+        "max_index": [p.index(max(p)) for p in preds],
+        "label": app.model.label
     })
 
 def web_main(args):
     app.args = args
-    app.model = FaceNetServer(args.model_path)
+    app.model = FaceNetServer(args.model_path, label_path=args.label_path)
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--mode", type=str, default="inference")        # inference / train / unlearning
-    parser.add_argument("--model_path", type=str, default="model/VGGFace2_10.pth")
+    parser.add_argument("--model_path", type=str, default="/model/my_model/model.pth")
+    parser.add_argument("--label_path", type=str, default="/model/my_model/class_to_idx.json")
     parser.add_argument('--port', type=int, default=12720)
     return parser.parse_args()
 
 
 if __name__ == '__main__':
-    args = parse_arguments()
-    web_main(args)
+    web_main(parse_arguments())
