@@ -5,17 +5,38 @@ import { runApp, createStorageFolder } from "/js/service.js";
 
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showInputDialogBox } from "/js/dialog/input.js";
 
 let canvas1, canvas2, info_canvas;
 let scale = 1.0;
-let imagePath = undefined;
 let image = null;
 let faceInfo = null;
+
+async function loadModel() {
+    const modelName = await showInputDialogBox("불러올 모델의 이름을 입력합니다.", "모델 불러오기", async (name) => {
+        if (!name) {
+            showMessageBox("모델 이름을 입력하세요", "모델 불러오기");
+            return false;
+        }
+        return true;
+    });
+
+    if (modelName) {
+        const res = await runApp("facenet", { mode: 'load', model_name: modelName });
+        console.log(res);
+        if (res.success) {
+            showMessageBox("모델 불러오기가 완료되었습니다.", "모델 불러오기");
+        }
+        else {
+            showMessageBox("모델 불러오기에 실패했습니다.<br/> " + res.message, "모델 불러오기");
+        }
+    }
+}
 
 async function uploadFile() {
     const res = await showFileUploadDialogBox('0', 'app/facenet/input');
     if (res.success) {
-        imagePath = res.files[0];
+        const imagePath = res.files[0];
         const imageUrl = createStorageFileURL("0", joinPath("app/facenet/input", imagePath));
         image = await loadImage(imageUrl);
         canvas1.clear();
@@ -23,12 +44,37 @@ async function uploadFile() {
         info_canvas.clear();
         scale = canvas1.drawImageFit(image);
 
-        recognizeFace();
+        recognizeFace('file', imagePath);
     }
 }
 
-async function recognizeFace() {
-    faceInfo = await runApp("facenet", { mode: 'inference', image_path: imagePath });
+async function uploadUrl() {
+    const url = await showInputDialogBox("이미지의 URL을 입력합니다.", "이미지 불러오기", async (name) => {
+        if (!name) {
+            showMessageBox("URL을 입력하세요", "이미지 불러오기");
+            return false;
+        }
+        return true;
+    });
+    if (url) {
+        const imageUrl = url;
+        image = await loadImage(imageUrl);
+        canvas1.clear();
+        canvas2.clear();
+        info_canvas.clear();
+        scale = canvas1.drawImageFit(image);
+
+        recognizeFace('url', url);
+    }
+}
+
+async function recognizeFace(type, location) {
+    if (type == 'file') {
+        faceInfo = await runApp("facenet", { mode: 'inference', image_path: location });
+    }
+    else {
+        faceInfo = await runApp("facenet", { mode: 'inference', image_url: location })
+    }
 
     console.log(faceInfo);
 
@@ -130,7 +176,8 @@ function init() {
     info_canvas.init(960, 540+320);
 
     getE("fileupload_upload").addEventListener("click", uploadFile);
-
+    getE("url_upload").addEventListener("click", uploadUrl);
+    getE("model_load").addEventListener("click", loadModel);
     getE("info_canvas1").addEventListener('mouseup', onMouseUp, false);
 }
 

@@ -20,7 +20,9 @@
     <LP-content name="main">
         <div class="p-3" style="width:100%;">
             <div class="container my-2">
-                <button type="button" class="btn btn-primary" id="fileupload_upload">얼굴 인식 파일 업로드</button>
+                <button type="button" class="btn btn-primary" id="model_load">모델 로드</button>
+                <button type="button" class="btn btn-primary" id="fileupload_upload">파일 업로드</button>
+                <button type="button" class="btn btn-primary" id="url_upload">URL</button>
             </div>
 
             <div id="view">
@@ -35,6 +37,7 @@
         </div>
     </LP-content>
     <LP-content name="dialog">
+        <LP-include-html src="input.html"></LP-include-html>
         <LP-include-html src="fileupload.html"></LP-include-html>
         <LP-include-html src="messagebox.html"></LP-include-html>
     </LP-content>

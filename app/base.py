@@ -135,7 +135,7 @@ class App():
             return json.load(resp)
         except error.HTTPError as e:
             print(e)
-            logs = self.logs(self.container_id)
+            logs = self.logs()
             return {
                 "success": False,
                 "error_message": e.reason,

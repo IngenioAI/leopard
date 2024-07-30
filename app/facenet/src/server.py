@@ -4,8 +4,13 @@
 import argparse
 import os
 import json
+import urllib.request
+from urllib.parse import urlparse
+
 import torch
+import numpy as np
 import PIL
+
 from torchvision import transforms
 from facenet_pytorch import MTCNN, InceptionResnetV1
 
@@ -80,7 +85,12 @@ class FaceNetServer():
             faces = torch.stack(faces, dim=0).to(self.device)
             self.model.eval()
             outputs = self.model(faces)
-            outputs = outputs.tolist()
+            softmax_outputs = []
+            for output in outputs.tolist():
+                output_exp = np.exp(output)
+                output = output_exp / sum(output_exp)
+                softmax_outputs.append(output.tolist())
+            outputs = softmax_outputs
         else:
             outputs = []
         return boxes.tolist(), probs.tolist(), outputs
@@ -95,15 +105,36 @@ async def server_ping():
 async def run_app(req: Request):
     params = await req.json()
     print(params)
-    image_path = os.path.join("/data/input", params['image_path'])
-    boxes, probs, preds = app.model.face_recognize(image_path)
-    return JSONResponse({
-        "boxes": boxes,
-        "face_confidence": probs,
-        "predictions": preds,
-        "max_index": [p.index(max(p)) for p in preds],
-        "label": app.model.label
-    })
+    mode = params.get("mode", "inference")
+    if mode == "inference":
+        if 'image_url' in params:
+            image_url = params['image_url']
+            image_url_info = urlparse(image_url)
+            image_path = os.path.join("/data/input", os.path.basename(image_url_info.path))
+            urllib.request.urlretrieve(image_url, image_path)
+        elif 'image_path' in params:
+            image_path = os.path.join("/data/input", params['image_path'])
+        boxes, probs, preds = app.model.face_recognize(image_path)
+        return JSONResponse({
+            "boxes": boxes,
+            "face_confidence": probs,
+            "predictions": preds,
+            "max_index": [p.index(max(p)) for p in preds],
+            "label": app.model.label
+        })
+    elif mode == "load":
+        model_path = os.path.join("/model", params["model_name"], "model.pth")
+        label_path = os.path.join("/model", params["model_name"], "class_to_idx.json")
+        if os.path.exists(model_path):
+            app.model = FaceNetServer(model_path, label_path = label_path)
+            return JSONResponse({
+                "success": True
+            })
+        else:
+            return JSONResponse({
+                "success": False,
+                "message": "Model not found"
+            })
 
 def web_main(args):
     app.args = args
@@ -113,8 +144,8 @@ def web_main(args):
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_path", type=str, default="/model/my_model/model.pth")
-    parser.add_argument("--label_path", type=str, default="/model/my_model/class_to_idx.json")
+    parser.add_argument("--model_path", type=str, default="/model/my_unlearn/model.pth")
+    parser.add_argument("--label_path", type=str, default="/model/my_unlearn/class_to_idx.json")
     parser.add_argument('--port', type=int, default=12720)
     return parser.parse_args()
 

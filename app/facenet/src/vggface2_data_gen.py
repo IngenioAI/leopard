@@ -51,7 +51,8 @@ def main(args):
         })
         save_result({
             "name": "dataset01",
-            "count": 10
+            "count": 10,
+            "korean_ratio": 1.0
         }, args.output)
         return
 
@@ -75,12 +76,41 @@ def main(args):
     with open(os.path.join("/vggface2/meta", "identity_meta.csv"), "rt", encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',', skipinitialspace=True)
         for row in csvreader:
-            class_list.append((row[0], row[1], row[3]))
+            class_list.append((row[0], row[1], row[3]))     # class_id, name, flag
     class_list = class_list[1:]     # skip header
     total_count = len(class_list)
     print("Total class count:", total_count)
-    sample_index = random.sample(range(total_count), count)
-    samples = [class_list[x] for x in sample_index]
+
+    korean_ratio = input_params.get("korean_ratio", 0.0)
+    if korean_ratio > 0:
+        with open("korean.json", "rt", encoding="utf-8") as fp:
+            korean_info = json.load(fp)
+        filtered_list = []
+        for class_info in class_list:
+            class_name = class_info[1]
+            is_korean = False
+
+            if class_name in korean_info["include"]:
+                is_korean = True
+
+            if not is_korean:
+                for korean_prefix in korean_info["prefix"]:
+                    if class_name.startswith(korean_prefix):
+                        is_korean = True
+                        break
+                if is_korean and class_name in korean_info["exclude"]:
+                    is_korean = False
+
+            if is_korean:
+                filtered_list.append(class_info)
+        filtered_count = len(filtered_list)
+        print("Total Korean Count:", filtered_count)
+    else:
+        filtered_list = class_list
+        filtered_count = len(filtered_list)
+
+    sample_index = random.sample(range(filtered_count), count)
+    samples = [filtered_list[x] for x in sample_index]
 
     mtcnn_params = input_params.get("mtcnn", {})
     mtcnn = MTCNN(

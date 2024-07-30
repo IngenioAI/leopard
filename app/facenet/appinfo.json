@@ -39,6 +39,7 @@
         },
         "execution": {
             "src": "app/facenet/src",
+            "main": "train.py",
             "wait": false,
             "command_params": [],
             "input": "storage/0/app/facenet/input",
