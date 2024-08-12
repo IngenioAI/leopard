@@ -1,0 +1,10 @@
+__pycache__
+.vscode
+log_*
+data
+weights
+shadows
+env
+*.pt
+densnet.py
+resnet.py

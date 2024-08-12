@@ -1,0 +1,6 @@
+Privacy_Meter==1.0.1
+tensorflow_privacy==0.8.12
+torch==2.1.2
+torchvision==0.16.2
+opacus==1.4.0
+

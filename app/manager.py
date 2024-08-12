@@ -21,10 +21,11 @@ class AppManager():
             if os.path.isdir(appinfo_dir) and os.path.exists(appinfo_path):
                 with open(appinfo_path, "rt", encoding="utf-8") as fp:
                     appinfo = json.load(fp)
-                    if type(appinfo) == list:
-                        self.app_info += appinfo
-                    else:
-                        self.app_info.append(appinfo)
+                    if type(appinfo) != list:
+                        appinfo = [appinfo]
+                    for info in appinfo:
+                        if info.get("enable", True):
+                            self.app_info.append(info)
 
         for info in self.app_info:
             if 'module' in info and 'class' in info:

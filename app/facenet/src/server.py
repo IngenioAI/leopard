@@ -135,6 +135,13 @@ async def run_app(req: Request):
                 "success": False,
                 "message": "Model not found"
             })
+    elif mode == "list_model":
+        list_models = os.listdir("/model")
+        return JSONResponse({
+            "success": True,
+            "list_models": list_models
+        })
+
 
 def web_main(args):
     app.args = args

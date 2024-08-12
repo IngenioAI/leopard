@@ -4,18 +4,39 @@ import { getStorageFileContent, runApp, getAppList, getAppProgress, getAppLogs, 
 
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 import { createTab, showTab } from "/js/control/tab.js";
+import { createFormGroup, getFormGroupData } from "/js/form_group.js";
 
 const Terminal = window.Terminal;
+let terminal = null;
+let lastTerminalPos = 0;
 const getQueryParam = window.getQueryParam;
 
 let appInfo;
 
+function createTerminal(divElem) {
+    const terminal = new Terminal({ convertEol: true });
+    terminal.open(divElem);
+    terminal.resize(120, 25);
+    lastTerminalPos = 0;
+    return terminal;
+}
+
+function setTerminalLog(terminal, logs) {
+    terminal.write(logs.substring(lastTerminalPos));
+    lastTerminalPos = logs.length;
+}
+
+function resetTerminal() {
+    terminal = null;
+    lastTerminalPos = 0
+}
+
 async function checkProgress() {
     const progressInfo = await getAppProgress(appInfo.id);
     setT("output_progress", JSON.stringify(progressInfo, null, 4))
+    const logs = await getAppLogs(appInfo.id);
+    setLogs(logs.logs);
     if (progressInfo.status != "running") {
-        const logs = await getAppLogs(appInfo.id);
-        setLogs(logs.logs);
         const result = await getAppResult(appInfo.id);
         setOutput(result);
         removeApp(appInfo.id);
@@ -26,13 +47,13 @@ async function checkProgress() {
 }
 
 function setLogs(logs) {
-    setT("output_log", logs);
-    /*
-    const term = new Terminal({ convertEol: true });
-    term.open(getE("output_log"));
-    term.resize(120, 25);
-    term.write(logs);
-    */
+    if (terminal == null) {
+        terminal = createTerminal(getE("output_log"));
+    }
+
+    if (logs.length > lastTerminalPos) {
+        setTerminalLog(terminal, logs);
+    }
 }
 
 async function setOutput(res) {
@@ -53,8 +74,15 @@ async function run() {
     clearE("output_log");
     clearE("output_progress");
     setV("output_text", "");
+    resetTerminal();
 
-    const data = JSON.parse(getV("input_text"));
+    let data = null;
+    if (appInfo.input_form_spec) {
+        data = getFormGroupData(appInfo.input_form_spec, null, "GT_");
+    }
+    else {
+        data = JSON.parse(getV("input_text"));
+    }
 
     const res = await runApp(appInfo.id, data);
     if (res.container_id) {
@@ -107,6 +135,13 @@ async function init() {
 
     getE("upload_file_button").addEventListener("click", uploadFile);
     getE("run_button").addEventListener("click", run);
+
+    if (appInfo.input_form_spec) {
+        getE("input_textarea").style = "display:none";
+        getE("input_form").style = "display:block";
+        const forms = createFormGroup(appInfo.input_form_spec, null, "GT_");
+        addE("input_form", forms);
+    }
 }
 
 init();

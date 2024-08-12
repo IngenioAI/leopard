@@ -1,6 +1,7 @@
 {
     "id": "mtcnn",
     "name": "얼굴검출 (MTCNN)",
+    "enable": false,
     "type": "server",
     "image": {
         "tag": "leopard/mtcnn:1.0.1",

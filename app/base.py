@@ -41,6 +41,8 @@ class App():
         exec_info = self.config['execution']
         print(exec_info)
 
+        self.last_logs = ""
+
         self.run_params = params
 
         is_server = self.config['type'] == "server"

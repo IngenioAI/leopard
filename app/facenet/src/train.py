@@ -23,7 +23,7 @@ def load_data(data_path, batch_size):
     save_progress({
         "status": "running",
         "stage": 1,
-        "message": f"Data Loading",
+        "message": "Data Loading"
     })
     trans = transforms.Compose([
         transforms.Resize((160, 160)),
@@ -45,7 +45,7 @@ def load_unlearning_data(data_path, forget_class_idx, batch_size):
     save_progress({
         "status": "running",
         "stage": 1,
-        "message": f"Data Loading for Unlearning",
+        "message": "Data Loading for Unlearning"
     })
     trans = transforms.Compose([
         transforms.Resize((160, 160)),
@@ -192,7 +192,7 @@ class FaceNet():
         save_progress({
             "status": "done",
             "stage": 4,
-            "message": f"Model Save"
+            "message": "Model Save"
         })
 
 
@@ -200,12 +200,12 @@ class FaceNet():
         save_progress({
             "status": "running",
             "stage": 2,
-            "message": f"Model Training",
+            "message": "Model Training",
         })
         total_start = time.time()
         loss_fn = torch.nn.CrossEntropyLoss()
         optimizer = optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-        scheduler = MultiStepLR(optimizer, [5, 10])
+        #scheduler = MultiStepLR(optimizer, [5, 10])
         acc_list = []
         loss_list = []
         for i in range(epochs):
@@ -223,7 +223,7 @@ class FaceNet():
                 "loss": loss_list
             })
 
-            scheduler.step()
+            #scheduler.step()
         torch.cuda.synchronize()
         print(f'Training time: {time.time()-total_start:.3f}\n')
         test_acc, test_loss = self.evaluate(test_loader, loss_fn)
@@ -232,7 +232,7 @@ class FaceNet():
         save_progress({
             "status": "running",
             "stage": 3,
-            "message": f"Model Evaluation",
+            "message": "Model Evaluation",
             "acc": test_acc,
             "loss": test_loss
         })
@@ -243,7 +243,7 @@ class FaceNet():
         save_progress({
             "status": "running",
             "stage": 2,
-            "message": f"Model Unlearning",
+            "message": "Model Unlearning",
         })
         original_model = self.model.to(self.device)
         unlearn_model = deepcopy(original_model).to(self.device)
@@ -327,13 +327,7 @@ def save_label(label_path, class_to_idx):
         with open(label_path, "wt", encoding="utf-8") as fp:
             json.dump(class_to_idx, fp)
 
-
-def main(args):
-    clear_progress()
-
-    with open(os.path.join("/data/input", args.input), "rt", encoding="utf-8") as fp:
-        input_params = json.load(fp)
-
+def train(input_params):
     try:
         save_progress({
             "status": "running",
@@ -357,12 +351,12 @@ def main(args):
 
             save_label(label_path, class_to_idx)
 
-            save_result({
+            return {
                 "train_loss": train_loss,
                 "train_acc": train_acc,
                 "test_loss": test_loss,
                 "test_acc": test_acc
-            }, args.output)
+            }
         elif mode == "unlearn":
             max_epochs = input_params.get("epochs", 2)
             forget_class_index = input_params["forget_class_index"]
@@ -375,29 +369,39 @@ def main(args):
             label_path = os.path.join("/model", unlearn_model_name, "class_to_idx.json")
             save_label(label_path, class_to_idx)
 
-            save_result({
+            return {
                 "test_forget_loss": test_forget_loss,
                 "test_forget_acc": test_forget_acc,
                 "test_retain_loss": test_retain_loss,
                 "test_retain_acc": test_retain_acc
-            }, args.output)
+            }
 
     except KeyError as e:
         print("KeyError:", e)
         save_progress({
             "status": "done"
         })
-        save_result([{
+        return [{
             "mode": "train",
-            "model_name": "my_model",
+            "model_name": "model01",
             "dataset": "dataset01"
         }, {
             "mode": "unlearn",
-            "model_name": "my_model",
+            "model_name": "model01",
             "dataset": "dataset01",
-            "unlearn_model_name": "my_unlearn",
+            "unlearn_model_name": "unlearn01",
             "forget_class_index": 1
-        }], args.output)
+        }]
+
+def main(args):
+    clear_progress()
+
+    with open(os.path.join("/data/input", args.input), "rt", encoding="utf-8") as fp:
+        input_params = json.load(fp)
+
+    ret = train(input_params)
+    save_result(ret, args.output)
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

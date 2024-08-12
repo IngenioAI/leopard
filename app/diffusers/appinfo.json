@@ -1,6 +1,7 @@
 {
     "id": "diffusers",
     "name": "Stable Diffusion 이미지 생성",
+    "enable": false,
     "type": "script",
     "image": {
         "tag": "leopard/diffusers:1.0.1",

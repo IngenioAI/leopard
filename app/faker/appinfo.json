@@ -1,6 +1,7 @@
 {
     "id": "faker",
     "name": "페이커 (Faker) 데이터 생성기",
+    "enable": false,
     "type": "script",
     "image": {
         "tag": "leopard/faker:1.0.1",
