@@ -58,12 +58,12 @@ function setLogs(logs) {
 
 async function setOutput(res) {
     setV("output_text", JSON.stringify(res, null, 4));
-    if (res.image_path) {
+    if (res && res.image_path) {
         const image = new Image();
         image.src = createStorageFileURL(outputPath[0], `${outputPath[1]}/${res.image_path}`, true);
         addE("output_data", image);
     }
-    else if (res.text_path) {
+    else if (res && res.text_path) {
         const contents = await getStorageFileContent(outputPath[0], `${outputPath[1]}/${res.text_path}`, true);
         addE("output_data", createE("pre", contents));
     }

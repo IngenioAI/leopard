@@ -11,9 +11,21 @@ from _utils.data import ShadowStats
 from attacks.config import aconf
 from target.tf_target import train
 from target.torch_target import torch_train
+from target.utils import save_progress
 
 seed = 123
 np.random.seed(seed)
+
+
+def epoch_callback(epoch, max_epochs, train_acc, train_loss, message):
+    save_progress({
+        "status": "running",
+        "message": message,
+        "epoch": epoch,
+        "max_epochs": max_epochs,
+        "train_acc": train_acc,
+        "train_loss": train_loss
+    })
 
 
 def get_shadow_stats(model, num_class, tdata, is_torch=False):
@@ -39,11 +51,15 @@ def get_shadow_stats(model, num_class, tdata, is_torch=False):
         tdata.test_data = x[~in_indices[-1]]
         tdata.test_labels = y[~in_indices[-1]]
 
-        print(
-            f'Training shadow model #{i} with {in_indices[-1].sum()} examples.')
+        print(f'Training shadow model #{i} with {in_indices[-1].sum()} examples.')
+
+        save_progress({
+            "status": "running",
+            "message": f"Training shadow model #{i}"
+        })
 
         if is_torch:
-            torch_train(model, num_class, tdata, shadow_path)
+            torch_train(model, num_class, tdata, shadow_path, epoch_callback=epoch_callback, callback_message=f"Training shadow model #{i}")
         else:
             train(shadow_path, num_class=num_class, tdata=tdata)
 
@@ -75,6 +91,7 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
     train_len = stat_target_train.shape[0]
     test_len = stat_target_test.shape[0]
 
+    result_list = []
     for idx in range(aconf['n_shadows']):
         stat_shadow = np.array(shdata.stat[:idx] + shdata.stat[idx + 1:])
         in_indices_shadow = np.array(
@@ -89,6 +106,10 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
         scores_out = amia.compute_score_lira(
             stat_target_test, stat_in[:test_len], stat_out[:test_len], fix_variance=True)
 
+        save_progress({
+            "status": "running",
+            "message": "Running LiRA attack with Gaussian"
+        })
         attack_input = AttackInputData(
             loss_train=scores_in,
             loss_test=scores_out,
@@ -100,6 +121,11 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
         print('LiRA attack with Gaussian:',
               f'auc = {result_lira.get_auc():.4f}',
               f'adv = {result_lira.get_attacker_advantage():.4f}')
+
+        save_progress({
+            "status": "running",
+            "message": "Running LiRA attack with offset"
+        })
 
         # Computing LiRA offset
         scores_in = - \
@@ -117,6 +143,11 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
               f'auc = {result_offset.get_auc():.4f}',
               f'adv = {result_offset.get_attacker_advantage():.4f}')
 
+        save_progress({
+            "status": "running",
+            "message": "Running LiRA attack with baseline"
+        })
+
         # Computing LiRA baseline
         attack_input.loss_train = loss_target_train.flatten()
         attack_input.loss_test = loss_target_test.flatten()
@@ -127,3 +158,19 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
         print('LiRA baseline attack:',
               f'auc = {result_baseline.get_auc():.4f}',
               f'adv = {result_baseline.get_attacker_advantage():.4f}')
+
+        result_list.append({
+            "gaussian": {
+                "auc": result_lira.get_auc(),
+                "advantage": result_lira.get_attacker_advantage()
+            },
+            "offset": {
+                "auc": result_offset.get_auc(),
+                "advantage": result_offset.get_attacker_advantage()
+            },
+            "baseline": {
+                "auc": result_baseline.get_auc(),
+                "advantage": result_baseline.get_attacker_advantage()
+            }
+        })
+    return result_list

@@ -39,7 +39,7 @@
                 "title": "데이터셋",
                 "type": "select",
                 "values": ["cifar10", "cifar100"],
-                "default": "cifar10"
+                "default": "cifar100"
             },
             {
                 "id": "defense",
@@ -130,6 +130,38 @@
                 ["/dataset", "storage/0/app/mia/data"],
                 ["/model", "storage/0/app/mia/model"]
             ]
-        }
+        },
+        "input_form_spec": [
+            {
+                "id": "model_path",
+                "title": "모델 경로",
+                "type": "test"
+            },
+            {
+                "id": "train",
+                "title": "새로 학습",
+                "type": "bool",
+                "default": false
+            },
+            {
+                "id": "dp_on",
+                "title": "새로 학습시 Differential Privacy 사용 (tensorflow)",
+                "type": "bool",
+                "default": false
+            },
+            {
+                "id": "n_class",
+                "title": "클래스 개수",
+                "type": "number",
+                "default": 100
+            },
+            {
+                "id": "attack",
+                "title": "공격 방식",
+                "type": "select",
+                "values": ["custom", "lira", "population", "reference", "shadow"],
+                "default": "custom"
+            }
+        ]
     }
 ]

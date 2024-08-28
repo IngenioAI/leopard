@@ -129,3 +129,21 @@ def plot_curve_with_area(x, y, xlabel, ylabel, ax, label, title=None):
     ax.set(xlabel=xlabel, ylabel=ylabel)
     ax.set(aspect=1, xscale='log', yscale='log')
     ax.title.set_text(title)
+
+def convert_result_list(audit_result_list):
+    result_list = []
+    for audit_result in audit_result_list:
+        result = dict()
+        item_key = ['metric_id', 'roc_auc']
+        list_key = ['accuracy','tn', 'tp', 'fp', 'fn']
+        for item in item_key:
+            result[item] = audit_result.__dict__[item]
+        for item in list_key:
+            if type(audit_result.__dict__[item]) == np.ndarray:
+                result[item] = audit_result.__dict__[item].tolist()
+            elif type(audit_result.__dict__[item]) == np.int64:
+                result[item] = int(audit_result.__dict__[item])
+            else:
+                result[item] = audit_result.__dict__[item]
+        result_list.append(result)
+    return result_list

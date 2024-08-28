@@ -4,7 +4,7 @@ import argparse
 import warnings
 import pprint
 
-from target.utils import clear_progress, save_result
+from target.utils import clear_progress, save_progress, save_result
 
 from attack_runner import runner
 
@@ -33,6 +33,9 @@ def main(args):
 
     ret = attack(input_params)
     save_result(ret, args.output)
+    save_progress({
+        "status": "done"
+    })
 
 
 def parse_arguments():

@@ -3,12 +3,24 @@ import json
 from torch_target_defense import run
 import argparse
 
-from utils import clear_progress, save_result
+from utils import clear_progress, save_result, save_progress
+
+
+def epoch_callback(epoch, max_epochs, train_acc, train_loss, val_acc, val_loss):
+    save_progress({
+        "status": "running",
+        "epoch": epoch,
+        "max_epochs": max_epochs,
+        "train_acc": train_acc,
+        "train_loss": train_loss,
+        "val_acc": val_acc,
+        "val_loss": val_loss
+    })
 
 def train(params):
     if "model_name" in params:
         args = argparse.Namespace(**params)
-        return run(args)
+        return run(args, epoch_callback=epoch_callback)
     else:
         return {
             "model_name": "resnet20",
@@ -34,6 +46,9 @@ def main(args):
 
     ret = train(input_params)
     save_result(ret, args.output)
+    save_progress({
+        "status": "done"
+    })
 
 
 def parse_arguments():

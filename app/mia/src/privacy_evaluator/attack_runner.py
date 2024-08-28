@@ -55,16 +55,16 @@ def runner(args):
         return run_custom_attacks(attack_input)
 
     elif attack == 'lira':
-        run_advanced_attack(model, n_class, tdata, is_torch)
+        return run_advanced_attack(model, n_class, tdata, is_torch)
 
     elif attack == 'population':
-        run_population_metric(tdata, model, n_class, is_torch)
+        return run_population_metric(tdata, model, n_class, is_torch)
 
     elif attack == 'reference':
-        run_reference_metric(tdata, model, n_class, is_torch)
+        return run_reference_metric(tdata, model, n_class, is_torch)
 
     elif attack == 'shadow':
-        run_shadow_metric(tdata, model, n_class, is_torch)
+        return run_shadow_metric(tdata, model, n_class, is_torch)
 
     else:
         raise NotImplementedError('The other type of attacks not implemented!')

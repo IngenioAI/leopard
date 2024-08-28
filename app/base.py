@@ -185,9 +185,13 @@ class App():
             progress_path = os.path.join(self.config['execution']['run_path'], "progress.json")
             if os.path.exists(progress_path):
                 with open(progress_path, "rt", encoding="utf-8") as fp:
-                    progress_info = json.load(fp)
-                    if not status and progress_info["status"] == "running":
-                        progress_info["status"] = "exited"
+                    try:
+                        progress_info = json.load(fp)
+                        if not status and progress_info["status"] == "running":
+                            progress_info["status"] = "exited"
+                    except (json.decoder.JSONDecodeError):
+                        progress_info = { "status": "running", "message": "json error"}
+
                     return progress_info
         return {
             "status": "running" if status else "done"

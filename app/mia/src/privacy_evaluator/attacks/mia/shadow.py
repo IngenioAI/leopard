@@ -9,6 +9,8 @@ from _utils.helper import get_trg_ref_data
 from attacks.config import priv_meter as pm
 from attacks.config import device
 
+from _utils.helper import convert_result_list
+
 
 def run_shadow_metric(tdata, model, num_class, is_torch):
     target_dataset = get_trg_ref_data(tdata, num_class=num_class)
@@ -53,11 +55,16 @@ def run_shadow_metric(tdata, model, num_class, is_torch):
         inference_game_type=InferenceGame.PRIVACY_LOSS_MODEL,
         target_info_sources=target_info_source,
         reference_info_sources=reference_info_source,
-        # save_logs=False
+        logs_directory_names=["/apprun"],
+        save_logs=True
     )
     print("Preparing shadow metric attack....")
     audit.prepare()
 
     print("Starting shadow metric attack....")
-    result = audit.run()[0]
-    print(result)
+    audit_results = audit.run()
+    print(audit_results[0])
+
+    print(audit_results[0].__dict__)
+    results = convert_result_list(audit_results)
+    return results[0]

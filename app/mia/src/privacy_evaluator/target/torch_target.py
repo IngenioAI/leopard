@@ -78,7 +78,7 @@ def torch_predict(model, dataset):
     return logits
 
 
-def torch_train(model, num_class, dataset=None, checkpoint_path=None):
+def torch_train(model, num_class, dataset=None, checkpoint_path=None, epoch_callback=None, callback_message=None):
     criterion = torch.nn.CrossEntropyLoss()
     optimizer = torch.optim.Adam(model.parameters(), lr=aconf['lr'])
 
@@ -88,6 +88,8 @@ def torch_train(model, num_class, dataset=None, checkpoint_path=None):
     train_loader = DataLoader(group_data(
         dataset.train_data, dataset.train_labels), batch_size=aconf['batch_size'], shuffle=True)
 
+    train_loss_list = []
+    train_acc_list = []
     for epoch in range(aconf['epochs']):
         train_loss = 0
         train_acc = 0
@@ -104,12 +106,16 @@ def torch_train(model, num_class, dataset=None, checkpoint_path=None):
             optimizer.step()
 
             train_loss += loss.item() * x.size(0)
-            train_acc += torch.sum(preds == y.data)
+            train_acc += torch.sum(preds == y.data).item()
 
         print('epoch: {}, accuracy: {:.4f}, loss: {:.4f}'.format(epoch,
                                                                  train_acc /
                                                                  len(train_loader.dataset),
                                                                  train_loss / len(train_loader.dataset)))
+        train_loss_list.append(train_loss)
+        train_acc_list.append(train_acc)
+        if epoch_callback is not None:
+            epoch_callback(epoch+1, aconf['epochs'], train_acc_list, train_loss_list, callback_message)
 
     if checkpoint_path is not None:
         torch.save(model, checkpoint_path)

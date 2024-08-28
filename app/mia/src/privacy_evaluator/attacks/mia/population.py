@@ -6,6 +6,7 @@ from _utils.wrapper_model import WrapperTF, WrapperTorch
 from _utils.helper import get_trg_ref_data
 from attacks.config import priv_meter as pm
 
+from _utils.helper import convert_result_list
 
 def run_population_metric(tdata, model, num_class, is_torch):
     target_dataset, reference_dataset = get_trg_ref_data(
@@ -32,7 +33,8 @@ def run_population_metric(tdata, model, num_class, is_torch):
         target_info_sources=target_info_source,
         reference_info_sources=reference_info_source,
         fpr_tolerances=pm['fpr_tolerance_list'],
-        # save_logs=False
+        logs_directory_names=["/apprun"],
+        save_logs=True
     )
     print("Preparing population metric attack....")
     audit_obj.prepare()
@@ -40,3 +42,7 @@ def run_population_metric(tdata, model, num_class, is_torch):
     print("Starting population metric attack....")
     audit_results = audit_obj.run()[0]
     print(audit_results[0])
+
+    results = convert_result_list(audit_results)
+
+    return results[0]

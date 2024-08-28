@@ -3,6 +3,8 @@ import tensorflow_privacy.privacy.privacy_tests.membership_inference_attack.memb
 from tensorflow_privacy.privacy.privacy_tests.membership_inference_attack.data_structures import SlicingSpec
 from tensorflow_privacy.privacy.privacy_tests.membership_inference_attack.data_structures import AttackType
 
+from target.utils import save_progress
+
 """
 Metric and Classifier based attacks by https://github.com/inspire-group/membership-inference-evaluation
 Integrated version into TF-Privacy:
@@ -38,6 +40,10 @@ def run_custom_attacks(attack_input):
     ]
 
     print("\nRunning Metric Attacks .....")
+    save_progress({
+        "status": "running",
+        "message": "Running Metric Attacks"
+    })
     attacks_result = mia.run_attacks(attack_input=attack_input,
                                      slicing_spec=slicing_spec,
                                      attack_types=metric_attacks)
@@ -46,9 +52,17 @@ def run_custom_attacks(attack_input):
     #print(attacks_result.calculate_pd_dataframe())
     result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "attack type", "AUC"]]
     print(result_df)
-    metric_attack_result = result_df.to_dict('list')
+    metric_attack_result = {}
+    for i in range(len(metric_attacks)):
+        metric_attack_result[result_df["attack type"][i]] = {
+            "AUC": result_df["AUC"][i]
+        }
 
     print("\nRunning Trained (Classifier) Attacks .....")
+    save_progress({
+        "status": "running",
+        "message": "Running Trained (Classifier) Attacks"
+    })
     attacks_result = mia.run_attacks(attack_input=attack_input,
                                      slicing_spec=slicing_spec,
                                      attack_types=trained_attacks)
@@ -56,7 +70,9 @@ def run_custom_attacks(attack_input):
     pd.set_option("display.max_rows", 12, "display.max_columns", None)
     result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "AUC"]]
     print(result_df)
-    trained_attack_result = result_df.to_dict('list')
+    trained_attack_result = {
+        "AUC": result_df["AUC"][0]
+    }
     return {
         "metric_attack": metric_attack_result,
         "trained_attack": trained_attack_result

@@ -256,7 +256,7 @@ class ResNet:
 
 
     # none, dropout
-    def train(self, train_loader, epoch, log_pref=""):
+    def train(self, train_loader, epoch):
         self.model.train()
         total_loss = 0
         correct = 0
@@ -277,12 +277,10 @@ class ResNet:
         #     self.scheduler.step()
         acc = 100. * correct / total
         total_loss /= total
-        if log_pref:
-            print("{}: Accuracy {:.3f}, Loss {:.3f}".format(log_pref, acc, total_loss))
         return acc, total_loss
 
     # label-smoothing
-    def train_label_smoothing(self, train_loader, epoch, log_pref=""):
+    def train_label_smoothing(self, train_loader, epoch):
         self.model.train()
         total_loss = 0
         correct = 0
@@ -304,8 +302,6 @@ class ResNet:
         #     self.scheduler.step()
         acc = 100. * correct / total
         total_loss /= total
-        if log_pref:
-            print("{}: Accuracy {:.3f}, Loss {:.3f}".format(log_pref, acc, total_loss))
         return acc, total_loss
 
     # confidence-masking
@@ -390,7 +386,7 @@ class ResNet:
         return acc, total_loss
 
 
-    def test(self, test_loader, log_pref=""):
+    def test(self, test_loader):
         self.model.eval()
         total_loss = 0
         correct = 0
@@ -410,18 +406,10 @@ class ResNet:
 
         acc = 100. * correct / total
         total_loss /= total
-        if log_pref:
-            print("{}: Accuracy {:.3f}, Loss {:.3f}".format(log_pref, acc, total_loss))
         return acc, total_loss
 
-    def save(self, epoch, acc, loss):
+    def save(self, epoch):
         save_path = f"{self.save_pref}/{epoch}.pt"
-        state = {
-            'epoch': epoch + 1,
-            'acc': acc,
-            'loss': loss,
-            'state': self.model
-        }
         torch.save(self.model, save_path)
         return save_path
 
@@ -622,7 +610,7 @@ class DPsgd:
 
 
 
-def run(args):
+def run(args, epoch_callback=None):
     device = f"cuda:0"
     cudnn.benchmark = True
     save_dir = f"/model/{args.datasets}_{args.model_name}/{args.defense}"
@@ -685,130 +673,48 @@ def run(args):
                                     pin_memory=True, worker_init_fn=seed_worker)
 
     ### train target model ###
-    if args.defense == 'none':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
-        best_acc = 0
-        count = 0
-        for epoch in range(args.epochs):
-            train_acc, train_loss = model.train(target_train_loader, epoch, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
-            if val_acc > best_acc:
-                best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
-                best_path = save_path
-                count = 0
-            # elif args.early_stop > 0:
-            #     count += 1
-            #     if count > args.early_stop:
-            #         print(f"Early Stop at Epoch {epoch}")
-            #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
+    train_acc_list = []
+    train_loss_list = []
+    val_acc_list = []
+    val_loss_list = []
+    if args.defense in ['none', 'es', 'ls', 'cm', 'dropout', 'relaxloss']:
+        if args.defense == 'dropout':
+            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0.5) # dropout rate setting
+        else:
+            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
 
-    #early stopping
-    elif args.defense == 'es':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
         best_acc = 0
         count = 0
         for epoch in range(args.epochs):
-            train_acc, train_loss = model.train(target_train_loader, epoch, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
+            if args.defense in ['none', 'es', 'dropout']:
+                train_acc, train_loss = model.train(target_train_loader, epoch)
+            elif args.defense == 'ls':  # label_smoothing
+                train_acc, train_loss = model.train_label_smoothing(target_train_loader, epoch)
+            elif args.defense == 'cm':  # confidence_masking
+                train_acc, train_loss = model.train_confidence_masking(target_train_loader, epoch)
+            elif args.defense == 'relaxloss':
+                train_acc, train_loss = model.train_relaxloss(target_train_loader, epoch, num_cls, upper, alpha)
+            train_acc_list.append(train_acc)
+            train_loss_list.append(train_loss)
+            print(f"Train epoch {epoch} acc={train_acc}, loss={train_loss}")
+            val_acc, val_loss = model.test(target_valid_loader)
+            val_acc_list.append(val_acc)
+            val_loss_list.append(val_loss)
             if val_acc > best_acc:
                 best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
+                save_path = model.save(epoch)
                 best_path = save_path
                 count = 0
-            elif args.early_stop > 0:
+            elif args.defense == 'es' and args.early_stop > 0:
                 count += 1
                 if count > args.early_stop:
                     print(f"Early Stop at Epoch {epoch}")
                     break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
+            if epoch_callback is not None:
+                epoch_callback(epoch, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
 
-    # label_smoothing
-    elif args.defense == 'ls':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
-        best_acc = 0
-        count = 0
-        for epoch in range(args.epochs):
-            train_acc, train_loss = model.train_label_smoothing(target_train_loader, epoch, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
-            if val_acc > best_acc:
-                best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
-                best_path = save_path
-                count = 0
-            # elif args.early_stop > 0:
-            #     count += 1
-            #     if count > args.early_stop:
-            #         print(f"Early Stop at Epoch {epoch}")
-            #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
-
-    # confidence_masking
-    elif args.defense == 'cm':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
-        best_acc = 0
-        count = 0
-        for epoch in range(args.epochs):
-            train_acc, train_loss = model.train_confidence_masking(target_train_loader, epoch, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
-            if val_acc > best_acc:
-                best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
-                best_path = save_path
-                count = 0
-            # elif args.early_stop > 0:
-            #     count += 1
-            #     if count > args.early_stop:
-            #         print(f"Early Stop at Epoch {epoch}")
-            #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
-
-    elif args.defense == 'dropout':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0.5) # dropout rate setting
-        best_acc = 0
-        count = 0
-        for epoch in range(args.epochs):
-            train_acc, train_loss = model.train(target_train_loader, epoch, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
-            if val_acc > best_acc:
-                best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
-                best_path = save_path
-                count = 0
-            # elif args.early_stop > 0:
-            #     count += 1
-            #     if count > args.early_stop:
-            #         print(f"Early Stop at Epoch {epoch}")
-            #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
-
-
-    elif args.defense == 'relaxloss':
-        model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
-        best_acc = 0
-        count = 0
-        for epoch in range(args.epochs):
-            train_acc, train_loss = model.train_relaxloss(target_train_loader, epoch, num_cls, upper, alpha, f"epoch {epoch} train")
-            val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
-            if val_acc > best_acc:
-                best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
-                best_path = save_path
-                count = 0
-            # elif args.early_stop > 0:
-            #     count += 1
-            #     if count > args.early_stop:
-            #         print(f"Early Stop at Epoch {epoch}")
-            #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
-
+        #shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
+        shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
     elif args.defense == 'dpsgd':
         model = DPsgd(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
         best_acc = 0
@@ -827,12 +733,16 @@ def run(args):
             #     if count > args.early_stop:
             #         print(f"Early Stop at Epoch {epoch}")
             #         break
-        shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
+        shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
 
     return {
         "defense": args.defense,
-        "best_path": f"{save_dir}/ep_{epoch}_best[{best_acc}].pt",
-        "best_acc": best_acc
+        "best_path": best_path,
+        "best_acc": best_acc,
+        "train_acc_list": train_acc_list,
+        "train_loss_list": train_loss_list,
+        "val_acc_list": val_acc_list,
+        "val_loss_list": val_loss_list
     }
 
 
