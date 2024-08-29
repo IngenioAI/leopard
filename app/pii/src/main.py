@@ -24,8 +24,8 @@ def save_result(obj, filename):
 
 def run_faker(params, args):
     fake = Faker('ko_KR')
-    generation_type = params.get("type", "address")
-    generation_count = params.get("count", 10)
+    generation_type = params.get("generation_type", "address")
+    generation_count = params.get("generation_count", 10)
     if generation_type == "address":
         generated_data = [fake.address() for _ in range(generation_count)]
     elif generation_type == "name":
@@ -34,14 +34,19 @@ def run_faker(params, args):
         generated_data = [fake.ssn() for _ in range(generation_count)]
     elif generation_type == "phone_number":
         generated_data = [fake.phone_number() for _ in range(generation_count)]
+    elif generation_type == "credit_card_number":
+        generated_data = [fake.credit_card_number(card_type=None) for _ in range(generation_count)]
+    elif generation_type == "email":
+        generated_data = [fake.email() for _ in range(generation_count)]
+    elif generation_type == "passport_number":
+        generated_data = [fake.passport_number() for _ in range(generation_count)]
 
     save_result({
-            "input_param": params,
             "generated_data": generated_data
         }, args.output)
 
 def run_presidio(params, args):
-    action_type = params.get("type", "analyze")
+    action_type = params.get("action_type", "analyze")
     text = params.get("text", None)
     text_file = params.get("text_file", None)
     entities = params.get("entities", None)
@@ -73,7 +78,6 @@ def run_presidio(params, args):
             anonymized_result = None
 
         save_result({
-                "input_param": params,
                 "results": result_to_dict(results),
                 "anonymized_text": anonymized_result.text if anonymized_result is not None else ""
             }, args.output)
