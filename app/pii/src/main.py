@@ -48,9 +48,9 @@ def run_faker(params, args):
 def run_presidio(params, args):
     action_type = params.get("action_type", "analyze")
     text = params.get("text", None)
-    text_file = params.get("text_file", None)
+    text_file = params.get("text_file", "")
     entities = params.get("entities", None)
-    if text is None and text_file is not None:
+    if text_file != "":
         text_file_path = os.path.join("/data/input", text_file)
         with open(text_file_path, "rt", encoding="utf-8") as fp:
             text = fp.read()

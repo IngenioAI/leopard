@@ -35,9 +35,15 @@
         },
         {
             "id": "text",
-            "title": "Prsidio 입력 텍스트",
+            "title": "Presidio 입력 텍스트",
             "type": "text",
             "default": "샘플 전화번호는 010-3212-6758입니다."
+        },
+        {
+            "id": "text_file",
+            "title": "Presidio 입력 텍스트 파일",
+            "type": "text",
+            "default": ""
         },
         {
             "id": "generation_type",

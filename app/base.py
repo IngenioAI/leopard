@@ -45,6 +45,17 @@ class App():
 
         self.run_params = params
 
+        progrss_info = self.get_progress()
+        if progrss_info["status"] == "running":
+            return {
+                "success": False,
+                "error_message": "App already running",
+                "container_id": self.container_id
+            }
+
+        if self.container_id is not None:
+            self.remove()           # remove previous docker
+
         is_server = self.config['type'] == "server"
         if self.server_online:
             return self.call_server(params)
@@ -88,7 +99,7 @@ class App():
             self.container_id = info["container_id"]
         else:
             print(res, info)
-            self.container_id = ""
+            self.container_id = None
             return ""
 
         if wait:
@@ -161,40 +172,50 @@ class App():
             return False
 
     def stop(self, remove=True):
-        if self.container_id:
+        if self.container_id is not None:
             self.docker.exec_stop(self.container_id)
             if remove:
                 self.remove()
 
     def remove(self):
-        self.docker.exec_remove(self.container_id)
+        if self.container_id is not None:
+            self.docker.exec_remove(self.container_id)
+            self.container_id = None
 
     def logs(self):
-        logs = self.docker.exec_logs(self.container_id)
-        if len(logs) > 0:
-            self.last_logs = logs
+        if self.container_id is not None:
+            logs = self.docker.exec_logs(self.container_id)
+            if len(logs) > 0:
+                self.last_logs = logs
         return self.last_logs
 
     def inspect(self):
-        return self.docker.exec_inspect(self.container_id)
+        if self.container_id is not None:
+            return self.docker.exec_inspect(self.container_id)
+        return {}
 
     def get_progress(self):
         info = self.inspect()
-        status = info['State']['Running']
-        if 'run_path' in self.config['execution']:
-            progress_path = os.path.join(self.config['execution']['run_path'], "progress.json")
-            if os.path.exists(progress_path):
-                with open(progress_path, "rt", encoding="utf-8") as fp:
-                    try:
-                        progress_info = json.load(fp)
-                        if not status and progress_info["status"] == "running":
-                            progress_info["status"] = "exited"
-                    except (json.decoder.JSONDecodeError):
-                        progress_info = { "status": "running", "message": "json error"}
+        if "State" in info:
+            status = info['State']['Running']
+            if 'run_path' in self.config['execution']:
+                progress_path = os.path.join(self.config['execution']['run_path'], "progress.json")
+                if os.path.exists(progress_path):
+                    with open(progress_path, "rt", encoding="utf-8") as fp:
+                        try:
+                            progress_info = json.load(fp)
+                            if not status and progress_info["status"] == "running":
+                                progress_info["status"] = "exited"
+                        except (json.decoder.JSONDecodeError):
+                            progress_info = { "status": "running", "message": "json error"}
 
-                    return progress_info
+                        return progress_info
+            return {
+                "status": "running" if status else "done"
+            }
+
         return {
-            "status": "running" if status else "done"
+            "status": "none"
         }
 
     def get_result(self):

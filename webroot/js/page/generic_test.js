@@ -1,8 +1,9 @@
 import { getE, clearE, getV, setV, setT, addE, createE } from "/js/dom_utils.js";
 import { joinPath, splitStoragePath, createStorageFileURL } from "/js/storage_utils.js";
-import { getStorageFileContent, runApp, getAppList, getAppProgress, getAppLogs, getAppResult, removeApp } from "/js/service.js";
+import { getStorageFileContent, runApp, getAppList, getAppProgress, getAppLogs, getAppResult, stopApp, removeApp } from "/js/service.js";
 
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
+import { showAskMessageBox } from "/js/dialog/ask_messagebox.js";
 import { createTab, showTab } from "/js/control/tab.js";
 import { createFormGroup, getFormGroupData } from "/js/form_group.js";
 
@@ -85,15 +86,29 @@ async function run() {
     }
 
     const res = await runApp(appInfo.id, data);
-    if (res.container_id) {
+    if (res.success) {
         // run with no_wait
         setTimeout(checkProgress, 1000);
         showTab("progress");
         return;
     }
+    if (res.container_id) {
+        const answer = await showAskMessageBox("이미 실행중인 모듈이 있습니다. 실행 중인 모듈에 연결하거나 기존 실행을 중지할 수 있습니다.", "실행 연결",
+            ["기존 모듈 연결", "기존 모듈 중지", "취소"]);
+        if (answer.index == 0) {
+            setTimeout(checkProgress, 1000);
+            showTab("progress");
+            return;
+        }
+        else if (answer.index == 1) {
+            await stopApp(appInfo.id);
+            await removeApp(appInfo.id)
+        }
+    }
     const logs = await getAppLogs(appInfo.id);
     setLogs(logs.logs);
     setOutput(res);
+    removeApp(appInfo.id);
 
     showTab("output");
 }
