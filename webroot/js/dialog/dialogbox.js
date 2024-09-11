@@ -108,24 +108,26 @@ class ModalDialogBox extends DialogBox {
         super(dialogBoxId, options);
         this.resolve = null;
         this.reject = null;
-        this.resolved = true;
+        this.resolved = false;
     }
 
     exec(...args) {
         return new Promise((resolve, reject) => {
             this.resolve = resolve;
             this.reject = reject;
-            this.resolved = false;
             this.show(args);
+            this.resolved = false;
         });
     }
 
+    /*
     onHidden(e) {
         if (!this.resolved) {
             this.close();
         }
         super.onHidden(e);
     }
+    */
 
     close(...args) {
         if (this.resolved) {

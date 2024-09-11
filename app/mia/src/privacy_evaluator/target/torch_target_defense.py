@@ -555,12 +555,10 @@ class DPsgd:
             print("{}: Accuracy {:.3f}, Loss {:.3f}".format(log_pref, acc, total_loss))
         return acc, total_loss
 
-    def save(self, epoch, acc, loss):
-        save_path = f"{self.save_pref}/{epoch}_[{acc}].pt"
+    def save(self, epoch):
+        save_path = f"{self.save_pref}/{epoch}.pt"
         state = {
             'epoch': epoch + 1,
-            'acc': acc,
-            'loss': loss,
             'state': self.model
         }
         torch.save(self.model, save_path)
@@ -722,10 +720,10 @@ def run(args, epoch_callback=None):
         for epoch in range(args.epochs):
             train_acc, train_loss = model.train_dpsgd(target_train_loader, epoch, args.batch_size, f"epoch {epoch} train")
             val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
+            #test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
             if val_acc > best_acc:
                 best_acc = val_acc
-                save_path = model.save(epoch, test_acc, test_loss)
+                save_path = model.save(epoch)
                 best_path = save_path
                 count = 0
             # elif args.early_stop > 0:
@@ -733,6 +731,12 @@ def run(args, epoch_callback=None):
             #     if count > args.early_stop:
             #         print(f"Early Stop at Epoch {epoch}")
             #         break
+            train_acc_list.append(train_acc)
+            train_loss_list.append(train_loss)
+            val_acc_list.append(val_acc)
+            val_loss_list.append(val_loss)
+            if epoch_callback is not None:
+                epoch_callback(epoch, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
         shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
 
     return {
