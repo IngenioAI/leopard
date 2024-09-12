@@ -1,6 +1,8 @@
 import os
 import json
 import importlib
+from threading import Timer
+
 from app.base import App
 
 
@@ -9,6 +11,7 @@ class AppManager():
         self.app_path = "app"
         self.app_info = []
         self.apps = {}
+        self.monitor_timer = None
 
     def start(self, config):
         if config is not None and "app_path" in config:
@@ -21,7 +24,7 @@ class AppManager():
             if os.path.isdir(appinfo_dir) and os.path.exists(appinfo_path):
                 with open(appinfo_path, "rt", encoding="utf-8") as fp:
                     appinfo = json.load(fp)
-                    if type(appinfo) != list:
+                    if not isinstance(appinfo, list):
                         appinfo = [appinfo]
                     for info in appinfo:
                         if info.get("enable", True):
@@ -35,6 +38,8 @@ class AppManager():
             else:
                 o = App(info)
             self.apps[info['id']] = o
+
+        self.monitor_start()
 
     def run(self, module_id, params):
         for info in self.app_info:
@@ -76,5 +81,30 @@ class AppManager():
         for info in self.app_info:
             if info['type'] == 'server':
                 self.apps[info['id']].stop()
+        self.monitor_stop()
+
+    def monitor_start(self):
+        if self.monitor_timer is None:
+            self.monitor_timer = Timer(1.0, self.monitor_run)
+            self.monitor_timer.start()
+
+    def monitor_stop(self):
+        self.monitor_timer.cancel()
+        self.monitor_timer = None
+
+    def monitor_run(self):
+        for info in self.app_info:
+            app = self.apps[info['id']]
+            if not app.is_running():
+                if app.container_id is not None:
+                    print("container remains:", info['id'])
+                    app.logs()  # fetch and cache logs
+                    app.remove()
+
+        # repeat timer if not canceled
+        if self.monitor_timer is not None:
+            self.monitor_timer = Timer(1.0, self.monitor_run)
+            self.monitor_timer.start()
+
 
 app_manager = AppManager()

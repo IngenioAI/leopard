@@ -1,9 +1,9 @@
 import os
 import json
+import time
 from urllib import request, error
 from docker_runner import DockerRunner
 import storage_util
-import time
 
 
 class App():
@@ -36,8 +36,17 @@ class App():
 
         self.docker.remove_create_image_info(self.config['image']['tag'])
 
+    def check_image(self):
+        images = self.docker.list_images()
+        target_image = None
+        for image in images:
+            if self.config['image']['tag'] in image['RepoTags']:
+                target_image = image
+                break
+        if target_image is None:
+            self.build_image(wait=True)
+
     def run(self, params=None, wait=None):
-        print('Run app:', self.config['name'])
         exec_info = self.config['execution']
         print(exec_info)
 
@@ -69,14 +78,7 @@ class App():
         if 'main' not in exec_info:
             exec_info['main'] = 'server.py' if is_server else 'main.py'
 
-        images = self.docker.list_images()
-        targetImage = None
-        for image in images:
-            if self.config['image']['tag'] in image['RepoTags']:
-                targetImage = image
-                break
-        if targetImage is None:
-            self.build_image(wait=True)
+        self.check_image()
 
         if params is not None and "input" in self.config["execution"]:
             storage_util.ensure_path(self.config['execution']['input'])
@@ -129,11 +131,10 @@ class App():
             if timeout > 0:
                 self.server_online = True
                 return self.call_server(params)
-            else:
-                return {
-                    "success": False,
-                    "error_message": "Server cannot be started"
-                }
+            return {
+                "success": False,
+                "error_message": "Server cannot be started"
+            }
 
         return {
             "success": True,
@@ -141,11 +142,11 @@ class App():
         }
 
     def call_server(self, params):
-        req = request.Request('http://localhost:%s/api/run' % (self.config['execution']['port']),
+        req = request.Request(f"http://localhost:{self.config['execution']['port']}/api/run",
                               data=json.dumps(params).encode("UTF-8"))
         try:
-            resp = request.urlopen(req)
-            return json.load(resp)
+            with request.urlopen(req) as resp:
+                return json.load(resp)
         except error.HTTPError as e:
             print(e)
             logs = self.logs()
@@ -162,11 +163,11 @@ class App():
             }
 
     def ping_server(self):
-        req = request.Request('http://localhost:%s/api/ping' % (self.config['execution']['port']))
+        req = request.Request(f"http://localhost:{self.config['execution']['port']}/api/ping")
         try:
-            resp = request.urlopen(req)
-            info = json.load(resp)
-            return info["success"]
+            with request.urlopen(req) as resp:
+                info = json.load(resp)
+                return info["success"]
         except (error.HTTPError, error.URLError, ConnectionResetError) as e:
             print(e)
             return False
@@ -196,6 +197,12 @@ class App():
         if self.container_id is not None:
             return self.docker.exec_inspect(self.container_id)
         return {}
+
+    def is_running(self):
+        info = self.inspect()
+        if 'State' in info:
+            return info['State']['Running']
+        return False
 
     def get_progress(self):
         info = self.inspect()
@@ -229,5 +236,4 @@ class App():
             if self.run_params is not None and self.run_params.get("with_log", False):
                 result["log"] = self.logs()
             return result
-        else:
-            return { "success": False, "error_message": "output file not found", "log": self.logs()}
+        return { "success": False, "error_message": "output file not found", "log": self.logs()}
