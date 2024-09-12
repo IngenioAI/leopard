@@ -5,12 +5,10 @@ import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
 import math
 
-
 __all__ = [
     'VGG', 'vgg11', 'vgg11_bn', 'vgg13', 'vgg13_bn', 'vgg16', 'vgg16_bn',
     'vgg19_bn', 'vgg19',
 ]
-
 
 model_urls = {
     'vgg11': 'https://download.pytorch.org/models/vgg11-bbd30ac9.pth',
@@ -24,8 +22,8 @@ class VGG(nn.Module):
     def __init__(self, features, num_classes, droprate):
         super(VGG, self).__init__()
         self.features = features
-        if droprate >0:
-            self.classifier = nn.Sequential(nn.Dropout(droprate), 
+        if droprate > 0:
+            self.classifier = nn.Sequential(nn.Dropout(droprate),
                                             nn.Linear(512, num_classes))
         else:
             self.classifier = nn.Linear(512, num_classes)

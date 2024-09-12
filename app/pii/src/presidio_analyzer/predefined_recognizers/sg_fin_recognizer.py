@@ -2,6 +2,7 @@ from typing import Optional, List
 
 from presidio_analyzer import Pattern, PatternRecognizer
 
+
 # Weak pattern: all FIN number start with "S", "T", "F" or "G"
 # and ends with a character, e.g., G3311100L
 # Ref: https://en.wikipedia.org/wiki/National_Registration_Identity_Card
@@ -25,11 +26,11 @@ class SgFinRecognizer(PatternRecognizer):
     CONTEXT = ["fin", "fin#", "nric", "nric#"]
 
     def __init__(
-        self,
-        patterns: Optional[List[Pattern]] = None,
-        context: Optional[List[str]] = None,
-        supported_language: str = "en",
-        supported_entity: str = "SG_NRIC_FIN",
+            self,
+            patterns: Optional[List[Pattern]] = None,
+            context: Optional[List[str]] = None,
+            supported_language: str = "en",
+            supported_entity: str = "SG_NRIC_FIN",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

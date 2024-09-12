@@ -33,7 +33,7 @@ class Provider(BaseProvider):
         }
 
     def profile(
-        self, fields: Optional[List[str]] = None, sex: Optional[SexLiteral] = None
+            self, fields: Optional[List[str]] = None, sex: Optional[SexLiteral] = None
     ) -> Dict[str, Union[str, Tuple[Decimal, Decimal], List[str], date]]:
         """
         Generates a complete profile.

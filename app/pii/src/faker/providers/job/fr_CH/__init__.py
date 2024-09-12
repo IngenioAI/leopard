@@ -1,5 +1,6 @@
 from .. import Provider as BaseProvider
 
+
 # Source: SEFRI
 # http://www.sbfi.admin.ch/bvz/berufe/index.html
 

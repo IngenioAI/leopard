@@ -11,6 +11,7 @@ from attack_runner import runner
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 warnings.filterwarnings("ignore")
 
+
 def attack(params):
     if "model_path" in params:
         args = argparse.Namespace(**params)
@@ -24,6 +25,7 @@ def attack(params):
             "n_class": 10,
             "attack": "custom"
         }
+
 
 def main(args):
     clear_progress()

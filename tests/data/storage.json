@@ -1,14 +1,18 @@
 [
-    {
-        "name": "system",
-        "id": "0",
-        "path": "tests/storage/0",
-        "trait": ["system"]
-    },
-    {
-        "name": "default",
-        "id": "1",
-        "path": "tests/storage/1",
-        "trait": ["user"]
-    }
+  {
+    "name": "system",
+    "id": "0",
+    "path": "tests/storage/0",
+    "trait": [
+      "system"
+    ]
+  },
+  {
+    "name": "default",
+    "id": "1",
+    "path": "tests/storage/1",
+    "trait": [
+      "user"
+    ]
+  }
 ]

@@ -27,13 +27,12 @@ class ContextAwareEnhancer:
     MAX_SCORE = 1.0
 
     def __init__(
-        self,
-        context_similarity_factor: float,
-        min_score_with_context_similarity: float,
-        context_prefix_count: int,
-        context_suffix_count: int,
+            self,
+            context_similarity_factor: float,
+            min_score_with_context_similarity: float,
+            context_prefix_count: int,
+            context_suffix_count: int,
     ):
-
         self.context_similarity_factor = context_similarity_factor
         self.min_score_with_context_similarity = min_score_with_context_similarity
         self.context_prefix_count = context_prefix_count
@@ -41,12 +40,12 @@ class ContextAwareEnhancer:
 
     @abstractmethod
     def enhance_using_context(
-        self,
-        text: str,
-        raw_results: List[RecognizerResult],
-        nlp_artifacts: NlpArtifacts,
-        recognizers: List[EntityRecognizer],
-        context: Optional[List[str]] = None,
+            self,
+            text: str,
+            raw_results: List[RecognizerResult],
+            nlp_artifacts: NlpArtifacts,
+            recognizers: List[EntityRecognizer],
+            context: Optional[List[str]] = None,
     ) -> List[RecognizerResult]:
         """
         Update results in case surrounding words are relevant to the context words.

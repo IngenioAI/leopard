@@ -1,62 +1,76 @@
 {
-    "id": "pii",
-    "name": "개인정보 보호도구",
-    "type": "script",
-    "image": {
-        "tag": "leopard/pii:1.0.0",
-        "build": {
-            "base": "python:3.8",
-            "update": false,
-            "apt": "",
-            "pip": "pandas python-dateutil spacy pyyaml regex tldextract phonenumbers pycryptodome fastapi uvicorn",
-            "additional_command": "python -m spacy download en_core_web_lg && python -m spacy download ko_core_news_lg"
-        }
+  "id": "pii",
+  "name": "개인정보 보호도구",
+  "type": "script",
+  "image": {
+    "tag": "leopard/pii:1.0.0",
+    "build": {
+      "base": "python:3.8",
+      "update": false,
+      "apt": "",
+      "pip": "pandas python-dateutil spacy pyyaml regex tldextract phonenumbers pycryptodome fastapi uvicorn",
+      "additional_command": "python -m spacy download en_core_web_lg && python -m spacy download ko_core_news_lg"
+    }
+  },
+  "execution": {
+    "src": "app/pii/src",
+    "command_params": [],
+    "input": "storage/0/app/pii/data",
+    "output": "storage/0/app/pii/run"
+  },
+  "input_form_spec": [
+    {
+      "id": "module",
+      "title": "모듈",
+      "type": "select",
+      "values": [
+        "presidio",
+        "faker"
+      ],
+      "default": "presidio"
     },
-    "execution": {
-        "src": "app/pii/src",
-        "command_params": [],
-        "input": "storage/0/app/pii/data",
-        "output": "storage/0/app/pii/run"
+    {
+      "id": "action_type",
+      "title": "Presidio 작업",
+      "type": "select",
+      "values": [
+        "analyze",
+        "anonymize"
+      ],
+      "default": "analyze"
     },
-    "input_form_spec": [
-        {
-            "id": "module",
-            "title": "모듈",
-            "type": "select",
-            "values": ["presidio", "faker"],
-            "default": "presidio"
-        },
-        {
-            "id": "action_type",
-            "title": "Presidio 작업",
-            "type": "select",
-            "values": ["analyze", "anonymize"],
-            "default": "analyze"
-        },
-        {
-            "id": "text",
-            "title": "Presidio 입력 텍스트",
-            "type": "text",
-            "default": "샘플 전화번호는 010-3212-6758입니다."
-        },
-        {
-            "id": "text_file",
-            "title": "Presidio 입력 텍스트 파일",
-            "type": "text",
-            "default": ""
-        },
-        {
-            "id": "generation_type",
-            "title": "Faker 생성 데이터 타입",
-            "type": "select",
-            "values": ["address", "name", "ssn", "phone_number", "credit_card_number", "email", "passport_number"],
-            "default": "address"
-        },
-        {
-            "id": "generation_count",
-            "title": "Faker 생성 데이터 개수",
-            "type": "number",
-            "default": 10
-        }
-    ]
+    {
+      "id": "text",
+      "title": "Presidio 입력 텍스트",
+      "type": "text",
+      "default": "샘플 전화번호는 010-3212-6758입니다."
+    },
+    {
+      "id": "text_file",
+      "title": "Presidio 입력 텍스트 파일",
+      "type": "text",
+      "default": ""
+    },
+    {
+      "id": "generation_type",
+      "title": "Faker 생성 데이터 타입",
+      "type": "select",
+      "values": [
+        "address",
+        "name",
+        "ssn",
+        "phone_number",
+        "credit_card_number",
+        "email",
+        "passport_number"
+      ],
+      "default": "address"
+    },
+    {
+      "id": "generation_count",
+      "title": "Faker 생성 데이터 개수",
+      "type": "number",
+      "default": 10
+    }
+  ]
 }

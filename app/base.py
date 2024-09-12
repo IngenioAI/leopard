@@ -55,7 +55,7 @@ class App():
         self.run_params = params
 
         if self.container_id is not None:
-            self.remove()           # remove previous docker
+            self.remove()  # remove previous docker
 
         is_server = self.config['type'] == "server"
         if self.server_online:
@@ -86,7 +86,8 @@ class App():
                 json.dump(params, fp)
 
         if "command" not in exec_info:
-            command_line = ["python", exec_info["main"]] + (exec_info["command_params"] if "command_params" in exec_info else [])
+            command_line = ["python", exec_info["main"]] + (
+                exec_info["command_params"] if "command_params" in exec_info else [])
         else:
             command_line = exec_info["command"]
 
@@ -96,7 +97,7 @@ class App():
                 options[item] = exec_info[item]
 
         res, info = self.docker.exec_command(exec_info['src'], command_line, self.config['image']['tag'],
-                                        exec_info.get('input', None), exec_info.get('output', None), options)
+                                             exec_info.get('input', None), exec_info.get('output', None), options)
         if res:
             self.container_id = info["container_id"]
         else:
@@ -217,7 +218,7 @@ class App():
                             if not status and progress_info["status"] == "running":
                                 progress_info["status"] = "exited"
                         except (json.decoder.JSONDecodeError):
-                            progress_info = { "status": "running", "message": "json error"}
+                            progress_info = {"status": "running", "message": "json error"}
 
                         return progress_info
             return {
@@ -236,4 +237,4 @@ class App():
             if self.run_params is not None and self.run_params.get("with_log", False):
                 result["log"] = self.logs()
             return result
-        return { "success": False, "error_message": "output file not found", "log": self.logs()}
+        return {"success": False, "error_message": "output file not found", "log": self.logs()}

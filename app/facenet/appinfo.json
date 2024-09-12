@@ -1,135 +1,153 @@
 [
-    {
-        "id": "facenet",
-        "name": "FaceNet 얼굴인식",
-        "type": "server",
-        "image": {
-            "tag": "leopard/facenet:1.0.0",
-            "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
-                "update": false,
-                "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
-                "additional_command": ""
-            }
-        },
-        "execution": {
-            "src": "app/facenet/src",
-            "command_params": [],
-            "input": "storage/0/app/facenet/input",
-            "binds": [
-                ["/model", "storage/0/app/facenet/model"]
-            ],
-            "port": 12720
-        }
+  {
+    "id": "facenet",
+    "name": "FaceNet 얼굴인식",
+    "type": "server",
+    "image": {
+      "tag": "leopard/facenet:1.0.0",
+      "build": {
+        "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+        "update": false,
+        "apt": "",
+        "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+        "additional_command": ""
+      }
     },
-    {
-        "id": "facenet_train",
-        "name": "FaceNet 학습/언러닝",
-        "type": "script",
-        "image": {
-            "tag": "leopard/facenet:1.0.0",
-            "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
-                "update": false,
-                "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
-                "additional_command": ""
-            }
-        },
-        "execution": {
-            "src": "app/facenet/src",
-            "main": "train.py",
-            "wait": false,
-            "command_params": [],
-            "input": "storage/0/app/facenet/input",
-            "output": "storage/0/app/facenet/output",
-            "run_path": "storage/0/app/facenet/run",
-            "binds": [
-                ["/dataset", "storage/0/app/facenet/data"],
-                ["/model", "storage/0/app/facenet/model"]
-            ]
-        },
-        "input_form_spec": [
-            {
-                "id": "mode",
-                "title": "동작 모드",
-                "type": "select",
-                "values": ["train", "unlearn"],
-                "default": "train"
-            },
-            {
-                "id": "model_name",
-                "title": "모델 이름",
-                "type": "text",
-                "default": "model01"
-            },
-            {
-                "id": "dataset",
-                "title": "데이터셋",
-                "type": "text",
-                "default": "dataset01"
-            },
-            {
-                "id": "unlearn_model_name",
-                "title": "언러닝 모델 이름",
-                "type": "text",
-                "default": "unlearn01"
-            },
-            {
-                "id": "forget_class_index",
-                "title": "잊어버릴 클래스 인덱스",
-                "type": "number",
-                "default": 1
-            }
+    "execution": {
+      "src": "app/facenet/src",
+      "command_params": [],
+      "input": "storage/0/app/facenet/input",
+      "binds": [
+        [
+          "/model",
+          "storage/0/app/facenet/model"
         ]
-    },
-    {
-        "id": "vggface2_dataset",
-        "name": "VGGFace2 데이터 생성",
-        "type": "script",
-        "image": {
-            "tag": "leopard/facenet:1.0.0",
-            "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
-                "update": false,
-                "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
-                "additional_command": ""
-            }
-        },
-        "execution": {
-            "src": "app/facenet/src",
-            "main": "vggface2_data_gen.py",
-            "wait": false,
-            "command_params": [],
-            "input": "storage/0/app/facenet/input",
-            "output": "storage/0/app/facenet/output",
-            "run_path": "storage/0/app/facenet/run",
-            "binds": [
-                ["/vggface2", "/data/hkroh/VGG-Face2"],
-                ["/dataset", "storage/0/app/facenet/data"]
-            ]
-        },
-        "input_form_spec": [
-            {
-                "id": "name",
-                "title": "데이터셋 이름",
-                "type": "text",
-                "default": "dataset01"
-            },
-            {
-                "id": "count",
-                "title": "데이터 개수",
-                "type": "number",
-                "default": 10
-            },
-            {
-                "id": "korean_ratio",
-                "title": "한국인만 선택",
-                "type": "number",
-                "default": 1
-            }
-        ]
+      ],
+      "port": 12720
     }
+  },
+  {
+    "id": "facenet_train",
+    "name": "FaceNet 학습/언러닝",
+    "type": "script",
+    "image": {
+      "tag": "leopard/facenet:1.0.0",
+      "build": {
+        "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+        "update": false,
+        "apt": "",
+        "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+        "additional_command": ""
+      }
+    },
+    "execution": {
+      "src": "app/facenet/src",
+      "main": "train.py",
+      "wait": false,
+      "command_params": [],
+      "input": "storage/0/app/facenet/input",
+      "output": "storage/0/app/facenet/output",
+      "run_path": "storage/0/app/facenet/run",
+      "binds": [
+        [
+          "/dataset",
+          "storage/0/app/facenet/data"
+        ],
+        [
+          "/model",
+          "storage/0/app/facenet/model"
+        ]
+      ]
+    },
+    "input_form_spec": [
+      {
+        "id": "mode",
+        "title": "동작 모드",
+        "type": "select",
+        "values": [
+          "train",
+          "unlearn"
+        ],
+        "default": "train"
+      },
+      {
+        "id": "model_name",
+        "title": "모델 이름",
+        "type": "text",
+        "default": "model01"
+      },
+      {
+        "id": "dataset",
+        "title": "데이터셋",
+        "type": "text",
+        "default": "dataset01"
+      },
+      {
+        "id": "unlearn_model_name",
+        "title": "언러닝 모델 이름",
+        "type": "text",
+        "default": "unlearn01"
+      },
+      {
+        "id": "forget_class_index",
+        "title": "잊어버릴 클래스 인덱스",
+        "type": "number",
+        "default": 1
+      }
+    ]
+  },
+  {
+    "id": "vggface2_dataset",
+    "name": "VGGFace2 데이터 생성",
+    "type": "script",
+    "image": {
+      "tag": "leopard/facenet:1.0.0",
+      "build": {
+        "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+        "update": false,
+        "apt": "",
+        "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+        "additional_command": ""
+      }
+    },
+    "execution": {
+      "src": "app/facenet/src",
+      "main": "vggface2_data_gen.py",
+      "wait": false,
+      "command_params": [],
+      "input": "storage/0/app/facenet/input",
+      "output": "storage/0/app/facenet/output",
+      "run_path": "storage/0/app/facenet/run",
+      "binds": [
+        [
+          "/vggface2",
+          "/data/hkroh/VGG-Face2"
+        ],
+        [
+          "/dataset",
+          "storage/0/app/facenet/data"
+        ]
+      ]
+    },
+    "input_form_spec": [
+      {
+        "id": "name",
+        "title": "데이터셋 이름",
+        "type": "text",
+        "default": "dataset01"
+      },
+      {
+        "id": "count",
+        "title": "데이터 개수",
+        "type": "number",
+        "default": 10
+      },
+      {
+        "id": "korean_ratio",
+        "title": "한국인만 선택",
+        "type": "number",
+        "default": 1
+      }
+    ]
+  }
 ]

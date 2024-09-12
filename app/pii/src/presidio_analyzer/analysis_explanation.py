@@ -16,13 +16,13 @@ class AnalysisExplanation:
     """
 
     def __init__(
-        self,
-        recognizer: str,
-        original_score: float,
-        pattern_name: str = None,
-        pattern: str = None,
-        validation_result: float = None,
-        textual_explanation: str = None,
+            self,
+            recognizer: str,
+            original_score: float,
+            pattern_name: str = None,
+            pattern: str = None,
+            validation_result: float = None,
+            textual_explanation: str = None,
     ):
 
         self.recognizer = recognizer

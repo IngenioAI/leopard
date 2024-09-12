@@ -28,7 +28,7 @@ import shutil
 import argparse
 from functools import partial
 
-#dp module
+# dp module
 from opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
 
@@ -64,6 +64,7 @@ from vgg import vgg11
     "upper" : 1
 }
 '''
+
 
 def seed_worker(worker_id):
     worker_seed = torch.initial_seed() % 2 ** 32
@@ -132,6 +133,8 @@ def load_torch_cifar100(train=True):
 '''
 attack models arch...
 '''
+
+
 class ColumnFC(nn.Module):
     def __init__(self, input_dim=100, output_dim=100, dropout=0.1):
         super(ColumnFC, self).__init__()
@@ -151,6 +154,8 @@ class ColumnFC(nn.Module):
 '''
 defense method objective function
 '''
+
+
 # label smoothing
 class LabelSmoothingCrossEntropy(nn.Module):
     '''
@@ -178,6 +183,7 @@ class LabelSmoothingCrossEntropy(nn.Module):
     def reduce_loss(loss, reduction='mean'):
         return loss.mean() if reduction == 'mean' else loss.sum() if reduction == 'sum' else loss
 
+
 # confidence masking
 class ConfidenceMasking(nn.Module):
     def __init__(self, criterion, alpha: float = 0.1, reduction='mean'):
@@ -203,13 +209,14 @@ class ConfidenceMasking(nn.Module):
 '''
 target model arch
 '''
+
+
 class ResNet:
     def __init__(self, device, save_folder, num_cls, epochs, model_name,
                  lr, weight_decay, momentum, input_dim, dropout):
 
         self.num_cls = num_cls
         self.save_pref = save_folder
-
 
         if model_name == 'resnet20':
             self.model = resnet20(num_classes=self.num_cls, droprate=dropout)
@@ -245,15 +252,14 @@ class ResNet:
         # self.attack_model_optim = torch.optim.SGD(self.attack_model.parameters(), lr=0.001, betas=(0.9, 0.999), weight_decay=args.weight_decay)
 
         self.criterion = nn.CrossEntropyLoss()
-        self.criterion_ls = LabelSmoothingCrossEntropy(epsilon=0.1) # epsilon for label smoothing
-        self.criterion_cm = ConfidenceMasking(criterion=nn.CrossEntropyLoss(), alpha=0.1) # alpha : weight for the entropy term
+        self.criterion_ls = LabelSmoothingCrossEntropy(epsilon=0.1)  # epsilon for label smoothing
+        self.criterion_cm = ConfidenceMasking(criterion=nn.CrossEntropyLoss(),
+                                              alpha=0.1)  # alpha : weight for the entropy term
 
         self.crossentropy_noreduce = nn.CrossEntropyLoss(reduction='none')
         self.crossentropy_soft = partial(CrossEntropy_soft, reduction='none')
         self.crossentropy = nn.CrossEntropyLoss()
         self.softmax = nn.Softmax(dim=1)
-
-
 
     # none, dropout
     def train(self, train_loader, epoch):
@@ -385,7 +391,6 @@ class ResNet:
         #     print("{}: Accuracy {:.3f}, Loss {:.3f}".format(log_pref, acc, total_loss))
         return acc, total_loss
 
-
     def test(self, test_loader):
         self.model.eval()
         total_loss = 0
@@ -475,8 +480,7 @@ class DPsgd:
         elif model_name == 'vgg11':
             self.model = vgg11(num_classes=self.num_cls, droprate=dropout)
 
-
-        self.model= ModuleValidator.fix(self.model)
+        self.model = ModuleValidator.fix(self.model)
         ModuleValidator.validate(self.model, strict=False)
 
         self.model.to(device)
@@ -503,12 +507,12 @@ class DPsgd:
         # noise_multiplier : noise multiplier (small value for better utility)
         # max_grad_norm : grad norm clipping bound
         privacy_engine = PrivacyEngine()
-        self.model,  self.optimizer, train_loader = privacy_engine.make_private(
-        module=self.model,
-        optimizer= self.optimizer,
-        data_loader=train_loader,
-        noise_multiplier=0.01,
-        max_grad_norm=1.2,
+        self.model, self.optimizer, train_loader = privacy_engine.make_private(
+            module=self.model,
+            optimizer=self.optimizer,
+            data_loader=train_loader,
+            noise_multiplier=0.01,
+            max_grad_norm=1.2,
         )
 
         for inputs, targets in train_loader:
@@ -607,7 +611,6 @@ class DPsgd:
         return predicts, targets, sensitivities
 
 
-
 def run(args, epoch_callback=None):
     device = f"cuda:0"
     cudnn.benchmark = True
@@ -644,7 +647,7 @@ def run(args, epoch_callback=None):
     for i in range(args.shadow_num):
         shadow_train_li, shadow_test_li = train_test_split(
             shadow_li, test_size=0.45, random_state=args.seed + i)
-        shadow_train_li, shadow_valid_li= train_test_split(
+        shadow_train_li, shadow_valid_li = train_test_split(
             shadow_train_li, test_size=0.1818, random_state=args.seed + i)
 
     # # shadow/target dataset info save
@@ -663,11 +666,14 @@ def run(args, epoch_callback=None):
           f"target valid size: {len(target_valid_li)}, "
           f"target test size: {len(target_test_li)}")
 
-    target_train_loader = DataLoader(target_train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers,
+    target_train_loader = DataLoader(target_train_dataset, batch_size=args.batch_size, shuffle=True,
+                                     num_workers=args.num_workers,
                                      pin_memory=True, worker_init_fn=seed_worker)
-    target_valid_loader = DataLoader(target_valid_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
-                                   pin_memory=True, worker_init_fn=seed_worker)
-    target_test_loader = DataLoader(target_test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers,
+    target_valid_loader = DataLoader(target_valid_dataset, batch_size=args.batch_size, shuffle=False,
+                                     num_workers=args.num_workers,
+                                     pin_memory=True, worker_init_fn=seed_worker)
+    target_test_loader = DataLoader(target_test_dataset, batch_size=args.batch_size, shuffle=False,
+                                    num_workers=args.num_workers,
                                     pin_memory=True, worker_init_fn=seed_worker)
 
     ### train target model ###
@@ -677,9 +683,12 @@ def run(args, epoch_callback=None):
     val_loss_list = []
     if args.defense in ['none', 'es', 'ls', 'cm', 'dropout', 'relaxloss']:
         if args.defense == 'dropout':
-            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0.5) # dropout rate setting
+            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr,
+                           weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100,
+                           dropout=0.5)  # dropout rate setting
         else:
-            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
+            model = ResNet(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr,
+                           weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout=0)
 
         best_acc = 0
         count = 0
@@ -711,16 +720,18 @@ def run(args, epoch_callback=None):
             if epoch_callback is not None:
                 epoch_callback(epoch, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
 
-        #shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
+        # shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
         shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
     elif args.defense == 'dpsgd':
-        model = DPsgd(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
+        model = DPsgd(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr,
+                      weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout=0)
         best_acc = 0
         count = 0
         for epoch in range(args.epochs):
-            train_acc, train_loss = model.train_dpsgd(target_train_loader, epoch, args.batch_size, f"epoch {epoch} train")
+            train_acc, train_loss = model.train_dpsgd(target_train_loader, epoch, args.batch_size,
+                                                      f"epoch {epoch} train")
             val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
-            #test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
+            # test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
             if val_acc > best_acc:
                 best_acc = val_acc
                 save_path = model.save(epoch)
@@ -750,7 +761,6 @@ def run(args, epoch_callback=None):
     }
 
 
-
 if __name__ == '__main__':
     ''''
     epochs = 50
@@ -761,7 +771,6 @@ if __name__ == '__main__':
     num_workers = 10
     '''
     parser = argparse.ArgumentParser(description='MIA - Target Training')
-
 
     parser.add_argument('-m', '--model_name', type=str,
                         help='please input dataset : resnet20, resnet50, densenet121, vgg11')
@@ -784,4 +793,3 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     run(args)
-

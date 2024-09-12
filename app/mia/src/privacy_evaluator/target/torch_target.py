@@ -115,7 +115,7 @@ def torch_train(model, num_class, dataset=None, checkpoint_path=None, epoch_call
         train_loss_list.append(train_loss)
         train_acc_list.append(train_acc)
         if epoch_callback is not None:
-            epoch_callback(epoch+1, aconf['epochs'], train_acc_list, train_loss_list, callback_message)
+            epoch_callback(epoch + 1, aconf['epochs'], train_acc_list, train_loss_list, callback_message)
 
     if checkpoint_path is not None:
         torch.save(model, checkpoint_path)

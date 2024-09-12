@@ -53,13 +53,15 @@ class Provider(AddressProvider):
     metro_manila_postcodes = tuple(x for x in range(400, 1849))
     luzon_province_postcodes = tuple(x for x in range(1850, 5000)) + tuple(x for x in range(5100, 5600))
     visayas_province_postcodes = (
-        tuple(x for x in range(5000, 5100)) + tuple(x for x in range(5600, 5800)) + tuple(x for x in range(6000, 6900))
+            tuple(x for x in range(5000, 5100)) + tuple(x for x in range(5600, 5800)) + tuple(
+        x for x in range(6000, 6900))
     )
     mindanao_province_postcodes = (
-        tuple(x for x in range(7000, 7600)) + tuple(x for x in range(8000, 8900)) + tuple(x for x in range(9000, 9900))
+            tuple(x for x in range(7000, 7600)) + tuple(x for x in range(8000, 8900)) + tuple(
+        x for x in range(9000, 9900))
     )
     postcodes = (
-        metro_manila_postcodes + luzon_province_postcodes + visayas_province_postcodes + mindanao_province_postcodes
+            metro_manila_postcodes + luzon_province_postcodes + visayas_province_postcodes + mindanao_province_postcodes
     )
     metro_manila_lgus = (
         "Caloocan",

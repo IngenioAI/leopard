@@ -199,10 +199,10 @@ class Provider(BaseProvider):
         return f"rgb({self.random_int(0, 255)},{self.random_int(0, 255)},{self.random_int(0, 255)})"
 
     def color(
-        self,
-        hue: Optional[HueType] = None,
-        luminosity: Optional[str] = None,
-        color_format: str = "hex",
+            self,
+            hue: Optional[HueType] = None,
+            luminosity: Optional[str] = None,
+            color_format: str = "hex",
     ) -> str:
         """Generate a color in a human-friendly way.
 

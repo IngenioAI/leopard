@@ -33,12 +33,12 @@ class EntityRecognizer:
     MAX_SCORE = 1.0
 
     def __init__(
-        self,
-        supported_entities: List[str],
-        name: str = None,
-        supported_language: str = "en",
-        version: str = "0.0.1",
-        context: Optional[List[str]] = None,
+            self,
+            supported_entities: List[str],
+            name: str = None,
+            supported_language: str = "en",
+            version: str = "0.0.1",
+            context: Optional[List[str]] = None,
     ):
 
         self.supported_entities = supported_entities
@@ -75,7 +75,7 @@ class EntityRecognizer:
 
     @abstractmethod
     def analyze(
-        self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts
+            self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts
     ) -> List[RecognizerResult]:
         """
         Analyze text to identify entities.
@@ -89,12 +89,12 @@ class EntityRecognizer:
         return None
 
     def enhance_using_context(
-        self,
-        text: str,
-        raw_recognizer_results: List[RecognizerResult],
-        other_raw_recognizer_results: List[RecognizerResult],
-        nlp_artifacts: NlpArtifacts,
-        context: Optional[List[str]] = None,
+            self,
+            text: str,
+            raw_recognizer_results: List[RecognizerResult],
+            other_raw_recognizer_results: List[RecognizerResult],
+            nlp_artifacts: NlpArtifacts,
+            context: Optional[List[str]] = None,
     ) -> List[RecognizerResult]:
         """Enhance confidence score using context of the entity.
 
@@ -187,8 +187,8 @@ class EntityRecognizer:
                 for filtered in filtered_results:
                     # If result is contained in one of the other results
                     if (
-                        result.contained_in(filtered)
-                        and result.entity_type == filtered.entity_type
+                            result.contained_in(filtered)
+                            and result.entity_type == filtered.entity_type
                     ):
                         to_keep = False
                         break

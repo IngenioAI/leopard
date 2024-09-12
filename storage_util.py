@@ -26,6 +26,7 @@ def get_storage_info(trait):
         data_store.manager.save_data_list("storage", storage_list)
     return [x for x in storage_list if trait in x['trait'] or trait == "*"]
 
+
 def get_storage_file_path(storage_id: str, file_path: str):
     storage_info_list = get_storage_info("*")
     storage_path = None
@@ -43,7 +44,7 @@ def get_storage_file_path(storage_id: str, file_path: str):
     return ""
 
 
-def get_file_list(storage_id: str, file_path: str = ".", sort = "default"):
+def get_file_list(storage_id: str, file_path: str = ".", sort="default"):
     storage_file_path = get_storage_file_path(storage_id, file_path)
     if os.path.exists(storage_file_path):
         if os.access(storage_file_path, os.R_OK):
@@ -68,6 +69,7 @@ def get_file_info(storage_id, file_path, file_list):
         }
         file_info_list.append(info)
     return file_info_list
+
 
 def ensure_path(path):
     if not os.path.exists(path):

@@ -129,13 +129,13 @@ class Provider(BankProvider):
     )
 
     checking_account_codes = (
-        [str(i) for i in range(102, 110)]
-        + ["203", "204"]
-        + [str(i) for i in range(301, 330)]
-        + [str(i) for i in range(401, 409)]
-        + [str(i) for i in range(411, 426)]
-        + ["430"]
-        + [str(i) for i in range(501, 527)]
+            [str(i) for i in range(102, 110)]
+            + ["203", "204"]
+            + [str(i) for i in range(301, 330)]
+            + [str(i) for i in range(401, 409)]
+            + [str(i) for i in range(411, 426)]
+            + ["430"]
+            + [str(i) for i in range(501, 527)]
     )
 
     organization_codes = (

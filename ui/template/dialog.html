@@ -1,24 +1,24 @@
 <div class="modal fade" tabindex="-1" id="LP_DIALOG_<!LP-include-string var='id' />">
     <div class="modal-dialog <!LP-include-string var='size' default='' /> modal-dialog-centered modal-dialog-scrollable">
-      <div class="modal-content">
-        <div class="modal-header">
-          <LP-include-content name="dialog_header">
-            <h5 class="modal-title" id="LP_DIALOG_<!LP-include-string var='id' />_title"></h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-          </LP-include-content>
+        <div class="modal-content">
+            <div class="modal-header">
+                <LP-include-content name="dialog_header">
+                    <h5 class="modal-title" id="LP_DIALOG_<!LP-include-string var='id' />_title"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </LP-include-content>
+            </div>
+            <div class="modal-body">
+                <LP-include-content name="dialog_body">
+                    <p id="LP_DIALOG_<!LP-include-string var='id' />_message"></p>
+                    <LP-include-content name="dialog_main"></LP-include-content>
+                </LP-include-content>
+            </div>
+            <div class="modal-footer">
+                <LP-include-content name="dialog_footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">닫기</button>
+                </LP-include-content>
+            </div>
         </div>
-        <div class="modal-body">
-          <LP-include-content name="dialog_body">
-            <p id="LP_DIALOG_<!LP-include-string var='id' />_message"></p>
-            <LP-include-content name="dialog_main"> </LP-include-content>
-          </LP-include-content>
-        </div>
-        <div class="modal-footer">
-          <LP-include-content name="dialog_footer">
-            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">닫기</button>
-          </LP-include-content>
-        </div>
-      </div>
     </div>
 </div>
 

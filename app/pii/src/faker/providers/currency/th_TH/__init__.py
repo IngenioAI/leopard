@@ -1,5 +1,6 @@
 from .. import Provider as CurrencyProvider
 
+
 # Names taken from https://std.moc.go.th/std/codelist_detail/40
 
 

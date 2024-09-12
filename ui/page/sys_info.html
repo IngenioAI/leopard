@@ -10,13 +10,14 @@
             <div class="col">
                 <div class="card mb-2 shadow-sm">
                     <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">CPU</h4>
+                        <h4 class="my-0 font-weight-normal">CPU</h4>
                     </div>
                     <div class="card-body">
-                    <h1 class="card-title"><span id="cpu_util">0</span> <small class="text-muted">%</small></h1>
+                        <h1 class="card-title"><span id="cpu_util">0</span> <small class="text-muted">%</small></h1>
                         <ul class="list-unstyled mt-2 mb-2">
                             <li><span id="cpu_info">Intel</span></li>
-                            <li>Core: <span id="cpu_core_count"></span>, Thread: <span id="cpu_thread_count"></span></li>
+                            <li>Core: <span id="cpu_core_count"></span>, Thread: <span id="cpu_thread_count"></span>
+                            </li>
                         </ul>
                     </div>
                 </div>
@@ -24,10 +25,10 @@
             <div class="col">
                 <div class="card mb-2 shadow-sm">
                     <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Memory</h4>
+                        <h4 class="my-0 font-weight-normal">Memory</h4>
                     </div>
                     <div class="card-body">
-                    <h1 class="card-title"><span id="mem_util">0</span> <small class="text-muted">%</small></h1>
+                        <h1 class="card-title"><span id="mem_util">0</span> <small class="text-muted">%</small></h1>
                         <ul class="list-unstyled mt-2 mb-2">
                             <li>Available: <span id="available_memory"></span></li>
                             <li>Total: <span id="total_memory"></span></li>
@@ -38,10 +39,10 @@
             <div class="col">
                 <div class="card mb-2 shadow-sm">
                     <div class="card-header">
-                    <h4 class="my-0 font-weight-normal">Disk</h4>
+                        <h4 class="my-0 font-weight-normal">Disk</h4>
                     </div>
                     <div class="card-body">
-                    <h1 class="card-title"><span id="disk_util">0</span> <small class="text-muted">%</small></h1>
+                        <h1 class="card-title"><span id="disk_util">0</span> <small class="text-muted">%</small></h1>
                         <ul class="list-unstyled mt-2 mb-2">
                             <li>Available: <span id="available_disk"></span></li>
                             <li>Total: <span id="total_disk"></span></li>
@@ -54,17 +55,17 @@
         <h4 class="mt-5">GPU List</h4>
         <div class="table-responsive">
             <table class="table table-sm">
-            <thead>
+                <thead>
                 <tr>
-                <th style="width:15%"></th>
-                <th style="width:30%">Name</th>
-                <th style="width:20%">Core Usage</th>
-                <th style="width:20%">Memory Usage</th>
-                <th style="width:15%">Temperature</th>
+                    <th style="width:15%"></th>
+                    <th style="width:30%">Name</th>
+                    <th style="width:20%">Core Usage</th>
+                    <th style="width:20%">Memory Usage</th>
+                    <th style="width:15%">Temperature</th>
                 </tr>
-            </thead>
-            <tbody id="gpu_list_tbody">
-            </tbody>
+                </thead>
+                <tbody id="gpu_list_tbody">
+                </tbody>
             </table>
         </div>
 

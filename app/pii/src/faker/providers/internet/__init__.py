@@ -270,12 +270,12 @@ class Provider(BaseProvider):
         return self._to_ascii(company_elements.pop(0))
 
     def dga(
-        self,
-        year: Optional[int] = None,
-        month: Optional[int] = None,
-        day: Optional[int] = None,
-        tld: Optional[str] = None,
-        length: Optional[int] = None,
+            self,
+            year: Optional[int] = None,
+            month: Optional[int] = None,
+            day: Optional[int] = None,
+            tld: Optional[str] = None,
+            length: Optional[int] = None,
     ) -> str:
         """Generates a domain name by given date
         https://en.wikipedia.org/wiki/Domain_generation_algorithm
@@ -364,8 +364,8 @@ class Provider(BaseProvider):
         return all_networks, weights
 
     def _get_private_networks_and_weights(
-        self,
-        address_class: Optional[str] = None,
+            self,
+            address_class: Optional[str] = None,
     ) -> Tuple[List[IPv4Network], List[int]]:
         """
         Produces an OrderedDict of valid private IPv4 networks and corresponding relative weights
@@ -399,8 +399,8 @@ class Provider(BaseProvider):
         return private_networks, weights
 
     def _get_public_networks_and_weights(
-        self,
-        address_class: Optional[str] = None,
+            self,
+            address_class: Optional[str] = None,
     ) -> Tuple[List[IPv4Network], List[int]]:
         """
         Produces a 2-tuple of valid public IPv4 networks and corresponding relative weights
@@ -433,10 +433,10 @@ class Provider(BaseProvider):
         return public_networks, weights
 
     def _random_ipv4_address_from_subnets(
-        self,
-        subnets: List[IPv4Network],
-        weights: Optional[List[int]] = None,
-        network: bool = False,
+            self,
+            subnets: List[IPv4Network],
+            weights: Optional[List[int]] = None,
+            network: bool = False,
     ) -> str:
         """
         Produces a random IPv4 address or network with a valid CIDR
@@ -453,9 +453,9 @@ class Provider(BaseProvider):
 
         # If the weights argument has an invalid value, default to equal distribution
         if (
-            isinstance(weights, list)
-            and len(subnets) == len(weights)
-            and all(isinstance(w, (float, int)) for w in weights)
+                isinstance(weights, list)
+                and len(subnets) == len(weights)
+                and all(isinstance(w, (float, int)) for w in weights)
         ):
             subnet = choices_distribution(
                 subnets,
@@ -487,7 +487,7 @@ class Provider(BaseProvider):
         return address
 
     def _exclude_ipv4_networks(
-        self, networks: List[IPv4Network], networks_to_exclude: List[IPv4Network]
+            self, networks: List[IPv4Network], networks_to_exclude: List[IPv4Network]
     ) -> List[IPv4Network]:
         """
         Exclude the list of networks from another list of networks
@@ -538,10 +538,10 @@ class Provider(BaseProvider):
         return self.random_element("abc")
 
     def ipv4(
-        self,
-        network: bool = False,
-        address_class: Optional[str] = None,
-        private: Optional[str] = None,
+            self,
+            network: bool = False,
+            address_class: Optional[str] = None,
+            private: Optional[str] = None,
     ) -> str:
         """
         Returns a random IPv4 address or network with a valid CIDR.
@@ -583,7 +583,7 @@ class Provider(BaseProvider):
 
     def ipv6(self, network: bool = False) -> str:
         """Produce a random IPv6 address or network with a valid CIDR"""
-        address = str(IPv6Address(self.generator.random.randint(2**IPV4LENGTH, (2**IPV6LENGTH) - 1)))
+        address = str(IPv6Address(self.generator.random.randint(2 ** IPV4LENGTH, (2 ** IPV6LENGTH) - 1)))
         if network:
             address += "/" + str(self.generator.random.randint(0, IPV6LENGTH))
             address = str(IPv6Network(address, strict=False))
@@ -636,10 +636,10 @@ class Provider(BaseProvider):
         return value
 
     def image_url(
-        self,
-        width: Optional[int] = None,
-        height: Optional[int] = None,
-        placeholder_url: Optional[str] = None,
+            self,
+            width: Optional[int] = None,
+            height: Optional[int] = None,
+            placeholder_url: Optional[str] = None,
     ) -> str:
         """
         Returns URL to placeholder image

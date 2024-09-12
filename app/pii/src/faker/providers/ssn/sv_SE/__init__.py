@@ -17,11 +17,11 @@ class Provider(SsnProvider):
         return f"SE{org_id}01"
 
     def ssn(
-        self,
-        min_age: int = 18,
-        max_age: int = 90,
-        long: bool = False,
-        dash: bool = True,
+            self,
+            min_age: int = 18,
+            max_age: int = 90,
+            long: bool = False,
+            dash: bool = True,
     ) -> str:
         """
         Returns a 10 or 12 (long=True) digit Swedish SSN, "Personnummer".

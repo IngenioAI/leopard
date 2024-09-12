@@ -382,8 +382,8 @@ class Provider(AddressProvider):
         :example: 'ห้วยนาง'
         """
         return (
-            f"{self.random_element(self.tambon_prefixes)}{self.random_element(self.tambons)}"
-            + f"{self.random_element(self.tambon_suffixes)}"
+                f"{self.random_element(self.tambon_prefixes)}{self.random_element(self.tambons)}"
+                + f"{self.random_element(self.tambon_suffixes)}"
         )
 
     def city_name(self) -> str:

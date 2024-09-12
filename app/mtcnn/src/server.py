@@ -73,11 +73,13 @@ def detect_faces(image_path):
     detector = MTCNN()
     return detector.detect_faces(img)
 
+
 @app.get("/api/ping")
 async def server_ping():
     return JSONResponse({
         "success": True
     })
+
 
 @app.post("/api/run", tags=["App"])
 async def run_app(req: Request):

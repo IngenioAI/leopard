@@ -13,13 +13,13 @@ class NlpArtifacts:
     """
 
     def __init__(
-        self,
-        entities: List[Span],
-        tokens: Doc,
-        tokens_indices: List[int],
-        lemmas: List[str],
-        nlp_engine,  # noqa ANN001
-        language: str,
+            self,
+            entities: List[Span],
+            tokens: Doc,
+            tokens_indices: List[int],
+            lemmas: List[str],
+            nlp_engine,  # noqa ANN001
+            language: str,
     ):
         self.entities = entities
         self.tokens = tokens
@@ -30,7 +30,7 @@ class NlpArtifacts:
 
     @staticmethod
     def set_keywords(
-        nlp_engine, lemmas: List[str], language: str  # noqa ANN001
+            nlp_engine, lemmas: List[str], language: str  # noqa ANN001
     ) -> List[str]:
         """
         Return keywords fpr text.
@@ -43,9 +43,9 @@ class NlpArtifacts:
             k.lower()
             for k in lemmas
             if not nlp_engine.is_stopword(k, language)
-            and not nlp_engine.is_punct(k, language)
-            and k != "-PRON-"
-            and k != "be"
+               and not nlp_engine.is_punct(k, language)
+               and k != "-PRON-"
+               and k != "be"
         ]
 
         # best effort, try even further to break tokens into sub tokens,

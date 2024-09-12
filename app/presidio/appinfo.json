@@ -1,22 +1,22 @@
 {
-    "id": "presidio",
-    "name": "프레시디오 (Presidio) 개인정보 도구",
-    "enable": false,
-    "type": "script",
-    "image": {
-        "tag": "leopard/presidio:1.0.1",
-        "build": {
-            "base": "python:3.8",
-            "update": true,
-            "apt": "tesseract-ocr libtesseract-dev",
-            "pip": "presidio_analyzer presidio_anonymizer presidio_image_redactor Pillow",
-            "additional_command": "python -m spacy download en_core_web_lg"
-        }
-    },
-    "execution": {
-        "src": "app/presidio/src",
-        "command_params": [],
-        "input": "storage/0/app/presidio/data",
-        "output": "storage/0/app/presidio/run"
+  "id": "presidio",
+  "name": "프레시디오 (Presidio) 개인정보 도구",
+  "enable": false,
+  "type": "script",
+  "image": {
+    "tag": "leopard/presidio:1.0.1",
+    "build": {
+      "base": "python:3.8",
+      "update": true,
+      "apt": "tesseract-ocr libtesseract-dev",
+      "pip": "presidio_analyzer presidio_anonymizer presidio_image_redactor Pillow",
+      "additional_command": "python -m spacy download en_core_web_lg"
     }
+  },
+  "execution": {
+    "src": "app/presidio/src",
+    "command_params": [],
+    "input": "storage/0/app/presidio/data",
+    "output": "storage/0/app/presidio/run"
+  }
 }

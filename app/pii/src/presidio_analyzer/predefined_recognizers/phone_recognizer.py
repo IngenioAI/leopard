@@ -25,11 +25,11 @@ class PhoneRecognizer(LocalRecognizer):
     DEFAULT_SUPPORTED_REGIONS = ("US", "UK", "DE", "FE", "IL", "IN", "CA", "BR")
 
     def __init__(
-        self,
-        context: Optional[List[str]] = None,
-        supported_language: str = "en",
-        # For all regions, use phonenumbers.SUPPORTED_REGIONS
-        supported_regions=DEFAULT_SUPPORTED_REGIONS,
+            self,
+            context: Optional[List[str]] = None,
+            supported_language: str = "en",
+            # For all regions, use phonenumbers.SUPPORTED_REGIONS
+            supported_regions=DEFAULT_SUPPORTED_REGIONS,
     ):
         context = context if context else self.CONTEXT
         self.supported_regions = supported_regions
@@ -46,7 +46,7 @@ class PhoneRecognizer(LocalRecognizer):
         return ["PHONE_NUMBER"]
 
     def analyze(
-        self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts = None
+            self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts = None
     ) -> List[RecognizerResult]:
         """Analyzes text to detect phone numbers using python-phonenumbers.
 
@@ -86,5 +86,5 @@ class PhoneRecognizer(LocalRecognizer):
             recognizer=PhoneRecognizer.__class__.__name__,
             original_score=self.SCORE,
             textual_explanation=f"Recognized as {region} region phone number, "
-            f"using PhoneRecognizer",
+                                f"using PhoneRecognizer",
         )

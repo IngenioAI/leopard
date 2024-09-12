@@ -16,12 +16,12 @@ class RemoteRecognizer(ABC, EntityRecognizer):
     """
 
     def __init__(
-        self,
-        supported_entities: List[str],
-        name: Optional[str],
-        supported_language: str,
-        version: str,
-        context: Optional[List[str]] = None,
+            self,
+            supported_entities: List[str],
+            name: Optional[str],
+            supported_language: str,
+            version: str,
+            context: Optional[List[str]] = None,
     ):
         super().__init__(
             supported_entities=supported_entities,
@@ -37,7 +37,7 @@ class RemoteRecognizer(ABC, EntityRecognizer):
 
     @abstractmethod
     def analyze(
-        self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts
+            self, text: str, entities: List[str], nlp_artifacts: NlpArtifacts
     ):  # noqa ANN201
         """
         Call an external service for PII detection.

@@ -1,12 +1,11 @@
 ## Privacy Risk Assessment tool for Machine Learning Models
 
-
 ### For Tensorflow (.h5) and Pytorch (.pt) Models
 
 `Must have Python version >= 3.9`  and  `install -r requirements.txt`
-    
+
 Arguments for running  `main.py` for attacks:
-    
+
     --model_path  | MODEL_PATH  Absolute path where pretrained model is saved                            
     --attack      | ATTACK      Attack type: "custom" | "lira" | "population" | "reference" | "shadow"
     --n_class     | N_CLASS     Number of classes of target model dataset, default is 10 (for Cifar10). Pass 100    
@@ -17,7 +16,6 @@ Arguments for running  `main.py` for attacks:
 If no target model exist then train it first with or without Differential Privacy:
 
     $ python main.py --model_path /path/to/model --train True 
-
 
 For `lira attacks` you can change the config file in `attacks/config.py`
 

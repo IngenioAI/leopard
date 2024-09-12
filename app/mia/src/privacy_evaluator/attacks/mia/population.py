@@ -8,6 +8,7 @@ from attacks.config import priv_meter as pm
 
 from _utils.helper import convert_result_list
 
+
 def run_population_metric(tdata, model, num_class, is_torch):
     target_dataset, reference_dataset = get_trg_ref_data(
         tdata, num_class, population=True)

@@ -12,7 +12,6 @@ _re_token = re.compile(r"\{\{\s*(\w+)(:\s*\w+?)?\s*\}\}")
 random = random_module.Random()
 mod_random = random  # compat with name released in 0.8
 
-
 Sentinel = object()
 
 

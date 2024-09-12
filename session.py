@@ -13,12 +13,12 @@ class SessionData(BaseModel):
 
 class BasicVerifier(SessionVerifier[UUID, SessionData]):
     def __init__(
-        self,
-        *,
-        identifier: str,
-        auto_error: bool,
-        backend: InMemoryBackend[UUID, SessionData],
-        auth_http_exception: HTTPException,
+            self,
+            *,
+            identifier: str,
+            auto_error: bool,
+            backend: InMemoryBackend[UUID, SessionData],
+            auth_http_exception: HTTPException,
     ):
         self._identifier = identifier
         self._auto_error = auto_error
@@ -103,6 +103,7 @@ session_manager = SessionManager()
 
 session_router = APIRouter(prefix="/api/session", tags=["Session"])
 
+
 @session_router.post("/create/{name}")
 async def create_session(name: str, response: Response):
     session = uuid4()
@@ -113,7 +114,8 @@ async def create_session(name: str, response: Response):
         "success": True,
         "username": name,
         "session": str(session)
-    }    # do not use JSONResponse, cookie cannot be attached to JSONResponse
+    }  # do not use JSONResponse, cookie cannot be attached to JSONResponse
+
 
 @session_router.get("/current", dependencies=[Depends(session_manager.cookie)])
 async def get_session(session_data: SessionData = Depends(session_manager.verifier)):
@@ -121,6 +123,7 @@ async def get_session(session_data: SessionData = Depends(session_manager.verifi
         "success": True,
         "username": session_data.username
     }
+
 
 @session_router.delete("/current")
 async def delete_session(response: Response, session_id: UUID = Depends(session_manager.cookie)):
@@ -131,6 +134,7 @@ async def delete_session(response: Response, session_id: UUID = Depends(session_
         "success": True
     }
 
+
 @session_router.post("/data")
 async def save_session_data(request: Request, session_id: UUID = Depends(session_manager.cookie)):
     data = await request.json()
@@ -139,6 +143,7 @@ async def save_session_data(request: Request, session_id: UUID = Depends(session
         "success": True
     }
 
+
 @session_router.get("/data")
 async def get_session_data(session_id: UUID = Depends(session_manager.cookie)):
     data = session_manager.get_data(session_id)
@@ -146,6 +151,7 @@ async def get_session_data(session_id: UUID = Depends(session_manager.cookie)):
         "success": True,
         "data": data
     }
+
 
 @session_router.delete("/data")
 async def delete_session_data(session_id: UUID = Depends(session_manager.cookie)):

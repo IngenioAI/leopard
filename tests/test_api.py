@@ -6,6 +6,7 @@ from server import app, init_app, deinit_app
 
 client = TestClient(app)
 
+
 @pytest.fixture(scope="module")
 def server():
     config = {
@@ -15,11 +16,13 @@ def server():
     yield
     deinit_app()
 
+
 # pylint: disable=redefined-outer-name, unused-argument
 
 def test_root(server):
     response = client.get("/")
     assert response.status_code == 200
+
 
 def test_image(server):
     response = client.get("/api/image/list")
@@ -31,7 +34,8 @@ def test_image(server):
 
     response = client.post(
         "/api/image/create",
-        json={"name": "test-pytest", "baseImage": "python:3.8", "update": False, "aptInstall": "", "pipInstall": "pytest", "additionalCommand": ""}
+        json={"name": "test-pytest", "baseImage": "python:3.8", "update": False, "aptInstall": "",
+              "pipInstall": "pytest", "additionalCommand": ""}
     )
     res = response.json()
     assert response.status_code == 200
@@ -74,6 +78,7 @@ def test_image(server):
             break
     assert not image_exist
 
+
 def test_storage(server):
     response = client.get("/api/storage/list")
     assert response.status_code == 200
@@ -97,7 +102,7 @@ def test_storage(server):
 
     # Put file item
     response = client.put(f'/api/storage/file/{storage_id}/test-pytest/test.txt',
-               content="sample text")
+                          content="sample text")
     assert response.status_code == 200
 
     response = client.get(f'/api/storage/file/{storage_id}/test-pytest/test.txt')
@@ -124,6 +129,7 @@ def test_storage(server):
             break
     assert not dir_exist
 
+
 def test_exec(server):
     response = client.get("/api/storage/list")
     assert response.status_code == 200
@@ -132,19 +138,19 @@ def test_exec(server):
     storage_id = res[0]["id"]
     response = client.put(f'/api/storage/dir/{storage_id}/test-pytest')
     response = client.put(f'/api/storage/file/{storage_id}/test-pytest/test.py',
-               content="print('Hello')")
+                          content="print('Hello')")
     assert response.status_code == 200
 
     response = client.post('/api/exec/create',
-                json={
-                    "id": "pytest",
-                    "srcPath": f'{storage_id}:/test-pytest',
-                    "command": "python test.py",
-                    "imageTag": "python:3.8",
-                    "inputPath": "",
-                    "outputPath": "",
-                    "useGPU": False
-                })
+                           json={
+                               "id": "pytest",
+                               "srcPath": f'{storage_id}:/test-pytest',
+                               "command": "python test.py",
+                               "imageTag": "python:3.8",
+                               "inputPath": "",
+                               "outputPath": "",
+                               "useGPU": False
+                           })
     assert response.status_code == 200
     res = response.json()
     print(response, res)
@@ -211,6 +217,7 @@ def test_dataset(server):
             break
     assert not dataset_exist
 
+
 def test_model(server):
     response = client.get("/api/model/list")
     assert response.status_code == 200
@@ -254,9 +261,11 @@ def test_model(server):
             break
     assert not model_exist
 
+
 def test_app(server):
     response = client.get("/api/app/list")
     assert response.status_code == 200
+
 
 def test_sys_info(server):
     response = client.get("/api/system/info")

@@ -182,14 +182,14 @@ class Provider(BaseProvider):
         name_initials = FORBIDDEN_WORDS.get(name_initials, name_initials)
 
         random_curp = (
-            name_initials
-            + birth_date
-            + gender
-            + state
-            + first_surname_inside
-            + second_surname_inside
-            + given_name_inside
-            + assigned_character
+                name_initials
+                + birth_date
+                + gender
+                + state
+                + first_surname_inside
+                + second_surname_inside
+                + given_name_inside
+                + assigned_character
         )
 
         random_curp += str(curp_checksum(random_curp))
@@ -215,7 +215,7 @@ class Provider(BaseProvider):
             name_initials = FORBIDDEN_WORDS.get(name_initials, name_initials)
         else:
             name_initials = (
-                self.random_uppercase_letter() + self.random_uppercase_letter() + self.random_uppercase_letter()
+                    self.random_uppercase_letter() + self.random_uppercase_letter() + self.random_uppercase_letter()
             )
 
         birth_date = birthday.strftime("%y%m%d")

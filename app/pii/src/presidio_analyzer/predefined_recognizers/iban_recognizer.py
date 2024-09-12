@@ -54,15 +54,15 @@ class IbanRecognizer(PatternRecognizer):
     }
 
     def __init__(
-        self,
-        patterns: List[str] = None,
-        context: List[str] = None,
-        supported_language: str = "en",
-        supported_entity: str = "IBAN_CODE",
-        exact_match: bool = False,
-        bos_eos: Tuple[str, str] = (BOS, EOS),
-        regex_flags: int = re.DOTALL | re.MULTILINE,
-        replacement_pairs: Optional[List[Tuple[str, str]]] = None,
+            self,
+            patterns: List[str] = None,
+            context: List[str] = None,
+            supported_language: str = "en",
+            supported_entity: str = "IBAN_CODE",
+            exact_match: bool = False,
+            bos_eos: Tuple[str, str] = (BOS, EOS),
+            regex_flags: int = re.DOTALL | re.MULTILINE,
+            replacement_pairs: Optional[List[Tuple[str, str]]] = None,
     ):
         self.replacement_pairs = replacement_pairs or [("-", ""), (" ", "")]
         self.exact_match = exact_match
@@ -81,8 +81,8 @@ class IbanRecognizer(PatternRecognizer):
         try:
             pattern_text = self.__sanitize_value(pattern_text, self.replacement_pairs)
             is_valid_checksum = (
-                self.__generate_iban_check_digits(pattern_text, self.LETTERS)
-                == pattern_text[2:4]
+                    self.__generate_iban_check_digits(pattern_text, self.LETTERS)
+                    == pattern_text[2:4]
             )
             # score = EntityRecognizer.MIN_SCORE
             result = False
@@ -97,11 +97,11 @@ class IbanRecognizer(PatternRecognizer):
             return False
 
     def analyze(
-        self,
-        text: str,
-        entities: List[str],
-        nlp_artifacts: NlpArtifacts = None,
-        regex_flags: int = None,
+            self,
+            text: str,
+            entities: List[str],
+            nlp_artifacts: NlpArtifacts = None,
+            regex_flags: int = None,
     ) -> List[RecognizerResult]:
         """Analyze IBAN."""
         results = []
@@ -186,9 +186,9 @@ class IbanRecognizer(PatternRecognizer):
 
     @staticmethod
     def __is_valid_format(
-        iban: str,
-        bos_eos: Tuple[str, str] = (BOS, EOS),
-        flags: int = re.DOTALL | re.MULTILINE,
+            iban: str,
+            bos_eos: Tuple[str, str] = (BOS, EOS),
+            flags: int = re.DOTALL | re.MULTILINE,
     ) -> bool:
         country_code = iban[:2]
         if country_code in regex_per_country:

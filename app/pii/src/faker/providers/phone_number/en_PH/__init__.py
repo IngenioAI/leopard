@@ -123,7 +123,7 @@ class Provider(BaseProvider):
         "+63{{sun_mobile_number_prefix}}-###-####",
     )
     mobile_number_formats: Tuple[str, ...] = (
-        globe_mobile_number_formats + smart_mobile_number_formats + sun_mobile_number_formats
+            globe_mobile_number_formats + smart_mobile_number_formats + sun_mobile_number_formats
     )
 
     bayantel_landline_identifiers: Tuple[str, ...] = tuple(str(x) for x in range(3000, 3500))
@@ -185,10 +185,10 @@ class Provider(BaseProvider):
         "+632-{{misc_landline_identifier}}-####",
     )
     area2_landline_number_formats: Tuple[str, ...] = (
-        globe_area2_landline_number_formats
-        + pldt_area2_landline_number_formats
-        + bayantel_area2_landline_number_formats
-        + misc_area2_landline_number_formats
+            globe_area2_landline_number_formats
+            + pldt_area2_landline_number_formats
+            + bayantel_area2_landline_number_formats
+            + misc_area2_landline_number_formats
     )
     non_area2_landline_number_formats: Tuple[str, ...] = (
         "0{{non_area2_landline_area_code}}-###-####",

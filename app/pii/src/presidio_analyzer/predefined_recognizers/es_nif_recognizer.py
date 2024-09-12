@@ -27,12 +27,12 @@ class EsNifRecognizer(PatternRecognizer):
     CONTEXT = ["documento nacional de identidad", "DNI", "NIF", "identificación"]
 
     def __init__(
-        self,
-        patterns: Optional[List[Pattern]] = None,
-        context: Optional[List[str]] = None,
-        supported_language: str = "es",
-        supported_entity: str = "ES_NIF",
-        replacement_pairs: Optional[List[Tuple[str, str]]] = None,
+            self,
+            patterns: Optional[List[Pattern]] = None,
+            context: Optional[List[str]] = None,
+            supported_language: str = "es",
+            supported_entity: str = "ES_NIF",
+            replacement_pairs: Optional[List[Tuple[str, str]]] = None,
     ):
         self.replacement_pairs = (
             replacement_pairs if replacement_pairs else [("-", ""), (" ", "")]

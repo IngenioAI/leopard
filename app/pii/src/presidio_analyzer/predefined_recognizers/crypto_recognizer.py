@@ -3,6 +3,7 @@ from typing import List, Optional
 
 from presidio_analyzer import Pattern, PatternRecognizer
 
+
 # Copied from:
 # http://rosettacode.org/wiki/Bitcoin/address_validation#Python
 
@@ -23,11 +24,11 @@ class CryptoRecognizer(PatternRecognizer):
     CONTEXT = ["wallet", "btc", "bitcoin", "crypto"]
 
     def __init__(
-        self,
-        patterns: Optional[List[Pattern]] = None,
-        context: Optional[List[str]] = None,
-        supported_language: str = "en",
-        supported_entity: str = "CRYPTO",
+            self,
+            patterns: Optional[List[Pattern]] = None,
+            context: Optional[List[str]] = None,
+            supported_language: str = "en",
+            supported_entity: str = "CRYPTO",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

@@ -21,11 +21,11 @@ T = TypeVar("T")
 
 
 def print_provider(
-    doc: Documentor,
-    provider: BaseProvider,
-    formatters: Dict[str, T],
-    excludes: Optional[List[str]] = None,
-    output: Optional[TextIO] = None,
+        doc: Documentor,
+        provider: BaseProvider,
+        formatters: Dict[str, T],
+        excludes: Optional[List[str]] = None,
+        output: Optional[TextIO] = None,
 ) -> None:
     if output is None:
         output = sys.stdout
@@ -60,12 +60,12 @@ def print_provider(
 
 
 def print_doc(
-    provider_or_field: Optional[str] = None,
-    args: Optional[List[T]] = None,
-    lang: str = DEFAULT_LOCALE,
-    output: Optional[Union[TextIO, TextIOWrapper]] = None,
-    seed: Optional[float] = None,
-    includes: Optional[List[str]] = None,
+        provider_or_field: Optional[str] = None,
+        args: Optional[List[T]] = None,
+        lang: str = DEFAULT_LOCALE,
+        output: Optional[Union[TextIO, TextIOWrapper]] = None,
+        seed: Optional[float] = None,
+        includes: Optional[List[str]] = None,
 ) -> None:
     if args is None:
         args = []
@@ -178,9 +178,9 @@ examples:
             "--verbose",
             action="store_true",
             help="show INFO logging events instead "
-            "of CRITICAL, which is the default. These logging "
-            "events provide insight into localization of "
-            "specific providers.",
+                 "of CRITICAL, which is the default. These logging "
+                 "events provide insight into localization of "
+                 "specific providers.",
         )
 
         parser.add_argument(
@@ -218,8 +218,8 @@ examples:
             metavar="SEED",
             type=int,
             help="specify a seed for the random generator so "
-            "that results are repeatable. Also compatible "
-            "with 'repeat' option",
+                 "that results are repeatable. Also compatible "
+                 "with 'repeat' option",
         )
 
         parser.add_argument(
@@ -228,9 +228,9 @@ examples:
             default=META_PROVIDERS_MODULES,
             nargs="*",
             help="list of additional custom providers to "
-            "user, given as the import path of the module "
-            "containing your Provider class (not the provider "
-            "class itself)",
+                 "user, given as the import path of the module "
+                 "containing your Provider class (not the provider "
+                 "class itself)",
         )
 
         parser.add_argument(
@@ -246,9 +246,9 @@ examples:
             action="store",
             nargs="*",
             help="optional arguments to pass to the fake "
-            "(e.g. the profile fake takes an optional "
-            "list of comma separated field names as the "
-            "first argument)",
+                 "(e.g. the profile fake takes an optional "
+                 "list of comma separated field names as the "
+                 "first argument)",
         )
 
         arguments = parser.parse_args(self.argv[1:])

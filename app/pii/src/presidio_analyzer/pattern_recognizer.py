@@ -29,15 +29,15 @@ class PatternRecognizer(LocalRecognizer):
     """
 
     def __init__(
-        self,
-        supported_entity: str,
-        name: str = None,
-        supported_language: str = "en",
-        patterns: List[Pattern] = None,
-        deny_list: List[str] = None,
-        context: List[str] = None,
-        deny_list_score: float = 1.0,
-        version: str = "0.0.1",
+            self,
+            supported_entity: str,
+            name: str = None,
+            supported_language: str = "en",
+            patterns: List[Pattern] = None,
+            deny_list: List[str] = None,
+            context: List[str] = None,
+            deny_list_score: float = 1.0,
+            version: str = "0.0.1",
     ):
 
         if not supported_entity:
@@ -73,11 +73,11 @@ class PatternRecognizer(LocalRecognizer):
         pass
 
     def analyze(
-        self,
-        text: str,
-        entities: List[str],
-        nlp_artifacts: NlpArtifacts = None,
-        regex_flags: int = None,
+            self,
+            text: str,
+            entities: List[str],
+            nlp_artifacts: NlpArtifacts = None,
+            regex_flags: int = None,
     ) -> List[RecognizerResult]:
         """
         Analyzes text to detect PII using regular expressions or deny-lists.
@@ -135,11 +135,11 @@ class PatternRecognizer(LocalRecognizer):
 
     @staticmethod
     def build_regex_explanation(
-        recognizer_name: str,
-        pattern_name: str,
-        pattern: str,
-        original_score: float,
-        validation_result: bool,
+            recognizer_name: str,
+            pattern_name: str,
+            pattern: str,
+            original_score: float,
+            validation_result: bool,
     ) -> AnalysisExplanation:
         """
         Construct an explanation for why this entity was detected.
@@ -161,7 +161,7 @@ class PatternRecognizer(LocalRecognizer):
         return explanation
 
     def __analyze_patterns(
-        self, text: str, flags: int = None
+            self, text: str, flags: int = None
     ) -> List[RecognizerResult]:
         """
         Evaluate all patterns in the provided text.

@@ -3,7 +3,7 @@ from presidio_anonymizer.entities import InvalidParamException
 
 
 def validate_parameter_in_range(
-    values_range, parameter_value, parameter_name: str, parameter_type: type
+        values_range, parameter_value, parameter_name: str, parameter_type: type
 ) -> None:
     """Validate an anonymizer parameter.
 
@@ -21,7 +21,7 @@ def validate_parameter_in_range(
 
 
 def validate_parameter_not_empty(
-    parameter_value, entity: str, parameter_name: str
+        parameter_value, entity: str, parameter_name: str
 ) -> None:
     """Validate parameter exists and not only empty."""
     if not parameter_value:
@@ -31,7 +31,7 @@ def validate_parameter_not_empty(
 
 
 def validate_parameter_exists(
-    parameter_value, entity: str, parameter_name: str
+        parameter_value, entity: str, parameter_name: str
 ) -> None:
     """Validate parameter is not empty."""
     if parameter_value is None:
@@ -41,7 +41,7 @@ def validate_parameter_exists(
 
 
 def validate_parameter(
-    parameter_value, parameter_name: str, parameter_type: type
+        parameter_value, parameter_name: str, parameter_type: type
 ) -> None:
     """Validate an anonymizer parameter.
 

@@ -3,6 +3,7 @@ from typing import Dict
 
 from .. import Provider as PersonProvider
 
+
 # Data source
 #
 # Data for this provider comes from the following source:

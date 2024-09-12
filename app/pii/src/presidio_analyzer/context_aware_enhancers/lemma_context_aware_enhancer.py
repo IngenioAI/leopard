@@ -27,11 +27,11 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
     """
 
     def __init__(
-        self,
-        context_similarity_factor: float = 0.35,
-        min_score_with_context_similarity: float = 0.4,
-        context_prefix_count: int = 5,
-        context_suffix_count: int = 0,
+            self,
+            context_similarity_factor: float = 0.35,
+            min_score_with_context_similarity: float = 0.4,
+            context_prefix_count: int = 5,
+            context_suffix_count: int = 0,
     ):
         super().__init__(
             context_similarity_factor=context_similarity_factor,
@@ -41,12 +41,12 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
         )
 
     def enhance_using_context(
-        self,
-        text: str,
-        raw_results: List[RecognizerResult],
-        nlp_artifacts: NlpArtifacts,
-        recognizers: List[EntityRecognizer],
-        context: Optional[List[str]] = None,
+            self,
+            text: str,
+            raw_results: List[RecognizerResult],
+            nlp_artifacts: NlpArtifacts,
+            recognizers: List[EntityRecognizer],
+            context: Optional[List[str]] = None,
     ) -> List[RecognizerResult]:
         """
         Update results in case the lemmas of surrounding words or input context
@@ -88,9 +88,9 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
             recognizer = None
             # get recognizer matching the result, if found.
             if (
-                result.recognition_metadata
-                and RecognizerResult.RECOGNIZER_IDENTIFIER_KEY
-                in result.recognition_metadata.keys()
+                    result.recognition_metadata
+                    and RecognizerResult.RECOGNIZER_IDENTIFIER_KEY
+                    in result.recognition_metadata.keys()
             ):
                 recognizer = recognizers_dict.get(
                     result.recognition_metadata[
@@ -116,13 +116,13 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
 
             # skip context enhancement if already boosted by recognizer level
             if result.recognition_metadata.get(
-                RecognizerResult.IS_SCORE_ENHANCED_BY_CONTEXT_KEY
+                    RecognizerResult.IS_SCORE_ENHANCED_BY_CONTEXT_KEY
             ):
                 logger.debug("result score already boosted, skipping")
                 continue
 
             # extract lemmatized context from the surrounding of the match
-            word = text[result.start : result.end]
+            word = text[result.start: result.end]
 
             surrounding_words = self._extract_surrounding_words(
                 nlp_artifacts=nlp_artifacts, word=word, start=result.start
@@ -149,7 +149,7 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
 
     @staticmethod
     def _find_supportive_word_in_context(
-        context_list: List[str], recognizer_context_list: List[str]
+            context_list: List[str], recognizer_context_list: List[str]
     ) -> str:
         """
         Find words in the text which are relevant for context evaluation.
@@ -187,7 +187,7 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
         return word
 
     def _extract_surrounding_words(
-        self, nlp_artifacts: NlpArtifacts, word: str, start: int
+            self, nlp_artifacts: NlpArtifacts, word: str, start: int
     ) -> List[str]:
         """Extract words surrounding another given word.
 
@@ -243,7 +243,7 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
 
     @staticmethod
     def _find_index_of_match_token(
-        word: str, start: int, tokens, tokens_indices: List[int]  # noqa ANN001
+            word: str, start: int, tokens, tokens_indices: List[int]  # noqa ANN001
     ) -> int:
         found = False
         # we use the known start index of the original word to find the actual
@@ -267,18 +267,18 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
         if not found:
             raise ValueError(
                 "Did not find word '" + word + "' "
-                "in the list of tokens although it "
-                "is expected to be found"
+                                               "in the list of tokens although it "
+                                               "is expected to be found"
             )
         return i
 
     @staticmethod
     def _add_n_words(
-        index: int,
-        n_words: int,
-        lemmas: List[str],
-        lemmatized_filtered_keywords: List[str],
-        is_backward: bool,
+            index: int,
+            n_words: int,
+            lemmas: List[str],
+            lemmatized_filtered_keywords: List[str],
+            is_backward: bool,
     ) -> List[str]:
         """
         Prepare a string of context words.
@@ -312,22 +312,22 @@ class LemmaContextAwareEnhancer(ContextAwareEnhancer):
         return context_words
 
     def _add_n_words_forward(
-        self,
-        index: int,
-        n_words: int,
-        lemmas: List[str],
-        lemmatized_filtered_keywords: List[str],
+            self,
+            index: int,
+            n_words: int,
+            lemmas: List[str],
+            lemmatized_filtered_keywords: List[str],
     ) -> List[str]:
         return self._add_n_words(
             index, n_words, lemmas, lemmatized_filtered_keywords, False
         )
 
     def _add_n_words_backward(
-        self,
-        index: int,
-        n_words: int,
-        lemmas: List[str],
-        lemmatized_filtered_keywords: List[str],
+            self,
+            index: int,
+            n_words: int,
+            lemmas: List[str],
+            lemmatized_filtered_keywords: List[str],
     ) -> List[str]:
         return self._add_n_words(
             index, n_words, lemmas, lemmatized_filtered_keywords, True

@@ -45,10 +45,10 @@ class SpacyNlpEngine(NlpEngine):
         return self._doc_to_nlp_artifact(doc, language)
 
     def process_batch(
-        self,
-        texts: Union[List[str], List[Tuple[str, object]]],
-        language: str,
-        as_tuples: bool = False,
+            self,
+            texts: Union[List[str], List[Tuple[str, object]]],
+            language: str,
+            as_tuples: bool = False,
     ) -> Iterator[Optional[NlpArtifacts]]:
         """Execute the NLP pipeline on a batch of texts using spacy pipe."""
         texts = (str(text) for text in texts)

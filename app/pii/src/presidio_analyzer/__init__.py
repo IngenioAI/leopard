@@ -17,7 +17,6 @@ from presidio_analyzer.analyzer_request import AnalyzerRequest
 from presidio_analyzer.context_aware_enhancers import ContextAwareEnhancer
 from presidio_analyzer.context_aware_enhancers import LemmaContextAwareEnhancer
 
-
 # Define default loggers behavior
 
 # 1. presidio_analyzer logger

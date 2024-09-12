@@ -9,11 +9,11 @@ class ISBN:
     MAX_LENGTH = 13
 
     def __init__(
-        self,
-        ean: Optional[str] = None,
-        group: Optional[str] = None,
-        registrant: Optional[str] = None,
-        publication: Optional[str] = None,
+            self,
+            ean: Optional[str] = None,
+            group: Optional[str] = None,
+            registrant: Optional[str] = None,
+            publication: Optional[str] = None,
     ) -> None:
         self.ean = ean
         self.group = group
@@ -43,12 +43,12 @@ class ISBN13(ISBN):
             [
                 part
                 for part in [
-                    self.ean,
-                    self.group,
-                    self.registrant,
-                    self.publication,
-                    self.check_digit,
-                ]
+                self.ean,
+                self.group,
+                self.registrant,
+                self.publication,
+                self.check_digit,
+            ]
                 if part is not None
             ]
         )
@@ -75,11 +75,11 @@ class ISBN10(ISBN):
             [
                 part
                 for part in [
-                    self.group,
-                    self.registrant,
-                    self.publication,
-                    self.check_digit,
-                ]
+                self.group,
+                self.registrant,
+                self.publication,
+                self.check_digit,
+            ]
                 if part is not None
             ]
         )

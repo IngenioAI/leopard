@@ -11,12 +11,12 @@ CardType = TypeVar("CardType", "CreditCard", str)
 
 class CreditCard:
     def __init__(
-        self,
-        name: str,
-        prefixes: List[str],
-        length: int = 16,
-        security_code: str = "CVC",
-        security_code_length: int = 3,
+            self,
+            name: str,
+            prefixes: List[str],
+            length: int = 16,
+            security_code: str = "CVC",
+            security_code_length: int = 3,
     ) -> None:
         self.name = name
         self.prefixes = prefixes
@@ -141,10 +141,10 @@ class Provider(BaseProvider):
         return number
 
     def credit_card_expire(
-        self,
-        start: DateParseType = "now",
-        end: DateParseType = "+10y",
-        date_format: str = "%m/%y",
+            self,
+            start: DateParseType = "now",
+            end: DateParseType = "+10y",
+            date_format: str = "%m/%y",
     ) -> str:
         """Generate a credit card expiry date.
 

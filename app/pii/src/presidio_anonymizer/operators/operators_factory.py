@@ -16,7 +16,7 @@ class OperatorsFactory:
         self.logger = logging.getLogger("presidio-anonymizer")
 
     def create_operator_class(
-        self, operator_name: str, operator_type: OperatorType
+            self, operator_name: str, operator_type: OperatorType
     ) -> Operator:
         """
         Extract the operator class from the operators list.

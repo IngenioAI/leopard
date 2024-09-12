@@ -14,6 +14,7 @@ import upload_util
 import storage_util
 from fastapi_util import JSONResponseHandler
 
+
 class ExecManager():
     def __init__(self) -> None:
         self.docker = docker_runner.DockerRunner()
@@ -41,9 +42,11 @@ class ExecManager():
     def get_run_path(self, id_name):
         return os.path.join("storage", "run", id_name)
 
-    def create_exec(self, id_name, source_path, command_line, base_image, input_path, output_path, user_data, use_gpu = True):
+    def create_exec(self, id_name, source_path, command_line, base_image, input_path, output_path, user_data,
+                    use_gpu=True):
         run_path = self.get_run_path(id_name)
-        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path, { "run_path": run_path, "use_gpu": use_gpu })
+        res, info = self.docker.exec_command(source_path, command_line, base_image, input_path, output_path,
+                                             {"run_path": run_path, "use_gpu": use_gpu})
         if res:
             container_id = info["container_id"]
             exec_info = self.docker.exec_inspect(container_id)
@@ -94,7 +97,7 @@ class ExecManager():
         for info in self.exec_list:
             if info["id"] == exec_id:
                 return self.docker.exec_stop(info["container_id"])
-        return False, { "error_message": f'ID not found: {exec_id}'}
+        return False, {"error_message": f'ID not found: {exec_id}'}
 
     def remove_exec(self, exec_id):
         for info in self.exec_list:
@@ -118,7 +121,7 @@ class ExecManager():
                 self.exec_list.remove(info)
                 self.save()
                 return res, error_info
-        return False, { "error_message": f'ID not found: {exec_id}'}
+        return False, {"error_message": f'ID not found: {exec_id}'}
 
     def get_progress(self, exec_id):
         progress_info_path = os.path.join(self.get_run_path(exec_id), "progress.json")
@@ -134,7 +137,7 @@ class ExecManager():
                 return json.load(fp)
         return None
 
-    def start(self, config):    # pylint: disable=unused-argument
+    def start(self, config):  # pylint: disable=unused-argument
         if self.timer is None:
             self.timer = Timer(self.timer_inteval, self.run)
             self.timer.start()
@@ -175,9 +178,11 @@ exec_manager = ExecManager()
 
 exec_router = APIRouter(prefix="/api/exec", tags=["Exec"])
 
+
 @exec_router.get("/list")
 async def get_exec_list():
     return JSONResponseHandler(exec_manager.get_list())
+
 
 class ExecutionItem(BaseModel):
     id: str
@@ -211,13 +216,14 @@ async def create_execution(data: ExecutionItem):
         output_path = storage_util.get_storage_file_path(paths[0], paths[1])
     else:
         output_path = None
-    res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path, data.userdata, data.useGPU)
+    res, info = exec_manager.create_exec(data.id, source_path, data.command, data.imageTag, input_path, output_path,
+                                         data.userdata, data.useGPU)
     if res:
         return JSONResponseHandler({
             "success": True,
             "exec_info": info
         })
-    return JSONResponseHandler({ "success": False }.update(info))
+    return JSONResponseHandler({"success": False}.update(info))
 
 
 @exec_router.get("/info/{exec_id}")
@@ -234,26 +240,30 @@ async def get_execution_logs(exec_id: str):
         "lines": logs
     })
 
+
 @exec_router.put("/stop/{exec_id}")
 async def stop_execution(exec_id: str):
     res, error_info = exec_manager.stop_exec(exec_id)
-    response = { "success": res }
+    response = {"success": res}
     if error_info is not None:
         response.update(error_info)
     return JSONResponseHandler(response)
 
+
 @exec_router.delete("/item/{exec_id}")
 async def remove_execution_info(exec_id: str):
     res, error_info = exec_manager.remove_exec(exec_id)
-    response = { "success": res }
+    response = {"success": res}
     if error_info is not None:
         response.update(error_info)
     return JSONResponseHandler(response)
+
 
 @exec_router.get("/progress/{exec_id}")
 async def get_execution_progress(exec_id: str):
     info = exec_manager.get_progress(exec_id)
     return JSONResponseHandler(info)
+
 
 @exec_router.get("/result/{exec_id}")
 async def get_execution_result(exec_id: str):

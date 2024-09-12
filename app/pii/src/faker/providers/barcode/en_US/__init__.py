@@ -135,7 +135,7 @@ class Provider(BarcodeProvider):
         if base_[-1] <= 2:
             code = base_[:2] + base_[-1:] + [0] * 4 + base_[2:-1]
         elif base_[-1] <= 4:
-            code = base_[: base_[-1]] + [0] * 5 + base_[base_[-1] : -1]
+            code = base_[: base_[-1]] + [0] * 5 + base_[base_[-1]: -1]
         else:
             code = base_[:5] + [0] * 4 + base_[-1:]
 
@@ -147,10 +147,10 @@ class Provider(BarcodeProvider):
         return "".join(str(x) for x in code)
 
     def upc_a(
-        self,
-        upc_ae_mode: bool = False,
-        base: Optional[str] = None,
-        number_system_digit: Optional[int] = None,
+            self,
+            upc_ae_mode: bool = False,
+            base: Optional[str] = None,
+            number_system_digit: Optional[int] = None,
     ) -> str:
         """Generate a 12-digit UPC-A barcode.
 
@@ -192,10 +192,10 @@ class Provider(BarcodeProvider):
             return ean13[1:]
 
     def upc_e(
-        self,
-        base: Optional[str] = None,
-        number_system_digit: Optional[int] = None,
-        safe_mode: bool = True,
+            self,
+            base: Optional[str] = None,
+            number_system_digit: Optional[int] = None,
+            safe_mode: bool = True,
     ) -> str:
         """Generate an 8-digit UPC-E barcode.
 

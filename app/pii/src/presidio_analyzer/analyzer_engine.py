@@ -40,14 +40,14 @@ class AnalyzerEngine:
     """
 
     def __init__(
-        self,
-        registry: RecognizerRegistry = None,
-        nlp_engine: NlpEngine = None,
-        app_tracer: AppTracer = None,
-        log_decision_process: bool = False,
-        default_score_threshold: float = 0,
-        supported_languages: List[str] = None,
-        context_aware_enhancer: Optional[ContextAwareEnhancer] = None,
+            self,
+            registry: RecognizerRegistry = None,
+            nlp_engine: NlpEngine = None,
+            app_tracer: AppTracer = None,
+            log_decision_process: bool = False,
+            default_score_threshold: float = 0,
+            supported_languages: List[str] = None,
+            context_aware_enhancer: Optional[ContextAwareEnhancer] = None,
     ):
         if not supported_languages:
             supported_languages = ["en"]
@@ -123,17 +123,17 @@ class AnalyzerEngine:
         return list(set(supported_entities))
 
     def analyze(
-        self,
-        text: str,
-        language: str,
-        entities: Optional[List[str]] = None,
-        correlation_id: Optional[str] = None,
-        score_threshold: Optional[float] = None,
-        return_decision_process: Optional[bool] = False,
-        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
-        context: Optional[List[str]] = None,
-        allow_list: Optional[List[str]] = None,
-        nlp_artifacts: Optional[NlpArtifacts] = None,
+            self,
+            text: str,
+            language: str,
+            entities: Optional[List[str]] = None,
+            correlation_id: Optional[str] = None,
+            score_threshold: Optional[float] = None,
+            return_decision_process: Optional[bool] = False,
+            ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
+            context: Optional[List[str]] = None,
+            allow_list: Optional[List[str]] = None,
+            nlp_artifacts: Optional[NlpArtifacts] = None,
     ) -> List[RecognizerResult]:
         """
         Find PII entities in text using different PII recognizers for a given language.
@@ -233,12 +233,12 @@ class AnalyzerEngine:
         return results
 
     def _enhance_using_context(
-        self,
-        text: str,
-        raw_results: List[RecognizerResult],
-        nlp_artifacts: NlpArtifacts,
-        recognizers: List[EntityRecognizer],
-        context: Optional[List[str]] = None,
+            self,
+            text: str,
+            raw_results: List[RecognizerResult],
+            nlp_artifacts: NlpArtifacts,
+            recognizers: List[EntityRecognizer],
+            context: Optional[List[str]] = None,
     ) -> List[RecognizerResult]:
         """
         Enhance confidence score using context words.
@@ -259,13 +259,13 @@ class AnalyzerEngine:
                 r
                 for r in raw_results
                 if r.recognition_metadata[RecognizerResult.RECOGNIZER_IDENTIFIER_KEY]
-                == recognizer.id
+                   == recognizer.id
             ]
             other_recognizer_results = [
                 r
                 for r in raw_results
                 if r.recognition_metadata[RecognizerResult.RECOGNIZER_IDENTIFIER_KEY]
-                != recognizer.id
+                   != recognizer.id
             ]
 
             # enhance score using context in recognizer level if implemented
@@ -294,7 +294,7 @@ class AnalyzerEngine:
         return results
 
     def __remove_low_scores(
-        self, results: List[RecognizerResult], score_threshold: float = None
+            self, results: List[RecognizerResult], score_threshold: float = None
     ) -> List[RecognizerResult]:
         """
         Remove results for which the confidence is lower than the threshold.
@@ -311,7 +311,7 @@ class AnalyzerEngine:
 
     @staticmethod
     def _remove_allow_list(
-        results: List[RecognizerResult], allow_list: List[str], text: str
+            results: List[RecognizerResult], allow_list: List[str], text: str
     ) -> List[RecognizerResult]:
         """
         Remove results which are part of the allow list.
@@ -323,7 +323,7 @@ class AnalyzerEngine:
         """
         new_results = []
         for result in results:
-            word = text[result.start : result.end]
+            word = text[result.start: result.end]
             # if the word is not specified to be allowed, keep in the PII entities
             if word not in allow_list:
                 new_results.append(result)
@@ -332,7 +332,7 @@ class AnalyzerEngine:
 
     @staticmethod
     def __add_recognizer_id_if_not_exists(
-        results: List[RecognizerResult], recognizer: EntityRecognizer
+            results: List[RecognizerResult], recognizer: EntityRecognizer
     ):
         """Ensure recognition metadata with recognizer id existence.
 
@@ -347,8 +347,8 @@ class AnalyzerEngine:
             if not result.recognition_metadata:
                 result.recognition_metadata = dict()
             if (
-                RecognizerResult.RECOGNIZER_IDENTIFIER_KEY
-                not in result.recognition_metadata
+                    RecognizerResult.RECOGNIZER_IDENTIFIER_KEY
+                    not in result.recognition_metadata
             ):
                 result.recognition_metadata[
                     RecognizerResult.RECOGNIZER_IDENTIFIER_KEY
@@ -360,7 +360,7 @@ class AnalyzerEngine:
 
     @staticmethod
     def __remove_decision_process(
-        results: List[RecognizerResult],
+            results: List[RecognizerResult],
     ) -> List[RecognizerResult]:
         """Remove decision process / analysis explanation from response."""
 

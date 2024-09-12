@@ -1014,9 +1014,9 @@ class Provider(BaseProvider):
         return (self.latitude(), self.longitude())
 
     def local_latlng(
-        self,
-        country_code: str = "US",
-        coords_only: bool = False,
+            self,
+            country_code: str = "US",
+            coords_only: bool = False,
     ) -> Optional[Tuple[str, ...]]:
         """Returns a location known to exist on land in a country specified by `country_code`.
         Defaults to 'en_US'. See the `land_coords` list for available locations/countries.

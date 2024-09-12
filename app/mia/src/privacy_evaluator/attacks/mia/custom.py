@@ -47,9 +47,9 @@ def run_custom_attacks(attack_input):
     attacks_result = mia.run_attacks(attack_input=attack_input,
                                      slicing_spec=slicing_spec,
                                      attack_types=metric_attacks)
-    #print(attacks_result.summary(by_slices=True))
+    # print(attacks_result.summary(by_slices=True))
     pd.set_option("display.max_rows", 12, "display.max_columns", None)
-    #print(attacks_result.calculate_pd_dataframe())
+    # print(attacks_result.calculate_pd_dataframe())
     result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "attack type", "AUC"]]
     print(result_df)
     metric_attack_result = {}
@@ -66,7 +66,7 @@ def run_custom_attacks(attack_input):
     attacks_result = mia.run_attacks(attack_input=attack_input,
                                      slicing_spec=slicing_spec,
                                      attack_types=trained_attacks)
-    #print(attacks_result.summary(by_slices=True))
+    # print(attacks_result.summary(by_slices=True))
     pd.set_option("display.max_rows", 12, "display.max_columns", None)
     result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "AUC"]]
     print(result_df)

@@ -1,6 +1,7 @@
 import os
 import json
 
+
 def update_dict(dst, src, replace=False):
     if replace:
         old_keys = list(dst.keys())
@@ -12,6 +13,7 @@ def update_dict(dst, src, replace=False):
     if replace:
         for deleted_key in old_keys:
             del dst[deleted_key]
+
 
 class DataStore():
     def __init__(self, name, data_path="data", data_type="list") -> None:

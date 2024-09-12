@@ -4,7 +4,6 @@ from presidio_analyzer import Pattern, PatternRecognizer
 
 
 class RRNRecognizer(PatternRecognizer):
-
     PATTERNS = [
         Pattern(
             "Resident Registration Number",
@@ -19,11 +18,11 @@ class RRNRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-        self,
-        patterns: Optional[List[Pattern]] = None,
-        context: Optional[List[str]] = None,
-        supported_language: str = "ko",
-        supported_entity: str = "주민등록번호",
+            self,
+            patterns: Optional[List[Pattern]] = None,
+            context: Optional[List[str]] = None,
+            supported_language: str = "ko",
+            supported_entity: str = "주민등록번호",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

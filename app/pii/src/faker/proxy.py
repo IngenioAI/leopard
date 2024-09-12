@@ -25,13 +25,13 @@ class Faker:
     ]
 
     def __init__(
-        self,
-        locale: Optional[Union[str, Sequence[str], Dict[str, Union[int, float]]]] = None,
-        providers: Optional[List[str]] = None,
-        generator: Optional[Generator] = None,
-        includes: Optional[List[str]] = None,
-        use_weighting: bool = True,
-        **config: Any,
+            self,
+            locale: Optional[Union[str, Sequence[str], Dict[str, Union[int, float]]]] = None,
+            providers: Optional[List[str]] = None,
+            generator: Optional[Generator] = None,
+            includes: Optional[List[str]] = None,
+            use_weighting: bool = True,
+            **config: Any,
     ) -> None:
         self._factory_map = OrderedDict()
         self._weights = None

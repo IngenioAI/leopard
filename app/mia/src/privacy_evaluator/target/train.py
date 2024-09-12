@@ -17,6 +17,7 @@ def epoch_callback(epoch, max_epochs, train_acc, train_loss, val_acc, val_loss):
         "val_loss": val_loss
     })
 
+
 def train(params):
     if "model_name" in params:
         args = argparse.Namespace(**params)

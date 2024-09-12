@@ -1,5 +1,6 @@
 from fastapi.responses import JSONResponse
 
+
 def JSONResponseHandler(data):  # pylint: disable=invalid-name
     try:
         return JSONResponse(data)

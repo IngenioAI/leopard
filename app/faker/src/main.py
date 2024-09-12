@@ -51,6 +51,7 @@ def create_log_info(args, header: list, count: int):
             "text_path": csv_filepath
         }, fp)
 
+
 def main(args):
     with open("/data/input/%s" % args.input, "rt", encoding="UTF-8") as fp:
         params = json.load(fp)

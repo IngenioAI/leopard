@@ -32,10 +32,10 @@ class NlpEngineProvider:
     """
 
     def __init__(
-        self,
-        nlp_engines: Optional[Tuple] = None,
-        conf_file: Optional[Union[Path, str]] = None,
-        nlp_configuration: Optional[Dict] = None,
+            self,
+            nlp_engines: Optional[Tuple] = None,
+            conf_file: Optional[Union[Path, str]] = None,
+            nlp_configuration: Optional[Dict] = None,
     ):
 
         if not nlp_engines:
@@ -67,9 +67,9 @@ class NlpEngineProvider:
     def create_engine(self) -> NlpEngine:
         """Create an NLP engine instance."""
         if (
-            not self.nlp_configuration
-            or not self.nlp_configuration.get("models")
-            or not self.nlp_configuration.get("nlp_engine_name")
+                not self.nlp_configuration
+                or not self.nlp_configuration.get("models")
+                or not self.nlp_configuration.get("nlp_engine_name")
         ):
             raise ValueError(
                 "Illegal nlp configuration. "
@@ -118,7 +118,7 @@ class NlpEngineProvider:
 
     @staticmethod
     def _get_full_conf_path(
-        default_conf_file: Union[Path, str] = "default.yaml"
+            default_conf_file: Union[Path, str] = "default.yaml"
     ) -> Path:
         """Return a Path to the default conf file."""
         return Path(Path(__file__).parent.parent.parent, "conf", default_conf_file)
