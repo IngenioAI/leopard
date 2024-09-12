@@ -58,6 +58,7 @@ def get_stat_and_loss_aug(model,
                           sample_weight: Optional[np.ndarray] = None,
                           batch_size=64,
                           is_torch=False):
+
     losses, stat = [], []
     print('Computing stats from loss and logits....')
 
@@ -93,9 +94,9 @@ def get_trg_ref_data(tdata, num_class, population=False):
         tdata.test_labels, num_class)
 
     x_train, y_train = x_train_all[:pm['num_train_points']
-                       ], y_train_all[:pm['num_train_points']]
+                                   ], y_train_all[:pm['num_train_points']]
     x_test, y_test = x_test_all[:pm['num_test_points']
-                     ], y_test_all[:pm['num_test_points']]
+                                ], y_test_all[:pm['num_test_points']]
 
     train_ds = {'x': x_train, 'y': y_train}
     test_ds = {'x': x_test, 'y': y_test}
@@ -110,9 +111,9 @@ def get_trg_ref_data(tdata, num_class, population=False):
 
     else:
         x_population = x_train_all[pm['num_train_points']:(
-                pm['num_train_points'] + pm['num_population_points'])]
+            pm['num_train_points'] + pm['num_population_points'])]
         y_population = y_train_all[pm['num_train_points']:(
-                pm['num_train_points'] + pm['num_population_points'])]
+            pm['num_train_points'] + pm['num_population_points'])]
 
         population_ds = {'x': x_population, 'y': y_population}
         reference_dataset = Dataset(
@@ -129,13 +130,12 @@ def plot_curve_with_area(x, y, xlabel, ylabel, ax, label, title=None):
     ax.set(aspect=1, xscale='log', yscale='log')
     ax.title.set_text(title)
 
-
 def convert_result_list(audit_result_list):
     result_list = []
     for audit_result in audit_result_list:
         result = dict()
         item_key = ['metric_id', 'roc_auc']
-        list_key = ['accuracy', 'tn', 'tp', 'fp', 'fn']
+        list_key = ['accuracy','tn', 'tp', 'fp', 'fn']
         for item in item_key:
             result[item] = audit_result.__dict__[item]
         for item in list_key:

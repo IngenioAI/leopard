@@ -18,8 +18,7 @@ class EmailRecognizer(PatternRecognizer):
     PATTERNS = [
         Pattern(
             "Email (Medium)",
-            r"\b((([!#$%&'*+\-/=?^_`{|}~\w])|([!#$%&'*+\-/=?^_`{|}~\w][!#$%&'*+\-/=?^_`{|}~\.\w]{0,}[!#$%&'*+\-/=?^_`{|}~\w]))[@]\w+([-.]\w+)*\.\w+([-.]\w+)*)\b",
-            # noqa: E501
+            r"\b((([!#$%&'*+\-/=?^_`{|}~\w])|([!#$%&'*+\-/=?^_`{|}~\w][!#$%&'*+\-/=?^_`{|}~\.\w]{0,}[!#$%&'*+\-/=?^_`{|}~\w]))[@]\w+([-.]\w+)*\.\w+([-.]\w+)*)\b",  # noqa: E501
             0.5,
         ),
     ]
@@ -27,11 +26,11 @@ class EmailRecognizer(PatternRecognizer):
     CONTEXT = ["email"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "en",
-            supported_entity: str = "EMAIL_ADDRESS",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "en",
+        supported_entity: str = "EMAIL_ADDRESS",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

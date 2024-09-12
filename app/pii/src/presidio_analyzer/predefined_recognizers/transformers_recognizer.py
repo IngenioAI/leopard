@@ -65,7 +65,7 @@ class TransformersRecognizer(SpacyRecognizer):
 
     @staticmethod
     def __check_label(
-            entity: str, label: str, check_label_groups: Tuple[Set, Set]
+        entity: str, label: str, check_label_groups: Tuple[Set, Set]
     ) -> bool:
         return any(
             [entity in egrp and label in lgrp for egrp, lgrp in check_label_groups]

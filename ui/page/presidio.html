@@ -2,51 +2,51 @@
 <html lang="ko">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Leopard</title>
-    <LP-include-html src="head.html"></LP-include-html>
-    <script type="module" src="/js/page/presidio.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leopard</title>
+  <LP-include-html src="head.html"></LP-include-html>
+  <script type="module" src="/js/page/presidio.js"></script>
 </head>
 
 <body>
-<LP-include-html src="bs-script.html"></LP-include-html>
-<LP-include-html src="topbar.html"></LP-include-html>
+  <LP-include-html src="bs-script.html"></LP-include-html>
+  <LP-include-html src="topbar.html"></LP-include-html>
 
-<div class="container-fluid">
+  <div class="container-fluid">
     <div class="row">
-        <LP-include-html src="sidebar.html"></LP-include-html>
-        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
-            <div class="p-3 bg-body-tertiary" style="width:100%;">
-                <h2>프레시디오 (Presidio)</h2>
-                <h4>텍스트 분석 및 익명화</h4>
-                <div class="container">
-                    <textarea id="input_text" class="form-control" rows="10"></textarea>
-                    <div class="my-2">
-                        <button type="button" class="btn btn-primary" id="analyze_button">분석</button>
-                        <button type="button" class="btn btn-primary" id="anonymize_button">익명화</button>
-                        <button type="button" class="btn btn-primary" id="anonymize_encrypt_button">익명암호화</button>
-                    </div>
-                    <textarea id="output_text" class="form-control" rows="10"></textarea>
-                    <div class="my-2">
-                        <button type="button" class="btn btn-primary" id="deanonymize_button">역익명암호화</button>
-                    </div>
-                    <textarea id="restore_text" class="form-control" rows="10"></textarea>
-                </div>
-                <div clas="my-8">&nbsp;</div>
-                <h4>이미지 민감 정보 처리</h4>
-                <div class="container my-4">
-                    <button type="button" class="btn btn-primary" id="redact_image_button">파일 선택</button>
-                </div>
-
-                <div id="image_view" style="max-width: 100%;">
-                </div>
+      <LP-include-html src="sidebar.html"></LP-include-html>
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <div class="p-3 bg-body-tertiary" style="width:100%;">
+          <h2>프레시디오 (Presidio)</h2>
+          <h4>텍스트 분석 및 익명화</h4>
+          <div class="container">
+            <textarea id="input_text"  class="form-control" rows="10"></textarea>
+            <div class="my-2">
+                <button type="button" class="btn btn-primary" id="analyze_button">분석</button>
+                <button type="button" class="btn btn-primary" id="anonymize_button">익명화</button>
+                <button type="button" class="btn btn-primary" id="anonymize_encrypt_button">익명암호화</button>
             </div>
-        </main>
+            <textarea id="output_text"  class="form-control" rows="10"></textarea>
+            <div class="my-2">
+                <button type="button" class="btn btn-primary" id="deanonymize_button">역익명암호화</button>
+            </div>
+            <textarea id="restore_text"  class="form-control" rows="10"></textarea>
+          </div>
+          <div clas="my-8">&nbsp;</div>
+          <h4>이미지 민감 정보 처리</h4>
+          <div class="container my-4">
+            <button type="button" class="btn btn-primary" id="redact_image_button">파일 선택</button>
+          </div>
+
+          <div id="image_view" style="max-width: 100%;">
+          </div>
+        </div>
+      </main>
     </div>
-</div>
-<LP-include-html src="fileupload.html"></LP-include-html>
-<LP-include-html src="messagebox.html"></LP-include-html>
+  </div>
+  <LP-include-html src="fileupload.html"></LP-include-html>
+  <LP-include-html src="messagebox.html"></LP-include-html>
 </body>
 
 </html>

@@ -1,201 +1,167 @@
 [
-  {
-    "id": "mia_train",
-    "name": "MIA 데모용 모델 학습기",
-    "type": "script",
-    "image": {
-      "tag": "leopard/mia:1.0.0",
-      "build": {
-        "base": "tensorflow/tensorflow:2.14.0-gpu",
-        "update": false,
-        "apt": "",
-        "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
-        "additional_command": ""
-      }
-    },
-    "execution": {
-      "src": "app/mia/src/privacy_evaluator/target",
-      "main": "train.py",
-      "wait": false,
-      "command_params": [],
-      "input": "storage/0/app/mia/input",
-      "output": "storage/0/app/mia/output",
-      "run_path": "storage/0/app/mia/run",
-      "binds": [
-        [
-          "/dataset",
-          "storage/0/app/mia/data"
-        ],
-        [
-          "/model",
-          "storage/0/app/mia/model"
+    {
+        "id": "mia_train",
+        "name": "MIA 데모용 모델 학습기",
+        "type": "script",
+        "image": {
+            "tag": "leopard/mia:1.0.0",
+            "build": {
+                "base": "tensorflow/tensorflow:2.14.0-gpu",
+                "update": false,
+                "apt": "",
+                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/mia/src/privacy_evaluator/target",
+            "main": "train.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/mia/input",
+            "output": "storage/0/app/mia/output",
+            "run_path": "storage/0/app/mia/run",
+            "binds": [
+                ["/dataset", "storage/0/app/mia/data"],
+                ["/model", "storage/0/app/mia/model"]
+            ]
+        },
+        "input_form_spec": [
+            {
+                "id": "model_name",
+                "title": "모델",
+                "type": "select",
+                "values": ["resnet20", "resnet50", "densenet121", "vgg11"],
+                "default": "resnet20"
+            },
+            {
+                "id": "datasets",
+                "title": "데이터셋",
+                "type": "select",
+                "values": ["cifar10", "cifar100"],
+                "default": "cifar100"
+            },
+            {
+                "id": "defense",
+                "title": "방어기법",
+                "type": "select",
+                "values": ["none", "ls", "cm", "dropout", "relaxloss", "dpsgd", "es"],
+                "default": "none"
+            },
+            {
+                "id": "batch_size",
+                "title": "batch size",
+                "type": "number",
+                "default": 128
+            },
+            {
+                "id": "num_workers",
+                "title": "number of workers",
+                "type": "number",
+                "default": 5
+            },
+            {
+                "id": "epochs",
+                "title": "epochs",
+                "type": "number",
+                "default": 300
+            },
+            {
+                "id": "shadow_num",
+                "title": "shadow num",
+                "type": "number",
+                "default": 1
+            },
+            {
+                "id": "early_stop",
+                "title": "early stop",
+                "type": "number",
+                "default": 5
+            },
+            {
+                "id": "weight_decay",
+                "title": "weight decay",
+                "type": "float",
+                "default": 1e-4
+            },
+            {
+                "id": "lr",
+                "title": "learning rate",
+                "type": "float",
+                "default": 0.1
+            },
+            {
+                "id": "momentum",
+                "title": "momentum",
+                "type": "float",
+                "default": 0.9
+            },
+            {
+                "id": "seed",
+                "title": "random seed",
+                "type": "number",
+                "default": 1000
+            }
         ]
-      ]
     },
-    "input_form_spec": [
-      {
-        "id": "model_name",
-        "title": "모델",
-        "type": "select",
-        "values": [
-          "resnet20",
-          "resnet50",
-          "densenet121",
-          "vgg11"
-        ],
-        "default": "resnet20"
-      },
-      {
-        "id": "datasets",
-        "title": "데이터셋",
-        "type": "select",
-        "values": [
-          "cifar10",
-          "cifar100"
-        ],
-        "default": "cifar100"
-      },
-      {
-        "id": "defense",
-        "title": "방어기법",
-        "type": "select",
-        "values": [
-          "none",
-          "ls",
-          "cm",
-          "dropout",
-          "relaxloss",
-          "dpsgd",
-          "es"
-        ],
-        "default": "none"
-      },
-      {
-        "id": "batch_size",
-        "title": "batch size",
-        "type": "number",
-        "default": 128
-      },
-      {
-        "id": "num_workers",
-        "title": "number of workers",
-        "type": "number",
-        "default": 5
-      },
-      {
-        "id": "epochs",
-        "title": "epochs",
-        "type": "number",
-        "default": 300
-      },
-      {
-        "id": "shadow_num",
-        "title": "shadow num",
-        "type": "number",
-        "default": 1
-      },
-      {
-        "id": "early_stop",
-        "title": "early stop",
-        "type": "number",
-        "default": 5
-      },
-      {
-        "id": "weight_decay",
-        "title": "weight decay",
-        "type": "float",
-        "default": 1e-4
-      },
-      {
-        "id": "lr",
-        "title": "learning rate",
-        "type": "float",
-        "default": 0.1
-      },
-      {
-        "id": "momentum",
-        "title": "momentum",
-        "type": "float",
-        "default": 0.9
-      },
-      {
-        "id": "seed",
-        "title": "random seed",
-        "type": "number",
-        "default": 1000
-      }
-    ]
-  },
-  {
-    "id": "mia_attack",
-    "name": "모델 안정성 평가 (MIA)",
-    "type": "script",
-    "image": {
-      "tag": "leopard/mia:1.0.0",
-      "build": {
-        "base": "tensorflow/tensorflow:2.14.0-gpu",
-        "update": false,
-        "apt": "",
-        "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
-        "additional_command": ""
-      }
-    },
-    "execution": {
-      "src": "app/mia/src/privacy_evaluator",
-      "main": "mia_attack.py",
-      "wait": false,
-      "command_params": [],
-      "input": "storage/0/app/mia/input",
-      "output": "storage/0/app/mia/output",
-      "run_path": "storage/0/app/mia/run",
-      "binds": [
-        [
-          "/dataset",
-          "storage/0/app/mia/data"
-        ],
-        [
-          "/model",
-          "storage/0/app/mia/model"
+    {
+        "id": "mia_attack",
+        "name": "모델 안정성 평가 (MIA)",
+        "type": "script",
+        "image": {
+            "tag": "leopard/mia:1.0.0",
+            "build": {
+                "base": "tensorflow/tensorflow:2.14.0-gpu",
+                "update": false,
+                "apt": "",
+                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/mia/src/privacy_evaluator",
+            "main": "mia_attack.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/mia/input",
+            "output": "storage/0/app/mia/output",
+            "run_path": "storage/0/app/mia/run",
+            "binds": [
+                ["/dataset", "storage/0/app/mia/data"],
+                ["/model", "storage/0/app/mia/model"]
+            ]
+        },
+        "input_form_spec": [
+            {
+                "id": "model_path",
+                "title": "모델 경로",
+                "type": "test"
+            },
+            {
+                "id": "train",
+                "title": "새로 학습",
+                "type": "bool",
+                "default": false
+            },
+            {
+                "id": "dp_on",
+                "title": "새로 학습시 Differential Privacy 사용 (tensorflow)",
+                "type": "bool",
+                "default": false
+            },
+            {
+                "id": "n_class",
+                "title": "클래스 개수",
+                "type": "number",
+                "default": 100
+            },
+            {
+                "id": "attack",
+                "title": "공격 방식",
+                "type": "select",
+                "values": ["custom", "lira", "population", "reference", "shadow"],
+                "default": "custom"
+            }
         ]
-      ]
-    },
-    "input_form_spec": [
-      {
-        "id": "model_path",
-        "title": "모델 경로",
-        "type": "test"
-      },
-      {
-        "id": "train",
-        "title": "새로 학습",
-        "type": "bool",
-        "default": false
-      },
-      {
-        "id": "dp_on",
-        "title": "새로 학습시 Differential Privacy 사용 (tensorflow)",
-        "type": "bool",
-        "default": false
-      },
-      {
-        "id": "n_class",
-        "title": "클래스 개수",
-        "type": "number",
-        "default": 100
-      },
-      {
-        "id": "attack",
-        "title": "공격 방식",
-        "type": "select",
-        "values": [
-          "custom",
-          "lira",
-          "population",
-          "reference",
-          "shadow"
-        ],
-        "default": "custom"
-      }
-    ]
-  }
+    }
 ]

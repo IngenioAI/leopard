@@ -1,6 +1,5 @@
 from .. import Provider as BaseProvider
 
-
 # Source: Gist
 # https://raw.githubusercontent.com/neves/escolar/master/profissoes.txt
 

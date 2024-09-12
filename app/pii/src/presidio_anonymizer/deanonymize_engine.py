@@ -15,10 +15,10 @@ class DeanonymizeEngine(EngineBase):
         EngineBase.__init__(self)
 
     def deanonymize(
-            self,
-            text: str,
-            entities: List[OperatorResult],
-            operators: Dict[str, OperatorConfig],
+        self,
+        text: str,
+        entities: List[OperatorResult],
+        operators: Dict[str, OperatorConfig],
     ) -> EngineResult:
         """
         Receive the text, entities and operators to perform deanonymization over.

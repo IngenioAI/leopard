@@ -4,6 +4,7 @@ from presidio_analyzer import Pattern, PatternRecognizer
 
 
 class KRDriverLicenseRecognizer(PatternRecognizer):
+
     PATTERNS = [
         Pattern(
             "Driver License",
@@ -16,11 +17,11 @@ class KRDriverLicenseRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "ko",
-            supported_entity: str = "운전면허번호",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "ko",
+        supported_entity: str = "운전면허번호",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

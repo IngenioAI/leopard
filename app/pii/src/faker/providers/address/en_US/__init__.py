@@ -501,9 +501,9 @@ class Provider(AddressProvider):
     state = administrative_unit
 
     def state_abbr(
-            self,
-            include_territories: bool = True,
-            include_freely_associated_states: bool = True,
+        self,
+        include_territories: bool = True,
+        include_freely_associated_states: bool = True,
     ) -> str:
         """
         :returns: A random two-letter USPS postal code
@@ -551,7 +551,7 @@ class Provider(AddressProvider):
             current_postcode_len = len(postcode)
             if current_postcode_len < target_postcode_len:
                 pad = target_postcode_len - current_postcode_len
-                postcode = f"{'0' * pad}{postcode}"
+                postcode = f"{'0'*pad}{postcode}"
 
             return postcode
 

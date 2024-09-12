@@ -26,11 +26,11 @@ class ItDriverLicenseRecognizer(PatternRecognizer):
     CONTEXT = ["patente", "patente di guida", "licenza", "licenza di guida"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "it",
-            supported_entity: str = "IT_DRIVER_LICENSE",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "it",
+        supported_entity: str = "IT_DRIVER_LICENSE",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

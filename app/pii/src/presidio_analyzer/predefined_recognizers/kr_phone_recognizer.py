@@ -4,6 +4,7 @@ from presidio_analyzer import Pattern, PatternRecognizer
 
 
 class KRPhoneRecognizer(PatternRecognizer):
+
     PATTERNS = [
         Pattern(
             "Phone Number",
@@ -23,11 +24,11 @@ class KRPhoneRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "ko",
-            supported_entity: str = "전화번호",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "ko",
+        supported_entity: str = "전화번호",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

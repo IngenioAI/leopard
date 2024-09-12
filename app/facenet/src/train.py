@@ -19,7 +19,6 @@ from torch.optim.lr_scheduler import MultiStepLR
 
 from utils import save_result, clear_progress, save_progress
 
-
 def load_data(data_path, batch_size):
     save_progress({
         "status": "running",
@@ -37,12 +36,10 @@ def load_data(data_path, batch_size):
     test_loader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=False)
     return train_loader, test_loader, trainset.class_to_idx
 
-
 def split_class_data(dataset, forget_class_idx):
     forget_index = [i for i, (_, target) in enumerate(dataset) if target == forget_class_idx]
     retain_index = [i for i, (_, target) in enumerate(dataset) if target != forget_class_idx]
     return forget_index, retain_index
-
 
 def load_unlearning_data(data_path, forget_class_idx, batch_size):
     save_progress({
@@ -72,9 +69,8 @@ def load_unlearning_data(data_path, forget_class_idx, batch_size):
 
     return train_forget_loader, test_forget_loader, test_retain_loader, train_set.class_to_idx
 
-
 class PGD():
-    def __init__(self, model=None, eps=8 / 255, alpha=2 / 255, iters=10, denorm=True):
+    def __init__(self, model=None, eps=8/255, alpha=2/255, iters=10, denorm=True):
         self.model = model
         self.eps = eps
         self.alpha = alpha
@@ -133,7 +129,6 @@ class PGD():
         self.model.train()
         return adv_inputs
 
-
 class FaceNet():
     def __init__(self, model_path, num_classes=10, resume_train=False, freeze=False):
         self.num_classes = num_classes
@@ -168,12 +163,12 @@ class FaceNet():
 
     def train_epoch(self, dataloader, criterion, optimizer):
         self.model.train()
-        correct, losses, total = 0, 0, 0
+        correct, losses, total=0, 0, 0
         for images, labels in dataloader:
             optimizer.zero_grad()
             images, labels = images.to(self.device), labels.to(self.device)
             outputs = self.model(images)
-            loss = criterion(outputs, labels)
+            loss=criterion(outputs, labels)
             loss.backward()
             optimizer.step()
 
@@ -200,6 +195,7 @@ class FaceNet():
             "message": "Model Save"
         })
 
+
     def train(self, train_loader, test_loader, epochs=8, lr=1e-3, momentum=0.9, weight_decay=1e-4):
         save_progress({
             "status": "running",
@@ -209,27 +205,27 @@ class FaceNet():
         total_start = time.time()
         loss_fn = torch.nn.CrossEntropyLoss()
         optimizer = optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-        # scheduler = MultiStepLR(optimizer, [5, 10])
+        #scheduler = MultiStepLR(optimizer, [5, 10])
         acc_list = []
         loss_list = []
         for i in range(epochs):
             train_acc, train_loss = self.train_epoch(train_loader, loss_fn, optimizer)
-            print(f'EPOCH {i + 1}/{epochs}, TrainAcc: {train_acc:.4f}, Train loss: {train_loss:.4f}')
+            print(f'EPOCH {i+1}/{epochs}, TrainAcc: {train_acc:.4f}, Train loss: {train_loss:.4f}')
             acc_list.append(train_acc)
             loss_list.append(train_loss)
             save_progress({
                 "status": "running",
                 "stage": 2,
-                "message": f"Training epoch {i + 1}/{epochs}",
-                "current_epoch": i + 1,
+                "message": f"Training epoch {i+1}/{epochs}",
+                "current_epoch": i+1,
                 "max_epochs": epochs,
                 "acc": acc_list,
                 "loss": loss_list
             })
 
-            # scheduler.step()
+            #scheduler.step()
         torch.cuda.synchronize()
-        print(f'Training time: {time.time() - total_start:.3f}\n')
+        print(f'Training time: {time.time()-total_start:.3f}\n')
         test_acc, test_loss = self.evaluate(test_loader, loss_fn)
         print(f'Test Acc: {test_acc:.4f} | Test Loss: {test_loss:.4f}')
 
@@ -251,7 +247,7 @@ class FaceNet():
         })
         original_model = self.model.to(self.device)
         unlearn_model = deepcopy(original_model).to(self.device)
-        attack = PGD(model=original_model.to(self.device), eps=128 / 255, alpha=100 / 255, iters=10, denorm=True)
+        attack = PGD(model=original_model.to(self.device), eps=128/255, alpha=100/255, iters=10, denorm=True)
         attack.set_normalization([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 
         criterion = torch.nn.CrossEntropyLoss()
@@ -286,13 +282,12 @@ class FaceNet():
             save_progress({
                 "status": "running",
                 "stage": 2,
-                "message": f"Unlearning epoch {epoch + 1}/{epochs}",
-                "current_epoch": epoch + 1,
+                "message": f"Unlearning epoch {epoch+1}/{epochs}",
+                "current_epoch": epoch+1,
                 "max_epochs": epochs,
                 "loss": loss_list
             })
-            print(
-                f'Epoch {epoch} | Time {time.time() - start:.3f} | Loss {losses / total:.4f} | Acc {correct / total:.4f} | Flipped {nums_filpped / total:.4f}')
+            print(f'Epoch {epoch} | Time {time.time()-start:.3f} | Loss {losses / total:.4f} | Acc {correct/total:.4f} | Flipped {nums_filpped/total:.4f}')
 
         self.model = unlearn_model
         loss_fn = torch.nn.CrossEntropyLoss()
@@ -303,7 +298,7 @@ class FaceNet():
             unlearn_target_path = os.path.join("/model", unlearn_model_name, "model.pth")
             self.save_model(unlearn_target_path)
         else:
-            self.save_model()  # overwrite!
+            self.save_model()   # overwrite!
 
         return test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc
 
@@ -314,7 +309,7 @@ class FaceNet():
         for images, labels in dataloader:
             images, labels = images.to(self.device), labels.to(self.device)
             outputs = self.model(images)
-            loss = criterion(outputs, labels)
+            loss=criterion(outputs, labels)
 
             pred = outputs.argmax(dim=1, keepdim=True)
             correct += pred.eq(labels.view_as(pred)).sum().item()
@@ -331,7 +326,6 @@ def save_label(label_path, class_to_idx):
             os.makedirs(label_dir)
         with open(label_path, "wt", encoding="utf-8") as fp:
             json.dump(class_to_idx, fp)
-
 
 def train(input_params):
     try:
@@ -366,17 +360,11 @@ def train(input_params):
         elif mode == "unlearn":
             max_epochs = input_params.get("epochs", 2)
             forget_class_index = input_params["forget_class_index"]
-            train_forget_loader, test_forget_loader, test_retain_loader, class_to_idx = load_unlearning_data(data_path,
-                                                                                                             forget_class_index,
-                                                                                                             batch_size)
+            train_forget_loader, test_forget_loader, test_retain_loader, class_to_idx = load_unlearning_data(data_path, forget_class_index, batch_size)
             unlearn_model_name = input_params.get("unlearn_model_name", None)
             num_classes = len(class_to_idx.items())
             model = FaceNet(model_path, num_classes=num_classes, resume_train=True)
-            test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc = model.unlearn(train_forget_loader,
-                                                                                                 test_forget_loader,
-                                                                                                 test_retain_loader,
-                                                                                                 max_epochs,
-                                                                                                 unlearn_model_name)
+            test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc = model.unlearn(train_forget_loader, test_forget_loader, test_retain_loader, max_epochs, unlearn_model_name)
 
             label_path = os.path.join("/model", unlearn_model_name, "class_to_idx.json")
             save_label(label_path, class_to_idx)
@@ -404,7 +392,6 @@ def train(input_params):
             "unlearn_model_name": "unlearn01",
             "forget_class_index": 1
         }]
-
 
 def main(args):
     clear_progress()

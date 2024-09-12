@@ -291,11 +291,11 @@ class BaseProvider:
 
         language_code = self.language_code()
         return (
-                language_code
-                + "_"
-                + self.random_element(
-            BaseProvider.language_locale_codes[language_code],
-        )
+            language_code
+            + "_"
+            + self.random_element(
+                BaseProvider.language_locale_codes[language_code],
+            )
         )
 
     def language_code(self) -> str:
@@ -403,11 +403,11 @@ class BaseProvider:
         return self.generator.random.choice(string.ascii_uppercase)
 
     def random_elements(
-            self,
-            elements: ElementsType[T] = ("a", "b", "c"),  # type: ignore[assignment]
-            length: Optional[int] = None,
-            unique: bool = False,
-            use_weighting: Optional[bool] = None,
+        self,
+        elements: ElementsType[T] = ("a", "b", "c"),  # type: ignore[assignment]
+        length: Optional[int] = None,
+        unique: bool = False,
+        use_weighting: Optional[bool] = None,
     ) -> Sequence[T]:
         """Generate a list of randomly sampled objects from ``elements``.
 
@@ -498,9 +498,9 @@ class BaseProvider:
         )
 
     def random_choices(
-            self,
-            elements: ElementsType[T] = ("a", "b", "c"),  # type: ignore[assignment]
-            length: Optional[int] = None,
+        self,
+        elements: ElementsType[T] = ("a", "b", "c"),  # type: ignore[assignment]
+        length: Optional[int] = None,
     ) -> Sequence[T]:
         """Generate a list of objects randomly sampled from ``elements`` with replacement.
 
@@ -545,7 +545,7 @@ class BaseProvider:
         return self.random_elements(elements, length=1)[0]
 
     def random_sample(
-            self, elements: ElementsType[T] = ("a", "b", "c"), length: Optional[int] = None  # type: ignore[assignment]
+        self, elements: ElementsType[T] = ("a", "b", "c"), length: Optional[int] = None  # type: ignore[assignment]
     ) -> Sequence[T]:
         """Generate a list of objects randomly sampled from ``elements`` without replacement.
 
@@ -559,12 +559,12 @@ class BaseProvider:
         return self.random_elements(elements, length, unique=True)
 
     def randomize_nb_elements(
-            self,
-            number: int = 10,
-            le: bool = False,
-            ge: bool = False,
-            min: Optional[int] = None,
-            max: Optional[int] = None,
+        self,
+        number: int = 10,
+        le: bool = False,
+        ge: bool = False,
+        min: Optional[int] = None,
+        max: Optional[int] = None,
     ) -> int:
         """Generate a random integer near ``number`` according to the following rules:
 
@@ -668,10 +668,10 @@ class BaseProvider:
 
 class DynamicProvider(BaseProvider):
     def __init__(
-            self,
-            provider_name: str,
-            elements: Optional[List] = None,
-            generator: Optional[Any] = None,
+        self,
+        provider_name: str,
+        elements: Optional[List] = None,
+        generator: Optional[Any] = None,
     ):
         """
         A faker Provider capable of getting a list of elements to randomly select from,

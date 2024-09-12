@@ -1,24 +1,24 @@
 {
-  "id": "diffusers",
-  "name": "Stable Diffusion 이미지 생성",
-  "enable": false,
-  "type": "script",
-  "image": {
-    "tag": "leopard/diffusers:1.0.1",
-    "build": {
-      "base": "pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime",
-      "update": true,
-      "apt": "",
-      "pip": "diffusers accelerate transformers safetensors",
-      "additional_command": [
-        "echo 'import torch\\nfrom diffusers import StableDiffusionPipeline\\npipe = StableDiffusionPipeline.from_pretrained(\"CompVis/stable-diffusion-v1-4\", revision=\"fp16\", torch_dtype=torch.float16)' > init.py",
-        "python init.py"
-      ]
+    "id": "diffusers",
+    "name": "Stable Diffusion 이미지 생성",
+    "enable": false,
+    "type": "script",
+    "image": {
+        "tag": "leopard/diffusers:1.0.1",
+        "build": {
+            "base": "pytorch/pytorch:2.0.1-cuda11.7-cudnn8-runtime",
+            "update": true,
+            "apt": "",
+            "pip": "diffusers accelerate transformers safetensors",
+            "additional_command": [
+                "echo 'import torch\\nfrom diffusers import StableDiffusionPipeline\\npipe = StableDiffusionPipeline.from_pretrained(\"CompVis/stable-diffusion-v1-4\", revision=\"fp16\", torch_dtype=torch.float16)' > init.py",
+                "python init.py"
+            ]
+        }
+    },
+    "execution": {
+        "src": "app/diffusers/src",
+        "input": "storage/0/app/diffusers/data",
+        "output": "storage/0/app/diffusers/run"
     }
-  },
-  "execution": {
-    "src": "app/diffusers/src",
-    "input": "storage/0/app/diffusers/data",
-    "output": "storage/0/app/diffusers/run"
-  }
 }

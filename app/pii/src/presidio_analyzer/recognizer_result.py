@@ -32,13 +32,13 @@ class RecognizerResult:
     logger = logging.getLogger("presidio-analyzer")
 
     def __init__(
-            self,
-            entity_type: str,
-            start: int,
-            end: int,
-            score: float,
-            analysis_explanation: AnalysisExplanation = None,
-            recognition_metadata: Dict = None,
+        self,
+        entity_type: str,
+        start: int,
+        end: int,
+        score: float,
+        analysis_explanation: AnalysisExplanation = None,
+        recognition_metadata: Dict = None,
     ):
 
         self.entity_type = entity_type

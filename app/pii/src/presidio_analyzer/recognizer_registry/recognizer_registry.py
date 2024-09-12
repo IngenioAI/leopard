@@ -69,7 +69,7 @@ class RecognizerRegistry:
             self.recognizers = []
 
     def load_predefined_recognizers(
-            self, languages: Optional[List[str]] = None, nlp_engine: NlpEngine = None
+        self, languages: Optional[List[str]] = None, nlp_engine: NlpEngine = None
     ) -> None:
         """
         Load the existing recognizers into memory.
@@ -137,7 +137,7 @@ class RecognizerRegistry:
 
     @staticmethod
     def _get_nlp_recognizer(
-            nlp_engine: NlpEngine,
+        nlp_engine: NlpEngine,
     ) -> Union[Type[SpacyRecognizer], Type[StanzaRecognizer]]:
         """Return the recognizer leveraging the selected NLP Engine."""
 
@@ -156,11 +156,11 @@ class RecognizerRegistry:
             return SpacyRecognizer
 
     def get_recognizers(
-            self,
-            language: str,
-            entities: Optional[List[str]] = None,
-            all_fields: bool = False,
-            ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
+        self,
+        language: str,
+        entities: Optional[List[str]] = None,
+        all_fields: bool = False,
+        ad_hoc_recognizers: Optional[List[EntityRecognizer]] = None,
     ) -> List[EntityRecognizer]:
         """
         Return a list of recognizers which supports the specified name and language.
@@ -197,7 +197,7 @@ class RecognizerRegistry:
                     rec
                     for rec in all_possible_recognizers
                     if entity in rec.supported_entities
-                       and language == rec.supported_language
+                    and language == rec.supported_language
                 ]
 
                 if not subset:

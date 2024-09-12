@@ -2,7 +2,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-
 def CrossEntropy_soft(input, target, reduction='mean'):
     logprobs = F.log_softmax(input, dim=1)
     losses = -(target * logprobs)
@@ -13,7 +12,6 @@ def CrossEntropy_soft(input, target, reduction='mean'):
     elif reduction == 'none':
         return losses.sum(-1)
 
-
 def one_hot_embedding(label, num_class, dtype=torch.cuda.FloatTensor):
     device = f"cuda:1"
     if not isinstance(label, torch.Tensor):
@@ -23,7 +21,6 @@ def one_hot_embedding(label, num_class, dtype=torch.cuda.FloatTensor):
     y_tensor = label.view(*label.size(), -1)
     zeros = torch.zeros(*label.size(), num_class).type(dtype).to(device)
     return zeros.scatter(scatter_dim, y_tensor, 1)
-
 
 def adjust_learning_rate(optimizer, epoch, gamma, schedule_milestone):
     for param_group in optimizer.param_groups:

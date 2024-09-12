@@ -26,7 +26,7 @@ class TextReplaceBuilder:
         return self.original_text[start:end]
 
     def replace_text_get_insertion_index(
-            self, replacement_text: str, start: int, end: int
+        self, replacement_text: str, start: int, end: int
     ) -> int:
         """
         Replace text in a specific position with the text.

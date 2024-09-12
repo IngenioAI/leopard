@@ -9,9 +9,9 @@ class SBN:
     MAX_LENGTH = 9
 
     def __init__(
-            self,
-            registrant: Optional[str] = None,
-            publication: Optional[str] = None,
+        self,
+        registrant: Optional[str] = None,
+        publication: Optional[str] = None,
     ) -> None:
         self.registrant = registrant
         self.publication = publication
@@ -40,10 +40,10 @@ class SBN9(SBN):
             [
                 part
                 for part in [
-                self.registrant,
-                self.publication,
-                self.check_digit,
-            ]
+                    self.registrant,
+                    self.publication,
+                    self.check_digit,
+                ]
                 if part is not None
             ]
         )

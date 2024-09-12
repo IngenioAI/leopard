@@ -54,8 +54,7 @@ class DateRecognizer(PatternRecognizer):
         ),
         Pattern(
             "dd-MMM-yyyy or dd-MMM-yy",
-            r"\b(([1-9]|0[1-9]|[1-2][0-9]|3[0-1])-(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)-(\d{4}|\d{2}))\b",
-            # noqa: E501
+            r"\b(([1-9]|0[1-9]|[1-2][0-9]|3[0-1])-(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)-(\d{4}|\d{2}))\b",  # noqa: E501
             0.6,
         ),
         Pattern(
@@ -83,11 +82,11 @@ class DateRecognizer(PatternRecognizer):
     CONTEXT = ["date", "birthday"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "en",
-            supported_entity: str = "DATE_TIME",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "en",
+        supported_entity: str = "DATE_TIME",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT
@@ -99,11 +98,11 @@ class DateRecognizer(PatternRecognizer):
         )
 
     def analyze(
-            self,
-            text: str,
-            entities: List[str],
-            nlp_artifacts: NlpArtifacts = None,
-            regex_flags: int = None,
+        self,
+        text: str,
+        entities: List[str],
+        nlp_artifacts: NlpArtifacts = None,
+        regex_flags: int = None,
     ) -> List[RecognizerResult]:
         """
         Analyzes text to detect PII using regular expressions or deny-lists.

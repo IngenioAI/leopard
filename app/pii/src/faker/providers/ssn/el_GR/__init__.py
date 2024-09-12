@@ -14,17 +14,17 @@ def tin_checksum(tin: str) -> int:
 
     tin_list = [int(i) for i in list(tin)]
     return (
-            (
-                    (tin_list[0] * 256)
-                    + (tin_list[1] * 128)
-                    + (tin_list[2] * 64)
-                    + (tin_list[3] * 32)
-                    + (tin_list[4] * 16)
-                    + (tin_list[5] * 8)
-                    + (tin_list[6] * 4)
-                    + (tin_list[7] * 2)
-            )
-            % 11
+        (
+            (tin_list[0] * 256)
+            + (tin_list[1] * 128)
+            + (tin_list[2] * 64)
+            + (tin_list[3] * 32)
+            + (tin_list[4] * 16)
+            + (tin_list[5] * 8)
+            + (tin_list[6] * 4)
+            + (tin_list[7] * 2)
+        )
+        % 11
     ) % 10
 
 

@@ -1,3 +1,4 @@
+
 def train_defend_ppb(self, train_loader, log_pref="", defend_arg=0.01):
     self.model.train()
     total_loss = 0
@@ -15,8 +16,8 @@ def train_defend_ppb(self, train_loader, log_pref="", defend_arg=0.01):
         even_size = size // 2 * 2
         if even_size > 0:
             loss2 = F.kl_div(F.log_softmax(ranked_outputs[:even_size // 2], dim=-1),
-                             F.softmax(ranked_outputs[even_size // 2:even_size], dim=-1),
-                             reduction='batchmean')
+                                F.softmax(ranked_outputs[even_size // 2:even_size], dim=-1),
+                                reduction='batchmean')
         else:
             loss2 = torch.zeros(1).to(self.device)
         loss = loss1 + defend_arg * loss2
@@ -39,7 +40,6 @@ def train_defend_ppb(self, train_loader, log_pref="", defend_arg=0.01):
         print("{}: Accuracy {:.3f}, Loss {:.3f}, Loss1 {:.3f}, Loss2 {:.3f}".format(
             log_pref, acc, total_loss, total_loss1, total_loss2))
     return acc, total_loss
-
 
 def train_defend_adv(self, train_loader, test_loader, log_pref="", privacy_theta=0.5):
     """
@@ -79,9 +79,9 @@ def train_defend_adv(self, train_loader, test_loader, log_pref="", privacy_theta
             out_targets = F.one_hot(targets, num_classes=self.num_cls).float()
 
             infer_train_data = torch.cat([torch.cat([in_predicts, in_targets], dim=-1),
-                                          torch.cat([out_predicts, out_targets], dim=-1)], dim=0)
+                                            torch.cat([out_predicts, out_targets], dim=-1)], dim=0)
             infer_train_label = torch.cat([torch.ones(in_predicts.size(0)),
-                                           torch.zeros(out_predicts.size(0))]).long().to(self.device)
+                                            torch.zeros(out_predicts.size(0))]).long().to(self.device)
 
         self.attack_model_optim.zero_grad()
         infer_loss = privacy_theta * F.cross_entropy(self.attack_model(infer_train_data), infer_train_label)
@@ -125,12 +125,11 @@ def run():
         target_model_save_folder = save_dir + "/target_models_adv"
         if not os.path.exists(target_model_save_folder):
             os.makedirs(target_model_save_folder)
-        model = ResNet18(device, save_dir, num_cls, epochs, lr=0.01, weight_decay=5e-4, input_dim=100, dropout=0)
+        model = ResNet18(device, save_dir, num_cls, epochs, lr=0.01, weight_decay=5e-4, input_dim=100, dropout = 0)
         best_acc = 0
         count = 0
         for epoch in range(epochs):
-            train_acc, train_loss = model.train_defend_adv(target_train_loader, target_test_loader,
-                                                           f"epoch {epoch} train")
+            train_acc, train_loss = model.train_defend_adv(target_train_loader, target_test_loader, f"epoch {epoch} train")
             val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
             test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
             if val_acc > best_acc:
@@ -150,12 +149,11 @@ def run():
         target_model_save_folder = save_dir + "/target_models_adv"
         if not os.path.exists(target_model_save_folder):
             os.makedirs(target_model_save_folder)
-        model = ResNet18(device, save_dir, num_cls, epochs, lr=0.01, weight_decay=5e-4, input_dim=100, dropout=0)
+        model = ResNet18(device, save_dir, num_cls, epochs, lr=0.01, weight_decay=5e-4, input_dim=100, dropout = 0)
         best_acc = 0
         count = 0
         for epoch in range(epochs):
-            train_acc, train_loss = model.train_defend_ppb(target_train_loader, target_test_loader,
-                                                           f"epoch {epoch} train")
+            train_acc, train_loss = model.train_defend_ppb(target_train_loader, target_test_loader, f"epoch {epoch} train")
             val_acc, val_loss = model.test(target_valid_loader, f"epoch {epoch} valid")
             test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
             if val_acc > best_acc:

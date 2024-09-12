@@ -8,23 +8,19 @@ from presidio_analyzer import AnalyzerEngine
 from presidio_analyzer.nlp_engine import NlpEngineProvider
 from presidio_anonymizer import AnonymizerEngine
 
-
 def result_to_dict(results):
     dict_result = []
     for result in results:
         dict_result.append(result.to_dict())
     return dict_result
 
-
 def clear_result(filename):
     with open(f"/data/output/{filename}", "wt", encoding="UTF-8") as fp:
         json.dump({}, fp, indent=4)
 
-
 def save_result(obj, filename):
     with open(f"/data/output/{filename}", "wt", encoding="UTF-8") as fp:
         json.dump(obj, fp, indent=4)
-
 
 def run_faker(params, args):
     fake = Faker('ko_KR')
@@ -46,9 +42,8 @@ def run_faker(params, args):
         generated_data = [fake.passport_number() for _ in range(generation_count)]
 
     save_result({
-        "generated_data": generated_data
-    }, args.output)
-
+            "generated_data": generated_data
+        }, args.output)
 
 def run_presidio(params, args):
     action_type = params.get("action_type", "analyze")
@@ -63,7 +58,7 @@ def run_presidio(params, args):
     configuration = {
         "nlp_engine_name": "spacy",
         "models": [{"lang_code": "ko", "model_name": "ko_core_news_lg"},
-                   {"lang_code": "en", "model_name": "en_core_web_lg"}, ],
+                {"lang_code": "en", "model_name": "en_core_web_lg"},],
     }
 
     try:
@@ -83,9 +78,9 @@ def run_presidio(params, args):
             anonymized_result = None
 
         save_result({
-            "results": result_to_dict(results),
-            "anonymized_text": anonymized_result.text if anonymized_result is not None else ""
-        }, args.output)
+                "results": result_to_dict(results),
+                "anonymized_text": anonymized_result.text if anonymized_result is not None else ""
+            }, args.output)
 
     except ValueError as e:
         print(e)

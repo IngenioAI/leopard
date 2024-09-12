@@ -8,7 +8,6 @@ from fastapi import Request
 
 import storage_util
 
-
 async def handle_upload(req: Request, target_dir, with_content=False):
     data = await req.form()
     file_list = []
@@ -30,7 +29,6 @@ async def handle_upload(req: Request, target_dir, with_content=False):
         return file_list, content_list, meta_data
     return file_list, meta_data
 
-
 def get_upload_item_dir():
     upload_id = str(int(time.time() * 10000000))
     target_dir = os.path.join("storage", "upload", upload_id)
@@ -40,7 +38,6 @@ def get_upload_item_dir():
         upload_id = str(int(time.time() * 10000000))
         target_dir = os.path.join("storage", "upload", upload_id)
     return target_dir, upload_id
-
 
 def get_compressed_filelist(filepath):
     file_list = []
@@ -55,7 +52,6 @@ def get_compressed_filelist(filepath):
     except (zipfile.BadZipFile, zipfile.LargeZipFile):
         print("Invalid zip file:", filepath)
     return file_list
-
 
 def process_upload_item(upload_id, target_dir, filename):
     upload_path = os.path.join("storage", "upload", upload_id)

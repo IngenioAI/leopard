@@ -80,7 +80,7 @@ class AnonymizerEngine(EngineBase):
         )
 
         merged_results = self._merge_entities_with_whitespace_between(
-            text, analyzer_results
+                text, analyzer_results
         )
 
         operators = self.__check_or_add_default_operator(operators)
@@ -145,9 +145,9 @@ class AnonymizerEngine(EngineBase):
         return unique_text_metadata_elements
 
     def _merge_entities_with_whitespace_between(
-            self,
-            text: str,
-            analyzer_results: List[RecognizerResult]
+        self,
+        text: str,
+        analyzer_results: List[RecognizerResult]
     ) -> List[RecognizerResult]:
         """Merge adjacent entities of the same type separated by whitespace."""
         merged_results = []

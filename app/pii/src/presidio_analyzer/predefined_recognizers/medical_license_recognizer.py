@@ -2,7 +2,6 @@ from typing import List, Tuple, Optional
 
 from presidio_analyzer import Pattern, PatternRecognizer
 
-
 # https://www.meditec.com/blog/dea-numbers-what-do-they-mean
 
 
@@ -31,13 +30,14 @@ class MedicalLicenseRecognizer(PatternRecognizer):
     CONTEXT = ["medical", "certificate", "DEA"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "en",
-            supported_entity: str = "MEDICAL_LICENSE",
-            replacement_pairs: Optional[List[Tuple[str, str]]] = None,
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "en",
+        supported_entity: str = "MEDICAL_LICENSE",
+        replacement_pairs: Optional[List[Tuple[str, str]]] = None,
     ):
+
         self.replacement_pairs = (
             replacement_pairs if replacement_pairs else [("-", ""), (" ", "")]
         )

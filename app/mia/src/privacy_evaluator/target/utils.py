@@ -20,11 +20,9 @@ def slugify(value, allow_unicode=False):
     value = re.sub(r'[^\w\s-]', '', value.lower())
     return re.sub(r'[-\s]+', '-', value).strip('-_')
 
-
 def clear_progress():
     if os.path.exists("/apprun/progress.json"):
         os.remove("/apprun/progress.json")
-
 
 def save_progress(obj):
     with open("/apprun/progress.json", "wt", encoding="UTF-8") as fp:

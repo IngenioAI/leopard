@@ -18,8 +18,8 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 import uvicorn
 
-app = FastAPI()
 
+app = FastAPI()
 
 class FaceNetServer():
     def __init__(self, model_path, label_path=None, freeze=False):
@@ -95,13 +95,11 @@ class FaceNetServer():
             outputs = []
         return boxes.tolist(), probs.tolist(), outputs
 
-
 @app.get("/api/ping")
 async def server_ping():
     return JSONResponse({
         "success": True
     })
-
 
 @app.post("/api/run")
 async def run_app(req: Request):
@@ -128,7 +126,7 @@ async def run_app(req: Request):
         model_path = os.path.join("/model", params["model_name"], "model.pth")
         label_path = os.path.join("/model", params["model_name"], "class_to_idx.json")
         if os.path.exists(model_path):
-            app.model = FaceNetServer(model_path, label_path=label_path)
+            app.model = FaceNetServer(model_path, label_path = label_path)
             return JSONResponse({
                 "success": True
             })

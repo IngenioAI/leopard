@@ -10,7 +10,6 @@ from fastapi_util import JSONResponseHandler
 
 storage_router = APIRouter(prefix="/api/storage", tags=["Storage"])
 
-
 @storage_router.get("/list")
 async def get_storage_list():
     user_storage_list = storage_util.get_storage_info("user")
@@ -96,7 +95,6 @@ async def save_storage_file(storage_id: str, file_path: str, req: Request):
         'success': True
     })
 
-
 @storage_router.delete("/item/{storage_id}/{file_path:path}")
 async def delete_storage_file(storage_id: str, file_path: str):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
@@ -114,7 +112,6 @@ async def delete_storage_file(storage_id: str, file_path: str):
     else:
         raise HTTPException(status_code=404, detail="File not found")
 
-
 @storage_router.post("/upload_item")
 async def upload_item(req: Request):
     target_dir, upload_id = upload_util.get_upload_item_dir()
@@ -130,7 +127,6 @@ async def upload_item(req: Request):
         "unzip_files": unzip_file_list,
         "upload_id": upload_id
     })
-
 
 @storage_router.delete("/upload_item/{upload_id}")
 async def delete_upload_item(upload_id: str):

@@ -2,7 +2,6 @@ from typing import List, Optional
 
 from presidio_analyzer import Pattern, PatternRecognizer
 
-
 # An Identity Card is a personal recognition document that is valid in Italy.
 # The paper-based identity card was issued for nearly 87 years until 2018
 # and can still be issued in case of emergency. The Electronic Identity Card
@@ -55,11 +54,11 @@ class ItIdentityCardRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "it",
-            supported_entity: str = "IT_IDENTITY_CARD",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "it",
+        supported_entity: str = "IT_IDENTITY_CARD",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

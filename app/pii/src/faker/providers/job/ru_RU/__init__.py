@@ -1,6 +1,5 @@
 from .. import Provider as BaseProvider
 
-
 # Russian jobs taken from the Wikipedia page
 # https://ru.wikipedia.org/wiki/%D0%A1%D0%BF%D0%B8%D1%81%D0%BE%D0%BA_%D0%BF%D1%80%D0%BE%D1%84%D0%B5%D1%81%D1%81%D0%B8%D0%B9
 

@@ -24,11 +24,11 @@ class Provider(BaseProvider):
     sentence_punctuation = "."
 
     def words(
-            self,
-            nb: int = 3,
-            part_of_speech: Optional[str] = None,
-            ext_word_list: Optional[Sequence[str]] = None,
-            unique: bool = False,
+        self,
+        nb: int = 3,
+        part_of_speech: Optional[str] = None,
+        ext_word_list: Optional[Sequence[str]] = None,
+        unique: bool = False,
     ) -> List[str]:
         """Generate a tuple of words.
 
@@ -85,7 +85,7 @@ class Provider(BaseProvider):
         return self.words(1, part_of_speech, ext_word_list)[0]
 
     def sentence(
-            self, nb_words: int = 6, variable_nb_words: bool = True, ext_word_list: Optional[Sequence[str]] = None
+        self, nb_words: int = 6, variable_nb_words: bool = True, ext_word_list: Optional[Sequence[str]] = None
     ) -> str:
         """Generate a sentence.
 
@@ -129,8 +129,7 @@ class Provider(BaseProvider):
         return [self.sentence(ext_word_list=ext_word_list) for _ in range(0, nb)]
 
     def paragraph(
-            self, nb_sentences: int = 3, variable_nb_sentences: bool = True,
-            ext_word_list: Optional[Sequence[str]] = None
+        self, nb_sentences: int = 3, variable_nb_sentences: bool = True, ext_word_list: Optional[Sequence[str]] = None
     ) -> str:
         """Generate a paragraph.
 
@@ -231,7 +230,7 @@ class Provider(BaseProvider):
         return "".join(text)
 
     def texts(
-            self, nb_texts: int = 3, max_nb_chars: int = 200, ext_word_list: Optional[Sequence[str]] = None
+        self, nb_texts: int = 3, max_nb_chars: int = 200, ext_word_list: Optional[Sequence[str]] = None
     ) -> List[str]:
         """Generate a list of text strings.
 

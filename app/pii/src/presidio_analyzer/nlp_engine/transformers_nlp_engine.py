@@ -7,6 +7,7 @@ from spacy.tokens import Doc, Span
 
 from presidio_analyzer.nlp_engine import SpacyNlpEngine
 
+
 try:
     import torch
     import transformers
@@ -114,7 +115,7 @@ class TransformersNlpEngine(SpacyNlpEngine):
             raise KeyError(f"Expected 'models' argument to be dict, not {type(models)}")
         # validate models[model_lang] type is dict for all model_lang
         elif any(
-                [type(model_dict) is not dict for model_lang, model_dict in models.items()]
+            [type(model_dict) is not dict for model_lang, model_dict in models.items()]
         ):
             # elif type(models["model_name"]) is not dict:
             logger.error(
@@ -127,10 +128,10 @@ class TransformersNlpEngine(SpacyNlpEngine):
             )
         # chack that model_name dict includes the keys: "spacy" and "transformers"
         elif any(
-                [
-                    any([key not in model_dict for key in ("spacy", "transformers")])
-                    for model_lang, model_dict in models.items()
-                ]
+            [
+                any([key not in model_dict for key in ("spacy", "transformers")])
+                for model_lang, model_dict in models.items()
+            ]
         ):
             logger.error(
                 "'models.model_name' must contains 'spacy' and 'transformers' keys"

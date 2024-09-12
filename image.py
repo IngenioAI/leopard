@@ -8,7 +8,6 @@ from docker_runner import DockerRunner
 image_router = APIRouter(prefix="/api/image", tags=["Image"])
 docker_runner = DockerRunner()
 
-
 class CreateImageItem(BaseModel):
     name: str
     baseImage: str
@@ -21,7 +20,7 @@ class CreateImageItem(BaseModel):
 @image_router.post("/create")
 async def create_image(data: CreateImageItem):
     ret = docker_runner.create_image(data.name, data.baseImage, data.update, data.aptInstall, data.pipInstall,
-                                     data.additionalCommand)
+                                         data.additionalCommand)
     return JSONResponseHandler({
         'success': ret
     })
@@ -49,7 +48,7 @@ async def get_image_list():
 @image_router.delete("/item/{name:path}")
 async def delete_image(name: str):
     res, error_info = docker_runner.remove_image(name)
-    response = {"success": res}
+    response = { "success": res }
     if error_info is not None:
         response.update(error_info)
     return JSONResponseHandler(response)

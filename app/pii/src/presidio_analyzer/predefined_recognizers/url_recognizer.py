@@ -28,11 +28,11 @@ class UrlRecognizer(PatternRecognizer):
     CONTEXT = ["url", "website", "link"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "en",
-            supported_entity: str = "URL",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "en",
+        supported_entity: str = "URL",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT

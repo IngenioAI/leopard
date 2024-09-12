@@ -18,10 +18,10 @@ class BatchAnonymizerEngine:
         self.anonymizer_engine = anonymizer_engine or AnonymizerEngine()
 
     def anonymize_list(
-            self,
-            texts: List[Union[str, bool, int, float]],
-            recognizer_results_list: List[List[RecognizerResult]],
-            **kwargs
+        self,
+        texts: List[Union[str, bool, int, float]],
+        recognizer_results_list: List[List[RecognizerResult]],
+        **kwargs
     ) -> List[EngineResult]:
         """
         Anonymize a list of strings.
@@ -46,7 +46,7 @@ class BatchAnonymizerEngine:
         return return_list
 
     def anonymize_dict(
-            self, analyzer_results: Iterable[DictRecognizerResult], **kwargs
+        self, analyzer_results: Iterable[DictRecognizerResult], **kwargs
     ) -> Dict[str, str]:
         """
         Anonymize values in a dictionary.

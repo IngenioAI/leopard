@@ -25,10 +25,10 @@ class BatchAnalyzerEngine:
             self.analyzer_engine = AnalyzerEngine()
 
     def analyze_iterator(
-            self,
-            texts: Iterable[Union[str, bool, float, int]],
-            language: str,
-            **kwargs,
+        self,
+        texts: Iterable[Union[str, bool, float, int]],
+        language: str,
+        **kwargs,
     ) -> List[List[RecognizerResult]]:
         """
         Analyze an iterable of strings.
@@ -59,11 +59,11 @@ class BatchAnalyzerEngine:
         return list_results
 
     def analyze_dict(
-            self,
-            input_dict: Dict[str, Union[Any, Iterable[Any]]],
-            language: str,
-            keys_to_skip: Optional[List[str]] = None,
-            **kwargs,
+        self,
+        input_dict: Dict[str, Union[Any, Iterable[Any]]],
+        language: str,
+        keys_to_skip: Optional[List[str]] = None,
+        **kwargs,
     ) -> Iterator[DictAnalyzerResult]:
         """
         Analyze a dictionary of keys (strings) and values/iterable of values.

@@ -24,7 +24,7 @@ def detect_face(mtcnn, source_path, target_train_path, target_test_path, test_sp
             print("Skip unknown file:", source_name)
             continue
 
-        # print("Processing", source_name)
+        #print("Processing", source_name)
         img = PIL.Image.open(source_name)
         boxes, score = mtcnn.detect(img)
         if boxes is not None:
@@ -76,8 +76,8 @@ def main(args):
     with open(os.path.join("/vggface2/meta", "identity_meta.csv"), "rt", encoding="utf-8") as csvfile:
         csvreader = csv.reader(csvfile, delimiter=',', skipinitialspace=True)
         for row in csvreader:
-            class_list.append((row[0], row[1], row[3]))  # class_id, name, flag
-    class_list = class_list[1:]  # skip header
+            class_list.append((row[0], row[1], row[3]))     # class_id, name, flag
+    class_list = class_list[1:]     # skip header
     total_count = len(class_list)
     print("Total class count:", total_count)
 
@@ -142,7 +142,6 @@ def main(args):
     save_result({
         "samples": samples
     }, args.output)
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser()

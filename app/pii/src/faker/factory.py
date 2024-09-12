@@ -22,15 +22,15 @@ else:
 class Factory:
     @classmethod
     def create(
-            cls,
-            locale: Optional[str] = None,
-            providers: Optional[List[str]] = None,
-            generator: Optional[Generator] = None,
-            includes: Optional[List[str]] = None,
-            # Should we use weightings (more realistic) or weight every element equally (faster)?
-            # By default, use weightings for backwards compatibility & realism
-            use_weighting: bool = True,
-            **config: Any,
+        cls,
+        locale: Optional[str] = None,
+        providers: Optional[List[str]] = None,
+        generator: Optional[Generator] = None,
+        includes: Optional[List[str]] = None,
+        # Should we use weightings (more realistic) or weight every element equally (faster)?
+        # By default, use weightings for backwards compatibility & realism
+        use_weighting: bool = True,
+        **config: Any,
     ) -> Generator:
         if includes is None:
             includes = []
@@ -65,9 +65,9 @@ class Factory:
 
     @classmethod
     def _find_provider_class(
-            cls,
-            provider_path: str,
-            locale: Optional[str] = None,
+        cls,
+        provider_path: str,
+        locale: Optional[str] = None,
     ) -> Tuple[Any, Optional[str], Optional[str]]:
         provider_module = import_module(provider_path)
         default_locale = getattr(provider_module, "default_locale", "")

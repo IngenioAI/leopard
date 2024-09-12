@@ -90,10 +90,10 @@ class Provider(BaseProvider):
         return self.swift(length=11, primary=primary, use_dataset=use_dataset)
 
     def swift(
-            self,
-            length: Optional[int] = None,
-            primary: bool = False,
-            use_dataset: bool = False,
+        self,
+        length: Optional[int] = None,
+        primary: bool = False,
+        use_dataset: bool = False,
     ) -> str:
         """Generate a SWIFT code.
 

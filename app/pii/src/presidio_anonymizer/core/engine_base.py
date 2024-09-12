@@ -21,11 +21,11 @@ class EngineBase(ABC):
         self.operators_factory = OperatorsFactory()
 
     def _operate(
-            self,
-            text: str,
-            pii_entities: List[PIIEntity],
-            operators_metadata: Dict[str, OperatorConfig],
-            operator_type: OperatorType,
+        self,
+        text: str,
+        pii_entities: List[PIIEntity],
+        operators_metadata: Dict[str, OperatorConfig],
+        operator_type: OperatorType,
     ) -> EngineResult:
         """
         Operate will do the operations required by the user over the text.
@@ -73,11 +73,11 @@ class EngineBase(ABC):
         return engine_result
 
     def __operate_on_text(
-            self,
-            text_metadata: PIIEntity,
-            text_to_operate_on: str,
-            operator_metadata: OperatorConfig,
-            operator_type: OperatorType,
+        self,
+        text_metadata: PIIEntity,
+        text_to_operate_on: str,
+        operator_metadata: OperatorConfig,
+        operator_type: OperatorType,
     ) -> str:
         entity_type = text_metadata.entity_type
         self.logger.debug(f"getting operator for {entity_type}")
@@ -94,7 +94,7 @@ class EngineBase(ABC):
 
     @staticmethod
     def __get_entity_operator_metadata(
-            entity_type: str, operators_metadata: Dict = None
+        entity_type: str, operators_metadata: Dict = None
     ) -> OperatorConfig:
         # We try to get the operator from the list by entity_type.
         # If it does not exist, we get the default from the list.

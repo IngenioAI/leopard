@@ -29,18 +29,18 @@ class Provider(BaseProvider):
 
         digits = f"{category:01d}{province:02d}{amphoe:02d}{birth_book:05d}{birth_sheet:02d}"
         checksum = (
-                (int(digits[0]) * 13)
-                + (int(digits[1]) * 12)
-                + (int(digits[2]) * 11)
-                + (int(digits[3]) * 10)
-                + (int(digits[4]) * 9)
-                + (int(digits[5]) * 8)
-                + (int(digits[6]) * 7)
-                + (int(digits[7]) * 6)
-                + (int(digits[8]) * 5)
-                + (int(digits[9]) * 4)
-                + (int(digits[10]) * 3)
-                + (int(digits[11]) * 2)
+            (int(digits[0]) * 13)
+            + (int(digits[1]) * 12)
+            + (int(digits[2]) * 11)
+            + (int(digits[3]) * 10)
+            + (int(digits[4]) * 9)
+            + (int(digits[5]) * 8)
+            + (int(digits[6]) * 7)
+            + (int(digits[7]) * 6)
+            + (int(digits[8]) * 5)
+            + (int(digits[9]) * 4)
+            + (int(digits[10]) * 3)
+            + (int(digits[11]) * 2)
         )
         checksum = checksum % 11
         checksum = 11 - checksum

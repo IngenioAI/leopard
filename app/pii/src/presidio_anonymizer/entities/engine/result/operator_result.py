@@ -7,12 +7,12 @@ class OperatorResult(PIIEntity):
     """A class to hold data for engines results either anonymize or deanonymize."""
 
     def __init__(
-            self,
-            start: int,
-            end: int,
-            entity_type: str,
-            text: str = None,
-            operator: str = None,
+        self,
+        start: int,
+        end: int,
+        entity_type: str,
+        text: str = None,
+        operator: str = None,
     ):
         PIIEntity.__init__(self, start, end, entity_type)
         self.text = text
@@ -38,11 +38,11 @@ class OperatorResult(PIIEntity):
         :return: bool
         """
         return (
-                self.start == other.start
-                and self.end == other.end
-                and self.entity_type == other.entity_type
-                and self.operator == other.operator
-                and self.text == other.text
+            self.start == other.start
+            and self.end == other.end
+            and self.entity_type == other.entity_type
+            and self.operator == other.operator
+            and self.text == other.text
         )
 
     @classmethod

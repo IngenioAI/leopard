@@ -134,11 +134,11 @@ class Provider(BaseProvider):
         return getattr(self, name)()
 
     def chrome(
-            self,
-            version_from: int = 13,
-            version_to: int = 63,
-            build_from: int = 800,
-            build_to: int = 899,
+        self,
+        version_from: int = 13,
+        version_to: int = 63,
+        build_from: int = 800,
+        build_to: int = 899,
     ) -> str:
         """Generate a Chrome web browser user agent string."""
         saf: str = f"{self.generator.random.randint(531, 536)}.{self.generator.random.randint(0, 2)}"

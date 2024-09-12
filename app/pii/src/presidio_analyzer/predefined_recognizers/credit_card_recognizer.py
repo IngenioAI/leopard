@@ -19,8 +19,7 @@ class CreditCardRecognizer(PatternRecognizer):
     PATTERNS = [
         Pattern(
             "All Credit Cards (weak)",
-            r"\b((4\d{3})|(5[0-5]\d{2})|(6\d{3})|(1\d{3})|(3\d{3}))[- ]?(\d{3,4})[- ]?(\d{3,4})[- ]?(\d{3,5})\b",
-            # noqa: E501
+            r"\b((4\d{3})|(5[0-5]\d{2})|(6\d{3})|(1\d{3})|(3\d{3}))[- ]?(\d{3,4})[- ]?(\d{3,4})[- ]?(\d{3,5})\b",  # noqa: E501
             0.3,
         ),
     ]
@@ -40,12 +39,12 @@ class CreditCardRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "en",
-            supported_entity: str = "CREDIT_CARD",
-            replacement_pairs: Optional[List[Tuple[str, str]]] = None,
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "en",
+        supported_entity: str = "CREDIT_CARD",
+        replacement_pairs: Optional[List[Tuple[str, str]]] = None,
     ):
 
         self.replacement_pairs = (

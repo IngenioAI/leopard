@@ -30,12 +30,12 @@ class ItVatCodeRecognizer(PatternRecognizer):
     CONTEXT = ["piva", "partita iva", "pi"]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "it",
-            supported_entity: str = "IT_VAT_CODE",
-            replacement_pairs: Optional[List[Tuple[str, str]]] = None,
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "it",
+        supported_entity: str = "IT_VAT_CODE",
+        replacement_pairs: Optional[List[Tuple[str, str]]] = None,
     ):
         self.replacement_pairs = (
             replacement_pairs

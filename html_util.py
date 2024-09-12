@@ -1,7 +1,6 @@
 import os
 from html.parser import HTMLParser
 
-
 class HTMLElement():
     def __init__(self, tag_name) -> None:
         self.tag_name = tag_name
@@ -21,8 +20,7 @@ class HTMLElement():
         print(" " * indent, "Tag:", self.tag_name, " Attrs:", self.attrs, " Data:", self.data)
         if recur:
             for child in self.children:
-                child.print(recur, indent + 1)
-
+                child.print(recur, indent+1)
 
 class HTMLTagParser(HTMLParser):
     def __init__(self, data="", mode="simple"):
@@ -30,7 +28,7 @@ class HTMLTagParser(HTMLParser):
         self.roots = []
         self.current = None
         self.data = data
-        self.mode = mode  # simple, normal
+        self.mode = mode    # simple, normal
         super().feed(data)
 
     def feed(self, data):
@@ -58,20 +56,21 @@ class HTMLTagParser(HTMLParser):
                 print("End tag mismatch:", tag, self.current.tag_name)
                 self.current = self.current.parent
             self.current.end_pos = self.getpos()
-            self.current.inner_html = ""
+            self.current.inner_html  = ""
             lines = self.data.splitlines(True)
             start = self.current.start_pos
             end = self.current.end_pos
-            for r in range(start[0], end[0] + 1):
+            for r in range(start[0], end[0]+1):
                 if r == start[0] and r == end[0]:
-                    self.current.inner_html += lines[r - 1][start[1]:end[1]]
+                    self.current.inner_html += lines[r-1][start[1]:end[1]]
                 elif r == start[0]:
-                    self.current.inner_html += lines[r - 1][start[1]:]
+                    self.current.inner_html += lines[r-1][start[1]:]
                 elif r == end[0]:
-                    self.current.inner_html += lines[r - 1][:end[1]]
+                    self.current.inner_html += lines[r-1][:end[1]]
                 else:
-                    self.current.inner_html += lines[r - 1]
+                    self.current.inner_html += lines[r-1]
             self.current = self.current.parent
+
 
     def handle_data(self, data):
         if self.current is not None:
@@ -103,7 +102,6 @@ def get_html_attribute(tag, name):
         value = parser.get_attr(name)
     return value
 
-
 def split_html_content(content, tag, index=0):
     if content is None:
         return None, None, None
@@ -114,17 +112,17 @@ def split_html_content(content, tag, index=0):
     start = content.find(tag_open, index)
     if start < 0:
         return None, None, content
-    starttag = content.find(">", start + 1)
-    startendtag = content.find("/>", start + 1)
+    starttag = content.find(">", start+1)
+    startendtag = content.find("/>", start+1)
     if 0 <= startendtag < starttag:
         end = startendtag + 2
     else:
         starttag += 1
         end = content.find(tag_close, starttag)
         if end > 0:
-            open_count = content.count(tag_open, start + 1, end)
+            open_count = content.count(tag_open, start+1, end)
             while open_count > 0:
-                end = content.find(tag_close, end + 1)
+                end = content.find(tag_close, end+1)
                 open_count -= 1
             end += len(tag_close)
         else:
@@ -144,7 +142,7 @@ def get_inner_html(tag, tag_name):
     if tag_end >= 0:
         open_count = tag.count(tag_open, inner_start)
         while open_count > 0:
-            tag_end = tag.find(tag_close, tag_end + 1)
+            tag_end = tag.find(tag_close, tag_end+1)
             open_count -= 1
         return tag[inner_start:tag_end]
     print("No inner HTML for:", tag)
@@ -191,7 +189,6 @@ def process_include_content(tag, template_content):
         sub_content = default_content
     return sub_content
 
-
 def process_include_html_tag(tag):
     src_name = get_html_attribute(tag, "src")
     # print("Load template:", src_name)
@@ -202,7 +199,6 @@ def process_include_html_tag(tag):
         with open(src_file_path, "rt", encoding="UTF-8") as fp:
             return fp.read()
     return ""
-
 
 def process_include_script(tag, template_content):
     src_name = get_html_attribute(tag, "src")
@@ -258,25 +254,25 @@ def process_lp_html(content, params=None, template_content=None):
     if p < 0:
         return content
 
-    if content[p + 1:].startswith("LP-template"):
+    if content[p+1:].startswith("LP-template"):
         p1, tag, p2 = split_html_content(content, "LP-template", p)
         sub_content = process_template(tag, template_content, params)
-    elif content[p + 1:].startswith("LP-include-content"):
+    elif content[p+1:].startswith("LP-include-content"):
         p1, tag, p2 = split_html_content(content, "LP-include-content", p)
         # print("include-content", tag)
         sub_content = process_include_content(tag, template_content)
         sub_content = process_lp_html(sub_content, params, template_content)
-    elif content[p + 1:].startswith("LP-include-html"):
+    elif content[p+1:].startswith("LP-include-html"):
         p1, tag, p2 = split_html_content(content, "LP-include-html", p)
         sub_content = process_include_html_tag(tag)
         sub_content = process_lp_html(sub_content, params, template_content)
-    elif content[p + 1:].startswith("LP-include-script"):
+    elif content[p+1:].startswith("LP-include-script"):
         p1, tag, p2 = split_html_content(content, "LP-include-script", p)
         sub_content = process_include_script(tag, template_content)
-    elif content[p + 1:].startswith("LP-include-dialog-script"):
+    elif content[p+1:].startswith("LP-include-dialog-script"):
         p1, tag, p2 = split_html_content(content, "LP-include-dialog-script", p)
         sub_content = process_include_dialog_script(tag, params)
-    elif content[p + 1:].startswith("LP-include-string"):
+    elif content[p+1:].startswith("LP-include-string"):
         p1, tag, p2 = split_html_content(content, "LP-include-string", p)
         sub_content = process_include_string(tag, template_content, params)
     else:

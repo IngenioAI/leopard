@@ -43,7 +43,7 @@ def get_shadow_stats(model, num_class, tdata, is_torch=False):
     for i in range(aconf['n_shadows']):
         in_indices.append(np.random.binomial(1, 0.8, n).astype(bool))
         shadow_path = os.path.join(
-            aconf['shpath'], f'model{i}_e{aconf["epochs"]}_sd{seed}.{ext}'
+            aconf['shpath'],  f'model{i}_e{aconf["epochs"]}_sd{seed}.{ext}'
         )
 
         tdata.train_data = x[in_indices[-1]]
@@ -59,8 +59,7 @@ def get_shadow_stats(model, num_class, tdata, is_torch=False):
         })
 
         if is_torch:
-            torch_train(model, num_class, tdata, shadow_path, epoch_callback=epoch_callback,
-                        callback_message=f"Training shadow model #{i}")
+            torch_train(model, num_class, tdata, shadow_path, epoch_callback=epoch_callback, callback_message=f"Training shadow model #{i}")
         else:
             train(shadow_path, num_class=num_class, tdata=tdata)
 

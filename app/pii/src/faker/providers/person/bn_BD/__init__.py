@@ -34,17 +34,17 @@ class Provider(PersonProvider):
     )
 
     prefixes_male = (
-                        "জনাব",
-                        "মিঃ",
-                        "মৃতঃ",
-                    ) + prefixes
+        "জনাব",
+        "মিঃ",
+        "মৃতঃ",
+    ) + prefixes
 
     prefixes_female = (
-                          "জনাবা",
-                          "মিসঃ",
-                          "মিসেস",
-                          "মৃতাঃ",
-                      ) + prefixes
+        "জনাবা",
+        "মিসঃ",
+        "মিসেস",
+        "মৃতাঃ",
+    ) + prefixes
 
     suffixes = (
         "অবঃ",
@@ -498,14 +498,14 @@ class Provider(PersonProvider):
     )
 
     last_names_female_islamic = (
-                                    "আরা",
-                                    "খানম",
-                                    "খাতুন",
-                                    "জাহান",
-                                    "তাবাসসুম",
-                                    "বেগম",
-                                    "সুলতানা",
-                                ) + last_names_islamic
+        "আরা",
+        "খানম",
+        "খাতুন",
+        "জাহান",
+        "তাবাসসুম",
+        "বেগম",
+        "সুলতানা",
+    ) + last_names_islamic
 
     formats_male = [
         "{{first_name_male_common}} {{last_name_common}}",

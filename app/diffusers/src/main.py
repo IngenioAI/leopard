@@ -6,8 +6,7 @@ with open("/data/input/params.json", "rt", encoding="utf-8") as fp:
     params = json.load(fp)
 
 # make sure you're logged in with `huggingface-cli login`
-pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", revision="fp16",
-                                               torch_dtype=torch.float16)
+pipe = StableDiffusionPipeline.from_pretrained("CompVis/stable-diffusion-v1-4", revision="fp16", torch_dtype=torch.float16)
 pipe = pipe.to("cuda")
 
 if "prompt" in params:

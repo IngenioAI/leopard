@@ -2,12 +2,12 @@
 <html lang="ko">
 
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Leopard</title>
-    <LP-include-html src="head.html"></LP-include-html>
-    <LP-include-html src="csv-grid.html"></LP-include-html>
-    <script type="module" src="/js/page/faker.js"></script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Leopard</title>
+  <LP-include-html src="head.html"></LP-include-html>
+  <LP-include-html src="csv-grid.html"></LP-include-html>
+  <script type="module" src="/js/page/faker.js"></script>
 </head>
 
 <body>
@@ -20,33 +20,30 @@
         <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
             <div class="p-3 bg-body-tertiary" style="width:100%;">
                 <h2>페이커 (Faker)</h2>
-                <div class="my-4">
-                    <button type="button" class="btn btn-primary" id="generate_personal_data_button">개인정보 데이터 생성
-                    </button>
-                    <button type="button" class="btn btn-primary" id="generate_log_data_button">로그 데이터 생성</button>
-                </div>
-                <div class="d-flex flex-row align-items-center my-2">
-                    <div class="px-2">생성할 데이터 개수:</div>
-                    <div class="flex-grow-1"><input type="number" id="input_count" class="form-control" value="10"/>
-                    </div>
-                </div>
+            <div class="my-4">
+              <button type="button" class="btn btn-primary" id="generate_personal_data_button">개인정보 데이터 생성</button>
+              <button type="button" class="btn btn-primary" id="generate_log_data_button">로그 데이터 생성</button>
+            </div>
+            <div class="d-flex flex-row align-items-center my-2">
+              <div class="px-2">생성할 데이터 개수: </div><div class="flex-grow-1"><input type="number" id="input_count" class="form-control" value="10"/></div>
+            </div>
 
-                <div id="myGrid" class="ag-theme-alpine" style="height: 500px"></div>
+            <div id="myGrid" class="ag-theme-alpine" style="height: 500px"></div>
 
-                <div class="my-4">
-                    <button type="button" class="btn btn-outline-primary" id="show_raw_data_button">원문 보기</button>
-                    <button type="button" class="btn btn-outline-primary" id="download_csv_button">다운로드</button>
-                    <button type="button" class="btn btn-outline-primary" id="save_csv_button">스토리지 저장</button>
-                </div>
+            <div class="my-4">
+              <button type="button" class="btn btn-outline-primary" id="show_raw_data_button">원문 보기</button>
+              <button type="button" class="btn btn-outline-primary" id="download_csv_button">다운로드</button>
+              <button type="button" class="btn btn-outline-primary" id="save_csv_button">스토리지 저장</button>
+            </div>
 
-                <pre class="container" id="view_csv" style="display:none">
+            <pre class="container" id="view_csv" style="display:none">
 
             </pre>
-            </div>
-        </main>
+        </div>
+      </main>
     </div>
-</div>
-<LP-include-html src="filesave.html"></LP-include-html>
+  </div>
+  <LP-include-html src="filesave.html"></LP-include-html>
 </body>
 
 </html>

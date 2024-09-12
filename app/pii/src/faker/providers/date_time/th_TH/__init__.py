@@ -84,9 +84,9 @@ def _std_strftime(dt_obj: datetime, fmt_char: str) -> str:
 
 # Thai conversion support for thai_strftime()
 def _thai_strftime(
-        dt_obj: datetime,
-        fmt_char: str,
-        buddhist_era: bool = True,
+    dt_obj: datetime,
+    fmt_char: str,
+    buddhist_era: bool = True,
 ) -> str:
     """
     Conversion support for thai_strftime().
@@ -170,10 +170,10 @@ def _thai_strftime(
 
 
 def thai_strftime(
-        dt_obj: datetime,
-        fmt: str = "%-d %b %Y",
-        thai_digit: bool = False,
-        buddhist_era: bool = True,
+    dt_obj: datetime,
+    fmt: str = "%-d %b %Y",
+    thai_digit: bool = False,
+    buddhist_era: bool = True,
 ) -> str:
     """
     Convert :class:`datetime.datetime` into Thai date and time format.
@@ -282,11 +282,11 @@ def thai_strftime(
 
 class Provider(DateParseTypeProvider):
     def date(
-            self,
-            pattern: str = "%-d %b %Y",
-            end_datetime: Optional[DateParseType] = None,
-            thai_digit: bool = False,
-            buddhist_era: bool = True,
+        self,
+        pattern: str = "%-d %b %Y",
+        end_datetime: Optional[DateParseType] = None,
+        thai_digit: bool = False,
+        buddhist_era: bool = True,
     ) -> str:
         """
         Get a date string between January 1, 1970 and now
@@ -306,10 +306,10 @@ class Provider(DateParseTypeProvider):
         )
 
     def time(
-            self,
-            pattern: str = "%H:%M:%S",
-            end_datetime: Optional[DateParseType] = None,
-            thai_digit: bool = False,
+        self,
+        pattern: str = "%H:%M:%S",
+        end_datetime: Optional[DateParseType] = None,
+        thai_digit: bool = False,
     ) -> str:
         """
         Get a time string (24h format by default)

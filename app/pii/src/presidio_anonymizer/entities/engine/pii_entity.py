@@ -35,9 +35,9 @@ class PIIEntity(ABC):
     def __eq__(self, other):
         """Check two text metadata entities are equal."""
         return (
-                self.start == other.start
-                and self.end == other.end
-                and self.entity_type == other.entity_type
+            self.start == other.start
+            and self.end == other.end
+            and self.entity_type == other.entity_type
         )
 
     def __validate_fields(self):

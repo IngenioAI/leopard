@@ -89,8 +89,8 @@ class DockerRunner():
         except (docker.errors.APIError, docker.errors.NotFound) as e:
             return False, {
                 "error_code": e.response.status_code,
-                "error_reason": e.response.reason,
-                "error_message": e.explanation
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
             }
 
     def list_execs(self):
@@ -123,7 +123,7 @@ class DockerRunner():
                     os.makedirs(src_path)
                 binds.append(f'{os.path.abspath(src_path)}:{target_path}')
 
-        # print("Binds:", binds)
+        #print("Binds:", binds)
         if isinstance(command, str):
             command_list = command.split(" ")
         elif isinstance(command, list):
@@ -135,23 +135,21 @@ class DockerRunner():
             use_gpu = options["use_gpu"] if options is not None and "use_gpu" in options else True
             port_number = options["port"] if options is not None and "port" in options else None
             container = self.client.create_container(image, command=command_list,
-                                                     working_dir=working_dir,
-                                                     ports=[port_number] if port_number is not None else [],
-                                                     host_config=self.client.create_host_config(
-                                                         device_requests=[
-                                                             docker.types.DeviceRequest(count=-1, capabilities=[
-                                                                 ['gpu']])] if use_gpu else [],
-                                                         binds=binds,
-                                                         port_bindings={
-                                                             port_number: port_number} if port_number is not None else {}
-                                                     ))
+                                                    working_dir=working_dir,
+                                                    ports=[port_number] if port_number is not None else [],
+                                                    host_config=self.client.create_host_config(
+                                                        device_requests=[
+                                                            docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])] if use_gpu else [],
+                                                        binds=binds,
+                                                        port_bindings={port_number: port_number} if port_number is not None else {}
+                                                    ))
             self.client.start(container.get('Id'))
-            return True, {"container_id": container.get('Id')}
+            return True, { "container_id": container.get('Id') }
         except (docker.errors.APIError, docker.errors.NotFound) as e:
             return False, {
                 "error_code": e.response.status_code,
-                "error_reason": e.response.reason,
-                "error_message": e.explanation
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
             }
 
     def exec_logs(self, container_id):
@@ -176,8 +174,8 @@ class DockerRunner():
         except (docker.errors.APIError, docker.errors.NotFound) as e:
             return False, {
                 "error_code": e.response.status_code,
-                "error_reason": e.response.reason,
-                "error_message": e.explanation
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
             }
 
     def exec_remove(self, container_id):
@@ -188,6 +186,6 @@ class DockerRunner():
             print("docker remove error", e)
             return False, {
                 "error_code": e.response.status_code,
-                "error_reason": e.response.reason,
-                "error_message": e.explanation
+                "error_reason":e.response.reason,
+                "error_message":  e.explanation
             }

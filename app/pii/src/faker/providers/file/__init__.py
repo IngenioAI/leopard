@@ -254,11 +254,11 @@ class Provider(BaseProvider):
         return self.random_element(self.file_extensions[category])
 
     def file_path(
-            self,
-            depth: int = 1,
-            category: Optional[str] = None,
-            extension: Optional[str] = None,
-            absolute: Optional[bool] = True,
+        self,
+        depth: int = 1,
+        category: Optional[str] = None,
+        extension: Optional[str] = None,
+        absolute: Optional[bool] = True,
     ) -> str:
         """Generate an pathname to a file.
 

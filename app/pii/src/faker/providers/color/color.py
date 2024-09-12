@@ -153,10 +153,10 @@ class RandomColor:
             self.colormap[color_name]["brightness_range"] = [(b_min, b_max)]
 
     def generate(
-            self,
-            hue: Optional[HueType] = None,
-            luminosity: Optional[str] = None,
-            color_format: str = "hex",
+        self,
+        hue: Optional[HueType] = None,
+        luminosity: Optional[str] = None,
+        color_format: str = "hex",
     ) -> str:
         """Generate a color.
 
@@ -274,9 +274,9 @@ class RandomColor:
         if isinstance(color_input, list):
             color_input = tuple(color_input)
         if (
-                isinstance(color_input, tuple)
-                and len(color_input) == 2
-                and all(isinstance(c, (float, int)) for c in color_input)
+            isinstance(color_input, tuple)
+            and len(color_input) == 2
+            and all(isinstance(c, (float, int)) for c in color_input)
         ):
             v1 = int(color_input[0])
             v2 = int(color_input[1])

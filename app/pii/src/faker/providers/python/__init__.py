@@ -56,8 +56,8 @@ class Provider(BaseProvider):
         return tuple(value_types) + tuple(allowed_types)
 
     def pyobject(
-            self,
-            object_type: Optional[Type[Union[bool, str, float, int, tuple, set, list, Iterable, dict]]] = None,
+        self,
+        object_type: Optional[Type[Union[bool, str, float, int, tuple, set, list, Iterable, dict]]] = None,
     ) -> Optional[Union[bool, str, float, int, tuple, set, list, Iterable, dict]]:
         """
         Generates a random object passing the type desired.
@@ -103,11 +103,11 @@ class Provider(BaseProvider):
         return self.random_int(1, 100) <= truth_probability
 
     def pystr(
-            self,
-            min_chars: Optional[int] = None,
-            max_chars: int = 20,
-            prefix: str = "",
-            suffix: str = "",
+        self,
+        min_chars: Optional[int] = None,
+        max_chars: int = 20,
+        prefix: str = "",
+        suffix: str = "",
     ) -> str:
         """
         Generates a random string of upper and lowercase letters.
@@ -126,19 +126,19 @@ class Provider(BaseProvider):
         return prefix + chars + suffix
 
     def pystr_format(
-            self,
-            string_format: str = "?#-###{{random_int}}{{random_letter}}",
-            letters: str = string.ascii_letters,
+        self,
+        string_format: str = "?#-###{{random_int}}{{random_letter}}",
+        letters: str = string.ascii_letters,
     ) -> str:
         return self.bothify(self.generator.parse(string_format), letters=letters)
 
     def pyfloat(
-            self,
-            left_digits=None,
-            right_digits=None,
-            positive=False,
-            min_value=None,
-            max_value=None,
+        self,
+        left_digits=None,
+        right_digits=None,
+        positive=False,
+        min_value=None,
+        max_value=None,
     ):
         if left_digits is not None and left_digits < 0:
             raise ValueError("A float number cannot have less than 0 digits in its " "integer part")
@@ -184,9 +184,9 @@ class Provider(BaseProvider):
             # Make sure left_digits still respected
             if left_digits is not None:
                 if max_value is None:
-                    left_max_value = 10 ** left_digits  # minus smallest representable, adjusted later
+                    left_max_value = 10**left_digits  # minus smallest representable, adjusted later
                 if min_value is None:
-                    left_min_value = -(10 ** left_digits)  # plus smallest representable, adjusted later
+                    left_min_value = -(10**left_digits)  # plus smallest representable, adjusted later
 
             if max_value is not None and max_value < 0:
                 left_max_value += 1  # as the random_int will be generated up to max_value - 1
@@ -209,11 +209,11 @@ class Provider(BaseProvider):
                 result += sys.float_info.epsilon
 
         if right_digits:
-            result = min(result, 10 ** left_digits - float(f'0.{"0" * (right_digits - 1)}1'))
-            result = max(result, -(10 ** left_digits + float(f'0.{"0" * (right_digits - 1)}1')))
+            result = min(result, 10**left_digits - float(f'0.{"0" * (right_digits - 1)}1'))
+            result = max(result, -(10**left_digits + float(f'0.{"0" * (right_digits - 1)}1')))
         else:
-            result = min(result, 10 ** left_digits - 1)
-            result = max(result, -(10 ** left_digits + 1))
+            result = min(result, 10**left_digits - 1)
+            result = max(result, -(10**left_digits + 1))
 
         # It's possible for the result to end up > than max_value or < than min_value
         # When this happens we introduce some variance so we're not always the exactly the min_value or max_value.
@@ -252,12 +252,12 @@ class Provider(BaseProvider):
         return self.generator.random_int(min_value, max_value, step=step)
 
     def pydecimal(
-            self,
-            left_digits=None,
-            right_digits=None,
-            positive=False,
-            min_value=None,
-            max_value=None,
+        self,
+        left_digits=None,
+        right_digits=None,
+        positive=False,
+        min_value=None,
+        max_value=None,
     ):
         if left_digits is not None and left_digits < 0:
             raise ValueError("A decimal number cannot have less than 0 digits in its " "integer part")
@@ -326,11 +326,11 @@ class Provider(BaseProvider):
         return result
 
     def pytuple(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Tuple[Any, ...]:
         return tuple(
             self._pyiterable(
@@ -342,11 +342,11 @@ class Provider(BaseProvider):
         )
 
     def pyset(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Set[Any]:
         return set(
             self._pyiterable(
@@ -358,11 +358,11 @@ class Provider(BaseProvider):
         )
 
     def pylist(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> List[Any]:
         return list(
             self._pyiterable(
@@ -375,11 +375,11 @@ class Provider(BaseProvider):
 
     @no_type_check
     def pyiterable(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Iterable[Any]:
         value_types: TypesSpec = self._check_signature(value_types, allowed_types)
         return self.random_element([self.pylist, self.pytuple, self.pyset])(
@@ -399,11 +399,11 @@ class Provider(BaseProvider):
         return self.generator.format(value_type)
 
     def _pyiterable(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Iterator:
         value_types: TypesSpec = self._check_signature(value_types, allowed_types)
 
@@ -423,11 +423,11 @@ class Provider(BaseProvider):
             yield self._random_type(value_types)
 
     def pydict(
-            self,
-            nb_elements: int = 10,
-            variable_nb_elements: bool = True,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        nb_elements: int = 10,
+        variable_nb_elements: bool = True,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Dict[Any, Any]:
         """
         Returns a dictionary.
@@ -452,10 +452,10 @@ class Provider(BaseProvider):
         )
 
     def pystruct(
-            self,
-            count: int = 10,
-            value_types: Optional[TypesSpec] = None,
-            allowed_types: Optional[TypesSpec] = None,
+        self,
+        count: int = 10,
+        value_types: Optional[TypesSpec] = None,
+        allowed_types: Optional[TypesSpec] = None,
     ) -> Tuple[List, Dict, Dict]:
         value_types: TypesSpec = self._check_signature(value_types, allowed_types)
 

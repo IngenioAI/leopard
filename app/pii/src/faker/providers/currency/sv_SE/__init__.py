@@ -1,6 +1,5 @@
 from .. import Provider as CurrencyProvider
 
-
 # Names taken from https://www.iban.se/currency-codes
 
 

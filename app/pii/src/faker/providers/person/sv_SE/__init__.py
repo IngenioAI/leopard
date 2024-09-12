@@ -2,7 +2,6 @@ from collections import OrderedDict
 
 from .. import Provider as PersonProvider
 
-
 # Data source
 #
 # Data for this provider comes from the following source:

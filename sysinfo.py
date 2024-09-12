@@ -16,7 +16,7 @@ class SystemInfo():
         self.thread = None
         self.stop_flag = False
 
-    def start(self, config, poll_time=1.0):  # pylint: disable=unused-argument
+    def start(self, config, poll_time=1.0): # pylint: disable=unused-argument
         self.stop_flag = False
         self.poll_time = poll_time
         self.thread = threading.Thread(target=self.run)
@@ -63,7 +63,7 @@ class SystemInfo():
                 break
 
         if nvidia_smi_path == '':
-            return []  # no gpu info
+            return []   # no gpu info
 
         nvidia_cmd = [nvidia_smi_path, '-x', '-q']
 
@@ -89,6 +89,5 @@ class SystemInfo():
             gpu_info_list = []
 
         return gpu_info_list
-
 
 sys_info = SystemInfo()

@@ -1,21 +1,21 @@
 {
-  "id": "faker",
-  "name": "페이커 (Faker) 데이터 생성기",
-  "enable": false,
-  "type": "script",
-  "image": {
-    "tag": "leopard/faker:1.0.1",
-    "build": {
-      "base": "python:3.8",
-      "update": true,
-      "apt": "",
-      "pip": "faker"
+    "id": "faker",
+    "name": "페이커 (Faker) 데이터 생성기",
+    "enable": false,
+    "type": "script",
+    "image": {
+        "tag": "leopard/faker:1.0.1",
+        "build": {
+            "base": "python:3.8",
+            "update": true,
+            "apt": "",
+            "pip": "faker"
+        }
+    },
+    "execution": {
+        "src": "app/faker/src",
+        "command_params": [],
+        "input": "storage/0/app/faker/data",
+        "output": "storage/0/app/faker/run"
     }
-  },
-  "execution": {
-    "src": "app/faker/src",
-    "command_params": [],
-    "input": "storage/0/app/faker/data",
-    "output": "storage/0/app/faker/run"
-  }
 }

@@ -13,6 +13,7 @@ MONTHS_LIST = ("A", "B", "C", "D", "E", "H", "L", "M", "P", "R", "S", "T")
 VOWELS = "AEIOU"
 CONSONANTS = [letter for letter in ALPHABET if letter not in VOWELS]
 
+
 MUNICIPALITIES_LIST = (
     "A001",
     "A004",

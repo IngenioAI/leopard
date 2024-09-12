@@ -4,6 +4,7 @@ from presidio_analyzer import Pattern, PatternRecognizer
 
 
 class KRTrackingNumberRecognizer(PatternRecognizer):
+
     PATTERNS = [
         Pattern(
             "Tracking Number",
@@ -17,11 +18,11 @@ class KRTrackingNumberRecognizer(PatternRecognizer):
     ]
 
     def __init__(
-            self,
-            patterns: Optional[List[Pattern]] = None,
-            context: Optional[List[str]] = None,
-            supported_language: str = "ko",
-            supported_entity: str = "운송장번호",
+        self,
+        patterns: Optional[List[Pattern]] = None,
+        context: Optional[List[str]] = None,
+        supported_language: str = "ko",
+        supported_entity: str = "운송장번호",
     ):
         patterns = patterns if patterns else self.PATTERNS
         context = context if context else self.CONTEXT
