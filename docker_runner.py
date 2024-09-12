@@ -183,6 +183,7 @@ class DockerRunner():
             self.client.remove_container(container_id)
             return True, None
         except (docker.errors.APIError, docker.errors.NotFound) as e:
+            print("docker remove error", e)
             return False, {
                 "error_code": e.response.status_code,
                 "error_reason":e.response.reason,

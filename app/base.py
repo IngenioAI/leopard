@@ -179,6 +179,9 @@ class App():
 
     def remove(self):
         if self.container_id is not None:
+            info = self.inspect()
+            if info['State']['Running']:
+                self.docker.exec_stop(self.container_id)
             self.docker.exec_remove(self.container_id)
             self.container_id = None
 
