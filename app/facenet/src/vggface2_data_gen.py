@@ -147,6 +147,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument("--input", type=str, default="params.json")
     parser.add_argument("--output", type=str, default="result.json")
+    parser.add_argument("--mode", type=str, default="create")
     return parser.parse_args()
 
 

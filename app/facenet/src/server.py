@@ -136,10 +136,16 @@ async def run_app(req: Request):
                 "message": "Model not found"
             })
     elif mode == "list_model":
-        list_models = os.listdir("/model")
+        list_model = os.listdir("/model")
         return JSONResponse({
             "success": True,
-            "list_models": list_models
+            "list_model": list_model
+        })
+    elif mode == "list_dataset":
+        list_dataset = os.listdir("/dataset")
+        return JSONResponse({
+            "success": True,
+            "list_dataset": list_dataset
         })
 
 

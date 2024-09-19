@@ -18,6 +18,7 @@
             "command_params": [],
             "input": "storage/0/app/facenet/input",
             "binds": [
+                ["/dataset", "storage/0/app/facenet/data"],
                 ["/model", "storage/0/app/facenet/model"]
             ],
             "port": 12720

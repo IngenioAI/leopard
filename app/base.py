@@ -54,12 +54,12 @@ class App():
 
         self.run_params = params
 
-        if self.container_id is not None:
-            self.remove()           # remove previous docker
-
         is_server = self.config['type'] == "server"
         if self.server_online:
             return self.call_server(params)
+
+        if self.container_id is not None:
+            self.remove()           # remove previous docker
 
         progrss_info = self.get_progress()
         if progrss_info["status"] == "running":
