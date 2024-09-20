@@ -8,18 +8,32 @@
     <LP-content name="main">
         <h2 class="mb-2">개인정보 삭제 (언러닝)</h2>
 
-        <div id="model_div" style="display:none">
-            <div class="my-2">데모에 사용할 모델을 선택합니다.</div>
-            <div class="list-group my-2" id="model_list"></div>
-
-            </div>
+        <div id="model_div" class="my-2" style="display:none">
+            <h5>데모에 사용할 모델을 선택합니다.</h5>
+            <div class="list-group mx-2 my-2" id="model_list"></div>
         </div>
 
-        <div id="dataset_div" style="display:none">
-            <div class="mx-2">
-                <div class="my-2">학습에 사용할 데이터셋을 선택합니다.</div>
-                <div class="list-group my-2" id="dataset_list"></div>
+        <div id="dataset_div"  class="my-2" style="display:none">
+            <h5>학습에 사용할 데이터셋을 선택합니다.</h5>
+            <div class="list-group mx-2 my-2" id="dataset_list"></div>
+        </div>
 
+        <div id="evaluation_div" class="my-2" style="display:none">
+            <h5>선택된 모델의 성능</h5>
+            <div id="metrics_display_div" class="mx-2 my-2"></div>
+
+            <h5>모델 실행</h5>
+            <div class="mx-2 my-2">
+                <div>
+                    <button id="btn_exec_test_data" class="btn btn-outline-primary">
+                        <div class="align-middle"><span class="bi bi-database-down"></span> 기존 데이터셋</div>
+                    </button>
+                    <button id="btn_exec_url" class="btn btn-outline-primary">
+                        <div class="align-middle"><span class="bi bi-globe"></span> URL 에서 가져오기</div>
+                    </button>
+                    <button id="btn_exec_upload" class="btn btn-outline-primary">
+                        <div class="align-middle"><span class="bi bi-upload"></span> 파일 업로드</div>
+                    </button>
                 </div>
             </div>
         </div>
@@ -27,6 +41,8 @@
     </LP-content>
 
     <LP-content name="dialog">
+        <LP-include-html src="input.html"></LP-include-html>
+        <LP-include-html src="fileupload.html"></LP-include-html>
         <LP-include-html src="messagebox.html"></LP-include-html>
     </LP-content>
 

@@ -318,6 +318,12 @@ class FaceNet():
 
         return correct / total, losses / total
 
+def save_info(info_path, params, metrics):
+    with open(info_path, "wt", encoding="utf-8") as fp:
+        json.dump({
+            "params": params,
+            "metrics": metrics
+        }, fp)
 
 def save_label(label_path, class_to_idx):
     if label_path is not None:
@@ -337,7 +343,6 @@ def train(input_params):
         mode = input_params["mode"]
         model_name = input_params["model_name"]
         model_path = os.path.join("/model", model_name, "model.pth")
-        label_path = os.path.join("/model", model_name, "class_to_idx.json")
         data_path = os.path.join("/dataset", input_params["dataset"])
         resume_train = input_params.get("resume_train", False)
         batch_size = input_params.get("batch_size", 32)
@@ -349,6 +354,9 @@ def train(input_params):
             model = FaceNet(model_path, num_classes=num_classes, resume_train=resume_train)
             train_loss, train_acc, test_loss, test_acc = model.train(train_loader, test_loader, epochs=max_epochs)
 
+            info_path = os.path.join("/model", model_name, "info.json")
+            save_info(info_path, input_params, {"test_acc": test_acc})
+            label_path = os.path.join("/model", model_name, "class_to_idx.json")
             save_label(label_path, class_to_idx)
 
             return {
@@ -366,6 +374,8 @@ def train(input_params):
             model = FaceNet(model_path, num_classes=num_classes, resume_train=True)
             test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc = model.unlearn(train_forget_loader, test_forget_loader, test_retain_loader, max_epochs, unlearn_model_name)
 
+            info_path = os.path.join("/model", unlearn_model_name, "info.json")
+            save_info(info_path, input_params, {"test_forget_acc": test_forget_acc, "test_retain_acc": test_retain_acc})
             label_path = os.path.join("/model", unlearn_model_name, "class_to_idx.json")
             save_label(label_path, class_to_idx)
 

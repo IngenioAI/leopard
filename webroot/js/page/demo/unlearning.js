@@ -1,33 +1,26 @@
 import { createE, getE, clearE, addE, createT } from "/js/dom_utils.js";
 
-import { ContextMenu } from "/js/control/context_menu.js";
 import { createListGroupItem } from "/js/control/list_group.js";
 import { runApp } from "/js/service.js";
+import { joinPath, createStorageFileURL } from "/js/storage_utils.js";
 
-function createContextMenu(datasetInfo) {
-    const MENU_ID = {
-        DELETE: 0,
-        EDIT: 1
-    };
-    const contextMenu = new ContextMenu([
-        { id: MENU_ID.DELETE, title: "삭제", info: datasetInfo },
-        { id: MENU_ID.EDIT, title: "편집", info: datasetInfo }
-    ],
-        async (menuId, info) => {
-            if (menuId == MENU_ID.DELETE) {
-                const answer = await showAskMessageBox("정말로 삭제하시겠습니까?", "파일삭제", ["확인", "취소"]);
-                if (answer.index == 0) {
-                }
-            }
-            else if (menuId == MENU_ID.EDIT) {
-            }
+import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
+import { showMessageBox } from "/js/dialog/messagebox.js";
+import { showInputDialogBox } from "/js/dialog/input.js";
+
+
+let modelInfoList;
+
+function getModelInfo(name) {
+    for (let modelInfo of modelInfoList) {
+        if (modelInfo.name == name) {
+            return modelInfo
         }
-    );
-    return contextMenu.element;
+    }
+    return null;
 }
 
 function createListItem(info, onclick) {
-    //const menu = createContextMenu(datasetInfo);
     const item = createListGroupItem([
         {
             name: "h5", attributes: { class: "mb-1" }, children: [
@@ -45,9 +38,18 @@ function createListItem(info, onclick) {
             if (onclick) {
                 onclick(info.name);
             }
-        }, /*menu*/null);
+        });
 
     return item;
+}
+
+function createModelItem(modelInfo, onclick) {
+    return createListItem({
+        name: modelInfo.name,
+        class: modelInfo.info.params.mode == "unlearn" ? "bi-layers-half": "bi-layers",
+        description: modelInfo.info.params.mode == "unlearn" ? "Facenet Unlearn 모델" : "Facenet 모델",
+        tag: modelInfo.info.params.dataset
+    }, onclick);
 }
 
 async function onClickModelItem(name) {
@@ -69,7 +71,27 @@ async function onClickModelItem(name) {
         }
     }
     else {
-        addE(modelList, createListItem({ name: name, description: "Facenet", tag: "VGGFace2" }));
+        const modelInfo = getModelInfo(name);
+        if (modelInfo) {
+            addE(modelList, createModelItem(modelInfo));
+            getE("evaluation_div").style = "display:block";
+            const metricsDiv = getE("metrics_display_div");
+            if (modelInfo.info.params.mode == "train") {
+                metricsDiv.innerHTML = `Test 정확도: ${(modelInfo.info.metrics.test_acc *100).toFixed(2)}%`;
+            }
+            else {
+                metricsDiv.innerHTML = `Test 정확도 (Forget): ${(modelInfo.info.metrics.test_forget_acc *100).toFixed(2)}%` + "<br>" +
+                        `Test 정확도 (Retain): ${(modelInfo.info.metrics.test_retain_acc *100).toFixed(2)}%`
+                const originalModel = getModelInfo(modelInfo.info.params.model_name);
+                if (originalModel.info.params.mode == "train") {
+                    metricsDiv.innerHTML += "<br>" + `Unlearning 이전 모델의 Test 정확도: ${(originalModel.info.metrics.test_acc *100).toFixed(2)}%`;
+                }
+            }
+
+        }
+        else {
+            console.error("model info not found", name);
+        }
     }
 }
 
@@ -85,15 +107,47 @@ async function onClickDatasetItem(name) {
     }
 }
 
+async function uploadTestData() {
+
+}
+
+async function uploadUrl() {
+    const url = await showInputDialogBox("이미지의 URL을 입력합니다.", "이미지 불러오기", async (name) => {
+        if (!name) {
+            showMessageBox("URL을 입력하세요", "이미지 불러오기");
+            return false;
+        }
+        return true;
+    });
+    if (url) {
+        console.log(url);
+    }
+}
+
+async function uploadFile() {
+    const res = await showFileUploadDialogBox('0', 'app/facenet/input');
+    if (res.success) {
+        const imagePath = res.files[0];
+        const imageUrl = createStorageFileURL("0", joinPath("app/facenet/input", imagePath));
+        console.log(imageUrl)
+        //recognizeFace('file', imagePath);
+    }
+}
+
 async function init() {
     getE("model_div").style = "display:block";
-    const modelList = getE("model_list");
+    getE("btn_exec_test_data").addEventListener("click", uploadTestData);
+    getE("btn_exec_url").addEventListener("click", uploadUrl);
+    getE("btn_exec_upload").addEventListener("click", uploadFile);
+
+    const modelListDiv = getE("model_list");
     const res = await runApp("facenet", { mode: "list_model"});
     if (res.success) {
-        for (const modelInfo of res.list_model) {
-            addE(modelList, createListItem({ name: modelInfo, description: "Facenet", tag: "VGGFace2" }, onClickModelItem));
+        modelInfoList = res.list_model;
+        for (const modelInfo of modelInfoList) {
+            addE(modelListDiv, createModelItem(modelInfo, onClickModelItem));
         }
-        addE(modelList, createListItem(
+        addE(modelListDiv, createListItem(
             { name: "새로 학습", description: "새로운 모델을 학습합니다.", tag: "", class: "bi-play"}, onClickModelItem));
     }
     else {

@@ -137,9 +137,20 @@ async def run_app(req: Request):
             })
     elif mode == "list_model":
         list_model = os.listdir("/model")
+        model_info_list = []
+        for model_name in list_model:
+            model_dir = os.path.join("/model", model_name)
+            model_info_path = os.path.join(model_dir, "info.json")
+            with open(model_info_path, "rt", encoding="utf-8") as fp:
+                model_info = json.load(fp)
+                model_info_list.append({
+                    "name": model_name,
+                    "info": model_info
+                })
+
         return JSONResponse({
             "success": True,
-            "list_model": list_model
+            "list_model": model_info_list
         })
     elif mode == "list_dataset":
         list_dataset = os.listdir("/dataset")
@@ -151,14 +162,17 @@ async def run_app(req: Request):
 
 def web_main(args):
     app.args = args
-    app.model = FaceNetServer(args.model_path, label_path=args.label_path)
+    if os.path.exists(args.model_path):
+        app.model = FaceNetServer(args.model_path, label_path=args.label_path)
+    else:
+        app.model = None
     uvicorn.run(app, host="0.0.0.0", port=args.port)
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--model_path", type=str, default="/model/my_unlearn/model.pth")
-    parser.add_argument("--label_path", type=str, default="/model/my_unlearn/class_to_idx.json")
+    parser.add_argument("--model_path", type=str, default="")
+    parser.add_argument("--label_path", type=str, default=None)
     parser.add_argument('--port', type=int, default=12720)
     return parser.parse_args()
 
