@@ -9,20 +9,96 @@
         <h2 class="mb-2">개인정보 삭제 (언러닝)</h2>
 
         <div id="model_div" class="my-2" style="display:none">
-            <h5>데모에 사용할 모델을 선택합니다.</h5>
+            <h4>데모에 사용할 모델</h4>
             <div class="list-group mx-2 my-2" id="model_list"></div>
         </div>
 
-        <div id="dataset_div"  class="my-2" style="display:none">
-            <h5>학습에 사용할 데이터셋을 선택합니다.</h5>
+        <div id="dataset_div" class="my-2" style="display:none">
+            <h4>학습에 사용할 데이터셋</h4>
             <div class="list-group mx-2 my-2" id="dataset_list"></div>
         </div>
 
         <div id="evaluation_div" class="my-2" style="display:none">
-            <h5>선택된 모델의 성능</h5>
-            <div id="metrics_display_div" class="mx-2 my-2"></div>
+            <h4 class="pt-2">선택된 모델의 성능 (정확도)</h4>
+            <div id="metrics_display_train" class="mx-2 my-2" style="display:none">
+                <div class="row row-cols-1 row-cols-md-4 mb-3 text-center">
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm border-success">
+                            <div class="card-header py-3 text-bg-success border-success">
+                                <h5 class="my-0 fw-normal">정확도</h5>
+                                <div>테스트 데이터</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="test_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="metrics_display_unlearn" class="mx-2 my-2" style="display:none">
+                <div class="row row-cols-1 row-cols-md-4 mb-3 text-center">
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm">
+                            <div class="card-header py-3">
+                                <h5 class="my-0 fw-normal">Unlearning 이전</h5>
+                                <div>모든 데이터</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="before_all_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm">
+                            <div class="card-header py-3">
+                                <h5 class="my-0 fw-normal">Unlearning 이전</h5>
+                                <div>Forget 클래스를 제외한 모든 데이터</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="before_retain_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm border-success">
+                            <div class="card-header py-3 text-bg-success border-success">
+                                <h5 class="my-0 fw-normal">Unlearning 이후</h5>
+                                <div>Forget 클래스를 제외한 모든 데이터</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="after_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-            <h5>모델 실행</h5>
+                <div class="row row-cols-1 row-cols-md-4 mb-3 text-center">
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm">
+                            <div class="card-header py-3">
+                                <h5 class="my-0 fw-normal">Unlearning 이전</h5>
+                                <div>Forget 클래스</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="before_forget_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col">
+                        <div class="card mb-4 rounded-3 shadow-sm border-danger">
+                            <div class="card-header py-3 text-bg-danger border-danger">
+                                <h5 class="my-0 fw-normal">Unlearning 이후</h5>
+                                <div>Forget 클래스</div>
+                            </div>
+                            <div class="card-body">
+                                <h2 id="after_forget_acc" class="card-title pricing-card-title"></h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h4>모델 실행</h4>
             <div class="mx-2 my-2">
                 <div>
                     <button id="btn_exec_test_data" class="btn btn-outline-primary">
@@ -36,6 +112,8 @@
                     </button>
                 </div>
             </div>
+
+            <h4 class="pt-2">언러닝 실행</h4>
         </div>
 
     </LP-content>
@@ -44,6 +122,7 @@
         <LP-include-html src="input.html"></LP-include-html>
         <LP-include-html src="fileupload.html"></LP-include-html>
         <LP-include-html src="messagebox.html"></LP-include-html>
+        <LP-include-html src="ask_messagebox.html"></LP-include-html>
     </LP-content>
 
 </LP-template>

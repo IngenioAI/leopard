@@ -245,6 +245,12 @@ class FaceNet():
             "stage": 2,
             "message": "Model Unlearning",
         })
+
+        loss_fn = torch.nn.CrossEntropyLoss()
+
+        before_test_forget_acc, _ = self.evaluate(test_forget_loader, loss_fn)
+        before_test_retain_acc, _ = self.evaluate(test_retain_loader, loss_fn)
+
         original_model = self.model.to(self.device)
         unlearn_model = deepcopy(original_model).to(self.device)
         attack = PGD(model=original_model.to(self.device), eps=128/255, alpha=100/255, iters=10, denorm=True)
@@ -290,7 +296,6 @@ class FaceNet():
             print(f'Epoch {epoch} | Time {time.time()-start:.3f} | Loss {losses / total:.4f} | Acc {correct/total:.4f} | Flipped {nums_filpped/total:.4f}')
 
         self.model = unlearn_model
-        loss_fn = torch.nn.CrossEntropyLoss()
         test_forget_acc, test_forget_loss = self.evaluate(test_forget_loader, loss_fn)
         test_retain_acc, test_retain_loss = self.evaluate(test_retain_loader, loss_fn)
 
@@ -300,7 +305,7 @@ class FaceNet():
         else:
             self.save_model()   # overwrite!
 
-        return test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc
+        return test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc, before_test_forget_acc, before_test_retain_acc
 
     @torch.no_grad()
     def evaluate(self, dataloader, criterion):
@@ -366,16 +371,17 @@ def train(input_params):
                 "test_acc": test_acc
             }
         elif mode == "unlearn":
-            max_epochs = input_params.get("epochs", 2)
+            max_epochs = input_params.get("unlearn_epochs", 2)
             forget_class_index = input_params["forget_class_index"]
             train_forget_loader, test_forget_loader, test_retain_loader, class_to_idx = load_unlearning_data(data_path, forget_class_index, batch_size)
             unlearn_model_name = input_params.get("unlearn_model_name", None)
             num_classes = len(class_to_idx.items())
             model = FaceNet(model_path, num_classes=num_classes, resume_train=True)
-            test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc = model.unlearn(train_forget_loader, test_forget_loader, test_retain_loader, max_epochs, unlearn_model_name)
+            test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc, before_test_forget_acc, before_test_retain_acc = model.unlearn(train_forget_loader, test_forget_loader, test_retain_loader, max_epochs, unlearn_model_name)
 
             info_path = os.path.join("/model", unlearn_model_name, "info.json")
-            save_info(info_path, input_params, {"test_forget_acc": test_forget_acc, "test_retain_acc": test_retain_acc})
+            save_info(info_path, input_params, {"test_forget_acc": test_forget_acc, "test_retain_acc": test_retain_acc,
+                                                "before_test_forget_acc": before_test_forget_acc, "before_test_retain_acc": before_test_retain_acc})
             label_path = os.path.join("/model", unlearn_model_name, "class_to_idx.json")
             save_label(label_path, class_to_idx)
 
@@ -383,7 +389,9 @@ def train(input_params):
                 "test_forget_loss": test_forget_loss,
                 "test_forget_acc": test_forget_acc,
                 "test_retain_loss": test_retain_loss,
-                "test_retain_acc": test_retain_acc
+                "test_retain_acc": test_retain_acc,
+                "before_test_forget_acc": before_test_forget_acc,
+                "before_test_retain_acc": before_test_retain_acc
             }
 
     except KeyError as e:

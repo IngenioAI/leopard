@@ -72,6 +72,12 @@
                 "default": "dataset01"
             },
             {
+                "id": "epochs",
+                "title": "학습 에포크수",
+                "type": "number",
+                "default": 8
+            },
+            {
                 "id": "unlearn_model_name",
                 "title": "언러닝 모델 이름",
                 "type": "text",
@@ -82,6 +88,12 @@
                 "title": "잊어버릴 클래스 인덱스",
                 "type": "number",
                 "default": 1
+            },
+            {
+                "id": "unlearn_epochs",
+                "title": "언러닝 에포크수",
+                "type": "number",
+                "default": 2
             }
         ]
     },

@@ -152,6 +152,8 @@ async def run_app(req: Request):
             "success": True,
             "list_model": model_info_list
         })
+    elif mode == "remove_model":
+        model_name = params["model_name"]
     elif mode == "list_dataset":
         list_dataset = os.listdir("/dataset")
         return JSONResponse({
