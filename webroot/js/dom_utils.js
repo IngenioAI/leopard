@@ -67,6 +67,11 @@ export function clearE(elem) {
     return e;
 }
 
+export function addEvent(elem, event, callback) {
+    const e = getE(elem);
+    e.addEventListener(event, callback);
+}
+
 export function createElem(o) {
     const elem = createE(o.name, o.text, o.attributes, o.events);
     if ('children' in o) {

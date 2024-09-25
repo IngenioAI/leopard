@@ -6,6 +6,7 @@ import os
 import json
 import urllib.request
 from urllib.parse import urlparse
+import shutil
 
 import torch
 import numpy as np
@@ -154,6 +155,11 @@ async def run_app(req: Request):
         })
     elif mode == "remove_model":
         model_name = params["model_name"]
+        model_path = os.path.join("/model", model_name)
+        try:
+            shutil.rmtree(model_path)
+        except Exception as e:
+            print(e)
     elif mode == "list_dataset":
         list_dataset = os.listdir("/dataset")
         return JSONResponse({
