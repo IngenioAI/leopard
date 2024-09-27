@@ -4,7 +4,7 @@ import argparse
 
 import uvicorn
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.exceptions import HTTPException
 from starlette.status import HTTP_303_SEE_OTHER
@@ -183,6 +183,13 @@ async def stop_app(module_id: str):
 async def remove_app(module_id: str):
     res = app_manager.remove_app(module_id)
     return JSONResponseHandler(res)
+
+@app.get("/api/app/data/{module_id}/{data_path:path}", tags=["App"])
+async def get_app_data(module_id: str, data_path: str):
+    content, content_type = app_manager.get_data(module_id, data_path)
+    if content is not None:
+        return Response(content, media_type=content_type)
+    raise HTTPException(status_code=404, detail="File not found")
 
 @app.get("/api/system/info", tags=["System"])
 async def get_sys_info():

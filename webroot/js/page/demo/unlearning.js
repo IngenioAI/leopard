@@ -1,4 +1,4 @@
-import { getE, clearE, addE, setT, getV, setV, addEvent } from "/js/dom_utils.js";
+import { getE, clearE, addE, createElem, getV, setV, addEvent } from "/js/dom_utils.js";
 import { Canvas, loadImage } from "/js/canvas_utils.js";
 import { ContextMenu } from "/js/control/context_menu.js";
 import { createListGroupItem } from "/js/control/list_group.js";
@@ -13,6 +13,7 @@ import { showAskMessageBox } from "/js/dialog/ask_messagebox.js";
 
 let modelInfoList;
 let currentModelInfo;
+let currentDatasetName;
 
 let canvas1, canvas2, info_canvas;
 let scale = 1.0;
@@ -81,7 +82,7 @@ function createModelItem(modelInfo, onclick) {
     return createListItem({
         name: modelInfo.name,
         class: modelInfo.info.params.mode == "unlearn" ? "bi-layers-half": "bi-layers",
-        description: modelInfo.info.params.mode == "unlearn" ? `Facenet Unlearn 모델 (forget=${modelInfo.info.params.forget_class_index})` : "Facenet 모델",
+        description: modelInfo.info.params.mode == "unlearn" ? `${modelInfo.info.params.model_name}의 언러닝 모델 (forget=${modelInfo.info.params.forget_class_index})` : "Facenet 모델",
         tag: modelInfo.info.params.dataset,
         info: modelInfo.info
     }, onclick);
@@ -128,6 +129,7 @@ async function onClickModelItem(name) {
                 getE("after_acc").innerText = `${(modelInfo.info.metrics.test_retain_acc *100).toFixed(2)}%`;
                 getE("before_forget_acc").innerText = `${(modelInfo.info.metrics.before_test_forget_acc *100).toFixed(2)}%`;
                 getE("after_forget_acc").innerText = `${(modelInfo.info.metrics.test_forget_acc *100).toFixed(2)}%`;
+                drawCompareGraph(modelInfo.info.metrics);
             }
             const res = await runApp("facenet", { mode: 'load', model_name: modelInfo.name });
             if (!res.success) {
@@ -163,10 +165,147 @@ async function onClickDatasetItem(name) {
     if (name == "새로 생성") {
         addE(datasetList, createListItem(
             { name: "새로 생성", description: "새로운 데이터셋을 생성합니다.", tag: "", class: "bi-play"}));
+        getE("dataset_gen_div").style = "display:block";
     }
     else {
         addE(datasetList, createListItem({ name: name, description: "dataset", tag: "VGGFace2", class: "bi-database" }));
+        currentDatasetName = name;
+        getE("model_train_div").style = "diplay:block";
     }
+}
+
+async function checkTrainProgress() {
+    const progressInfo = await getAppProgress("facenet_train");
+    console.log(progressInfo);
+    if (progressInfo.status == "none") {
+        progressInfo.stage = 4;
+    }
+    if (progressInfo.stage) {
+        getE("train_progress").style = `width: ${progressInfo.stage * 25}%`;
+        let msg = "";
+        if (progressInfo.stage >= 1) {
+            msg += "학습을 위한 데이터를 불러오고 있습니다.<br>";
+        }
+        if (progressInfo.stage >= 2) {
+            msg += "학습 과정을 실행하고 있습니다.<br>";
+            if (progressInfo.current_epoch) {
+                msg += `학습 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs}`;
+            }
+        }
+        if (progressInfo.stage >= 3) {
+            msg += "학습 모델을 평가하고 있습니다.<br>";
+        }
+        if (progressInfo.stage >= 4) {
+            msg += "학습 모델을 저장합니다.<br>";
+        }
+        getE("train_output_log").innerHTML = msg;
+    }
+    if (progressInfo.status != "running") {
+        const result = await getAppResult("facenet_train");
+        console.log(result);
+        removeApp("facenet_train");
+    }
+    else {
+        setTimeout(checkTrainProgress, 1000);
+    }
+}
+
+async function execTrain() {
+    const res = await runApp("facenet_train", {
+        mode: "train",
+        model_name: getV("train_model_name"),
+        dataset: currentDatasetName,
+        epochs: parseInt(getV("train_epochs"))
+    });
+    console.log(res);
+
+    getE("train_output").style = "display:block";
+    setTimeout(checkTrainProgress, 1000);
+}
+
+async function checkDatasetGenProgress() {
+    const progressInfo = await getAppProgress("vggface2_dataset");
+    console.log(progressInfo);
+    getE("dataset_gen_progress").style = `width: ${((progressInfo.current_count) / progressInfo.count) * 100}%`;
+    if (progressInfo.current_sample) {
+        getE("dataset_gen_output_log").innerHTML = `현재 처리중: ${progressInfo.current_sample}`;
+    }
+    else {
+        getE("dataset_gen_output_log").innerHTML = `처리 준비중`;
+    }
+    if (progressInfo.status != "running") {
+        const result = await getAppResult("vggface2_dataset");
+        console.log(result);
+        removeApp("vggface2_dataset");
+        getE("dataset_gen_output_log").innerHTML = `완료됨`;
+    }
+    else {
+        setTimeout(checkDatasetGenProgress, 1000);
+    }
+}
+
+async function execDatasetGen() {
+    const res = await runApp("vggface2_dataset", {
+        name: getV("dataset_name"),
+        count: parseInt(getV("class_count")),
+        korean_ratio: getE(korean_only).checked ? 1.0 : 0.0
+    });
+
+    console.log(res);
+    getE("dataset_gen_output").style = "display:block";
+    setTimeout(checkDatasetGenProgress, 1000);
+}
+
+async function drawCompareGraph(metrics) {
+    const myChart = echarts.init(document.getElementById('compare_graph'));
+
+    const dataSeries = [];
+    dataSeries.push({
+        name: '모든 데이터',
+        type: "bar",
+        color: "#007900",
+        data: [metrics.before_test_retain_acc, metrics.test_retain_acc],
+    });
+    dataSeries.push({
+        name: 'Forget 클래스',
+        type: "bar",
+        color: "#a90000",
+        data: [metrics.before_test_forget_acc, metrics.test_forget_acc],
+    });
+
+    const option = {
+        tooltip: {
+            trigger: 'axis'
+        },
+        legend: {
+            data: ["모든 데이터", "Forget 클래스"]
+        },
+        toolbox: {
+            show: false,
+            feature: {
+                dataView: { show: true, readOnly: false },
+                magicType: { show: true, type: ['line', 'bar'] },
+                restore: { show: true },
+                saveAsImage: { show: true }
+            }
+        },
+        calculable: true,
+        xAxis: [
+            {
+                type: 'category',
+                data: ['언러닝 전', '언러닝 후']
+            }
+        ],
+        yAxis: [
+            {
+                type: 'value'
+            }
+        ],
+        series: dataSeries
+    };
+
+    //myChart.setOption(option, notMerge=true);
+    myChart.setOption(option);
 }
 
 async function execUnlearning() {
@@ -186,10 +325,29 @@ async function execUnlearning() {
 
 async function checkUnlearnProgress() {
     const progressInfo = await getAppProgress("facenet_train");
-    setT("progress_stage", `스테이지: ${progressInfo.stage}`);
-    setT("progress_message", `메시지: ${progressInfo.message}`);
-    if (progressInfo.max_epochs) {
-        setT("progress_epoch", `에포크: ${progressInfo.current_epoch}/${progressInfo.max_epochs}`);
+    console.log(progressInfo);
+    if (progressInfo.status == "none") {
+        progressInfo.stage = 4;
+    }
+    if (progressInfo.stage) {
+        getE("unlearn_progress").style = `width: ${progressInfo.stage * 25}%`;
+        let msg = "";
+        if (progressInfo.stage >= 1) {
+            msg += "언러닝을 위한 데이터를 불러오고 있습니다.<br>";
+        }
+        if (progressInfo.stage >= 2) {
+            msg += "언러닝 과정을 실행하고 있습니다.<br>";
+            if (progressInfo.current_epoch) {
+                msg += `언러닝 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs}`;
+            }
+        }
+        if (progressInfo.stage >= 3) {
+            msg += "언러닝 모델을 평가하고 있습니다.<br>";
+        }
+        if (progressInfo.stage >= 4) {
+            msg += "언러닝 모델을 저장합니다.<br>";
+        }
+        getE("unlearn_output_log").innerHTML = msg;
     }
     if (progressInfo.status != "running") {
         const result = await getAppResult("facenet_train");
@@ -209,7 +367,35 @@ function clearFaceUI() {
 }
 
 async function uploadTestData() {
-
+    clearFaceUI();
+    const res = await runApp("facenet", {
+        mode: "list_random_test_data",
+        dataset: currentModelInfo.info.params.dataset,
+        model: currentModelInfo.name,
+        class_id: "all",
+        count: 20
+    });
+    console.log(res);
+    clearE("image_view");
+    getE("image_view").style = "display:block";
+    let thumbnail_size = 160;
+    for (let data_path of res.random_test_data_list) {
+        const data_url = `/api/app/data/facenet/${data_path}`;
+        const img = createElem({name: "div", attributes: { class: "m-2", style: `display:inline-block; width:${thumbnail_size}px; height:${thumbnail_size}px;`}, children: [
+            { name: "img", attributes: {class: "img-thumbnail rounded", src: data_url,
+                style: "width:100%; height:100%; cursor:pointer; object-fit: contain;"},  // object-fit: cover, contain
+                events: {
+                    click: async () => {
+                        getE("image_view").style = "display:none";
+                        image = await loadImage(data_url);
+                        clearFaceUI();
+                        scale = canvas1.drawImageFit(image);
+                        recognizeFace('test_data', data_path, true);
+                    }
+                }}
+        ]});
+        addE("image_view", img)
+    }
 }
 
 async function uploadUrl() {
@@ -255,9 +441,12 @@ async function uploadFile() {
     }
 }
 
-async function recognizeFace(type, location) {
+async function recognizeFace(type, location, noFaceBox=false) {
     if (type == 'file') {
         faceInfo = await runApp("facenet", { mode: 'inference', image_path: location });
+    }
+    else if (type == 'test_data') {
+        faceInfo = await runApp("facenet", { mode: 'inference', test_data_path: location });
     }
     else {
         faceInfo = await runApp("facenet", { mode: 'inference', image_url: location })
@@ -271,8 +460,10 @@ async function recognizeFace(type, location) {
             return;
         }
 
-        for (const box of faceInfo.boxes) {
-            drawFaceBox(box, 3, 'lime');
+        if (!noFaceBox) {
+            for (const box of faceInfo.boxes) {
+                drawFaceBox(box, 3, 'lime');
+            }
         }
         showFaceInfo(0);
         return faceInfo;
@@ -367,7 +558,9 @@ async function init() {
     addEvent("btn_exec_test_data", "click", uploadTestData);
     addEvent("btn_exec_url", "click", uploadUrl);
     addEvent("btn_exec_upload", "click", uploadFile);
-    addEvent("btn_exec_unlearning", "click", execUnlearning)
+    addEvent("btn_exec_unlearning", "click", execUnlearning);
+    addEvent("btn_exec_train", "click", execTrain);
+    addEvent("btn_exec_dataset_gen", "click", execDatasetGen)
 
     canvas1 = new Canvas('canvas1');
     canvas1.init(960, 540);

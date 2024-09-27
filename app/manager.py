@@ -65,6 +65,16 @@ class AppManager():
                 return self.apps[module_id].get_result()
         return None
 
+    def get_data(self, module_id, data_path):
+        for info in self.app_info:
+            if info['id'] == module_id:
+                if hasattr(self.apps[module_id], 'get_data'):
+                    return self.apps[module_id].get_data(data_path)
+                else:
+                    print("No get_data in module", module_id)
+                    return None, None
+        return None, None
+
     def stop_app(self, module_id):
         for info in self.app_info:
             if info['id'] == module_id:

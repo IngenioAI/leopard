@@ -4,6 +4,8 @@
 import argparse
 import os
 import json
+import random
+
 import urllib.request
 from urllib.parse import urlparse
 import shutil
@@ -16,7 +18,7 @@ from torchvision import transforms
 from facenet_pytorch import MTCNN, InceptionResnetV1
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, FileResponse
 import uvicorn
 
 
@@ -92,9 +94,9 @@ class FaceNetServer():
                 output = output_exp / sum(output_exp)
                 softmax_outputs.append(output.tolist())
             outputs = softmax_outputs
-        else:
-            outputs = []
-        return boxes.tolist(), probs.tolist(), outputs
+            return boxes.tolist(), probs.tolist(), outputs
+        return [], [], []
+
 
 @app.get("/api/ping")
 async def server_ping():
@@ -115,6 +117,8 @@ async def run_app(req: Request):
             urllib.request.urlretrieve(image_url, image_path)
         elif 'image_path' in params:
             image_path = os.path.join("/data/input", params['image_path'])
+        elif 'test_data_path' in params:
+            image_path = os.path.join("/dataset", params['test_data_path'])
         boxes, probs, preds = app.model.face_recognize(image_path)
         return JSONResponse({
             "boxes": boxes,
@@ -166,7 +170,40 @@ async def run_app(req: Request):
             "success": True,
             "list_dataset": list_dataset
         })
+    elif mode == "list_random_test_data":
+        dataset_name = params["dataset"]
+        model_name = params["model"]
+        class_id = params["class_id"]
+        count = params["count"]
 
+        label_info_path = os.path.join("/model", model_name, "class_to_idx.json")
+        with open(label_info_path, "rt", encoding="utf-8") as fp:
+            label_info = json.load(fp)
+
+        root = os.path.join("/dataset", dataset_name, "test")
+        prefix_len = len("/dataset/")
+        file_list = []
+        for r, d, f in os.walk(root):
+            for file in f:
+                file_list.append(os.path.join(r[prefix_len:], file))
+        print(len(file_list))
+        selected_list = random.sample(file_list, count)
+        return JSONResponse({
+            "success": True,
+            "random_test_data_list": selected_list,
+            "labels": []
+        })
+
+
+
+@app.get("/api/data/{data_path:path}")
+async def get_data(data_path: str):
+    data_file_path = os.path.join("/dataset", data_path)
+    if os.path.exists(data_file_path) and not os.path.isdir(data_file_path):
+        if os.access(data_file_path, os.R_OK):
+            return FileResponse(data_file_path)
+        raise HTTPException(status_code=503, detail="File access not allowed")
+    raise HTTPException(status_code=404, detail="File not found")
 
 def web_main(args):
     app.args = args

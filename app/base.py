@@ -172,6 +172,17 @@ class App():
             print(e)
             return False
 
+    def get_data(self, data_path):
+        req = request.Request(f"http://localhost:{self.config['execution']['port']}/api/data/{data_path}")
+        try:
+            with request.urlopen(req) as resp:
+                content = resp.read()
+                content_type = resp.getheader("Content-Type")
+                return content, content_type
+        except (error.HTTPError, error.URLError, ConnectionResetError) as e:
+            print(e)
+            return None, None
+
     def stop(self, remove=True):
         if self.container_id is not None:
             self.docker.exec_stop(self.container_id)
