@@ -189,7 +189,7 @@ async function checkTrainProgress() {
         if (progressInfo.stage >= 2) {
             msg += "학습 과정을 실행하고 있습니다.<br>";
             if (progressInfo.current_epoch) {
-                msg += `학습 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs}`;
+                msg += `학습 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs} <br>`;
             }
         }
         if (progressInfo.stage >= 3) {
@@ -200,6 +200,7 @@ async function checkTrainProgress() {
         }
         getE("train_output_log").innerHTML = msg;
     }
+    drawLossGraph(progressInfo);
     if (progressInfo.status != "running") {
         const result = await getAppResult("facenet_train");
         console.log(result);
@@ -221,6 +222,57 @@ async function execTrain() {
 
     getE("train_output").style = "display:block";
     setTimeout(checkTrainProgress, 1000);
+}
+
+async function drawLossGraph(progressInfo) {
+    if (progressInfo.max_epochs) {
+        const myChart = echarts.init(document.getElementById('train_loss_graph'));
+        const option = {
+            animationDuration: 1000,
+            animationDurationUpdate: 1000,
+            xAxis: {
+                name: 'epoch',
+                nameLocation: 'middle',
+                type: 'category',
+                //data: Array.from(new Array(progressInfo.max_epochs), (val, ind) => `${ind+1}`),
+                data: Array.from(new Array(progressInfo.current_epoch), (val, ind) => `${ind+1}`),
+            },
+            yAxis: [
+                {
+                    name: 'loss',
+                    type: 'value',
+                    min: 0.0
+                },
+                {
+                    name: 'accuracy',
+                    type: 'value',
+                    max: 1.0
+                }
+            ],
+            series: [
+                {
+                    name: 'loss',
+                    data: progressInfo.loss,
+                    smooth: true,
+                    type: 'line'
+                },
+                {
+                    name: 'accuracy',
+                    yAxisIndex: 1,
+                    data: progressInfo.acc,
+                    smooth: true,
+                    type: 'line'
+                }
+            ],
+            tooltip: {
+                trigger: 'axis',
+            },
+            legend: {
+                data: ['loss', 'accuracy']
+            }
+        };
+        myChart.setOption(option);
+    }
 }
 
 async function checkDatasetGenProgress() {
@@ -553,6 +605,10 @@ function mouseScreenToCanvas(e) {
     return [x, y];
 }
 
+async function reloadModel() {
+    location.reload();
+}
+
 async function init() {
     getE("model_div").style = "display:block";
     addEvent("btn_exec_test_data", "click", uploadTestData);
@@ -560,7 +616,8 @@ async function init() {
     addEvent("btn_exec_upload", "click", uploadFile);
     addEvent("btn_exec_unlearning", "click", execUnlearning);
     addEvent("btn_exec_train", "click", execTrain);
-    addEvent("btn_exec_dataset_gen", "click", execDatasetGen)
+    addEvent("btn_exec_dataset_gen", "click", execDatasetGen);
+    addEvent("btn_model_reload", "click", reloadModel);
 
     canvas1 = new Canvas('canvas1');
     canvas1.init(960, 540);

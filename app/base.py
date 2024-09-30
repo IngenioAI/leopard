@@ -115,10 +115,16 @@ class App():
                 if len(logs) > last_line:
                     print(logs[last_line:])
                     last_line = len(logs)
-                status = info['State']['Running']
-            self.docker.exec_remove(self.container_id)
+                if 'State' in info:
+                    status = info['State']['Running']
+                else:
+                    status = ''
+            if self.container_id is not None:
+                self.docker.exec_remove(self.container_id)
+            result = self.get_result()
+            self.container_id = None
 
-            return self.get_result()
+            return result
 
         if is_server:
             timeout = 30
@@ -219,24 +225,26 @@ class App():
         info = self.inspect()
         if "State" in info:
             status = info['State']['Running']
-            if 'run_path' in self.config['execution']:
-                progress_path = os.path.join(self.config['execution']['run_path'], "progress.json")
-                if os.path.exists(progress_path):
-                    with open(progress_path, "rt", encoding="utf-8") as fp:
-                        try:
-                            progress_info = json.load(fp)
-                            if not status and progress_info["status"] == "running":
+        else:
+            status = None
+
+        if 'run_path' in self.config['execution']:
+            progress_path = os.path.join(self.config['execution']['run_path'], "progress.json")
+            if os.path.exists(progress_path):
+                with open(progress_path, "rt", encoding="utf-8") as fp:
+                    try:
+                        progress_info = json.load(fp)
+                        if status is None:
+                            if progress_info["status"] == "running":
                                 progress_info["status"] = "exited"
-                        except (json.decoder.JSONDecodeError):
-                            progress_info = { "status": "running", "message": "json error"}
+                            else:
+                                progress_info["status"] = "done"
+                    except (json.decoder.JSONDecodeError):
+                        progress_info = { "status": "running", "message": "json error"}
 
-                        return progress_info
-            return {
-                "status": "running" if status else "done"
-            }
-
+                    return progress_info
         return {
-            "status": "none"
+            "status": "running" if status is not None else "none"
         }
 
     def get_result(self):

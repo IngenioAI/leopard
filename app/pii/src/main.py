@@ -52,6 +52,8 @@ def run_presidio(params, args):
     entities = params.get("entities", None)
     if text_file != "":
         text_file_path = os.path.join("/data/input", text_file)
+        if not os.path.exists(text_file_path):
+            text_file_path = os.path.join("/upload", text_file)
         with open(text_file_path, "rt", encoding="utf-8") as fp:
             text = fp.read()
 

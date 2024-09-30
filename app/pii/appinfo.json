@@ -16,7 +16,10 @@
         "src": "app/pii/src",
         "command_params": [],
         "input": "storage/0/app/pii/data",
-        "output": "storage/0/app/pii/run"
+        "output": "storage/0/app/pii/run",
+        "binds": [
+            ["/upload", "storage/0/app/pii/input"]
+        ]
     },
     "input_form_spec": [
         {

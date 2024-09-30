@@ -1,0 +1,33 @@
+<LP-template use="demopage">
+    <LP-content name="head">
+        <style>
+            .pi-entity {
+                background-color: yellow;
+                font-weight: 700;
+            }
+        </style>
+    </LP-content>
+    <LP-content name="main">
+        <h2 class="mb-2">개인정보 탐지 및 비식별화</h2>
+        <h4>데이터 선택</h4>
+        <div id="detection_file">
+            <button id="btn_exec_test_data" class="btn btn-outline-primary">
+                <div class="align-middle"><span class="bi bi-database-down"></span> 가상 데이터 생성</div>
+            </button>
+            <button id="btn_exec_upload" class="btn btn-outline-primary">
+                <div class="align-middle"><span class="bi bi-upload"></span> 파일 업로드</div>
+            </button>
+        </div>
+        <div id="detection_params">
+
+        </div>
+        <div id="detection_output" class="mx-4 my-2">
+
+        </div>
+    </LP-content>
+
+    <LP-content name="dialog">
+        <LP-include-html src="fileupload.html"></LP-include-html>
+        <LP-include-html src="messagebox.html"></LP-include-html>
+    </LP-content>
+</LP-template>

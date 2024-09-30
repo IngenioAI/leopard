@@ -76,7 +76,7 @@ async def get_storage_file(storage_id: str, file_path: str):
 async def post_storage_file(storage_id: str, file_path: str, req: Request):
     storage_file_path = storage_util.get_storage_file_path(storage_id, file_path)
     if not os.path.exists(storage_file_path):
-        raise HTTPException(status_code=404, detail="Path not found")
+        os.makedirs(storage_file_path)
     file_list, _ = await upload_util.handle_upload(req, storage_file_path)
     return JSONResponseHandler({
         'success': True,

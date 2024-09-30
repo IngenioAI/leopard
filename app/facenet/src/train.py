@@ -189,12 +189,6 @@ class FaceNet():
 
         torch.save(self.model.state_dict(), model_path)
 
-        save_progress({
-            "status": "done",
-            "stage": 4,
-            "message": "Model Save"
-        })
-
 
     def train(self, train_loader, test_loader, epochs=8, lr=1e-3, momentum=0.9, weight_decay=1e-4):
         save_progress({
@@ -237,6 +231,17 @@ class FaceNet():
             "loss": test_loss
         })
         self.save_model()
+        save_progress({
+            "status": "done",
+            "stage": 4,
+            "message": "Model Save",
+            "current_epoch": epochs,
+            "max_epochs": epochs,
+            "acc": acc_list,
+            "loss": loss_list,
+            "test_acc": test_acc,
+            "test_loss": test_loss
+        })
         return loss_list, acc_list, test_loss, test_acc
 
     def unlearn(self, train_forget_loader, test_forget_loader, test_retain_loader, epochs=2, unlearn_model_name=None):
@@ -304,7 +309,14 @@ class FaceNet():
             self.save_model(unlearn_target_path)
         else:
             self.save_model()   # overwrite!
-
+        save_progress({
+            "status": "done",
+            "stage": 4,
+            "message": "Model Save",
+            "current_epoch": epochs,
+            "max_epochs": epochs,
+            "loss": loss_list
+        })
         return test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc, before_test_forget_acc, before_test_retain_acc
 
     @torch.no_grad()

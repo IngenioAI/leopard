@@ -22,7 +22,10 @@
         <h2 class="mb-2">개인정보 삭제 (언러닝)</h2>
 
         <div id="model_div" class="my-2" style="display:none">
-            <h4>모델 선택</h4>
+            <div>
+                <span class="h4">모델 선택</span>
+                <button type="button" id="btn_model_reload" class="btn btn-outline-primary" style="--bs-btn-padding-y: 0; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">재선택</button>
+            </div>
             <div class="list-group mx-2 my-2" id="model_list"></div>
         </div>
 
@@ -210,11 +213,17 @@
                 </button>
             </div>
             <div id="train_output" style="display:none">
-                <div class="mx-4 my-2">
-                    <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-                        <div id="train_progress" class="progress-bar" style="width: 0%"></div>
+                <div class="row mb-2 mx-4 my-2">
+                    <div class="col">
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <div id="train_progress" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="train_output_log" class="console_like my-2" style="min-height:350px"></div>
                     </div>
-                    <div id="train_output_log" class="console_like my-2" style="min-height:50px"></div>
+                    <div class="col">
+                        <div id="train_loss_graph" style="margin-left:40px; width: 720px; height:400px;">
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
