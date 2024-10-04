@@ -62,10 +62,19 @@ export function addE(parent, child) {
 }
 
 export function clearE(elem) {
-    const e =getE(elem);
+    const e = getE(elem);
     e.replaceChildren();
     return e;
 }
+
+export function showE(elem, display='block') {
+    getE(elem).style.display = display;
+}
+
+export function hideE(elem) {
+    getE(elem).style.display = 'none';
+}
+
 
 export function addEvent(elem, event, callback) {
     const e = getE(elem);

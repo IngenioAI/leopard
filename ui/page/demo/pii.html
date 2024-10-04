@@ -1,4 +1,5 @@
 <LP-template use="demopage">
+
     <LP-content name="head">
         <style>
             .pi-entity {
@@ -6,7 +7,9 @@
                 font-weight: 700;
             }
         </style>
+        <LP-include-html src="csv-grid.html"></LP-include-html>
     </LP-content>
+
     <LP-content name="main">
         <h2 class="mb-2">개인정보 탐지 및 비식별화</h2>
         <h4>데이터 선택</h4>
@@ -19,10 +22,49 @@
             </button>
         </div>
         <div id="detection_params">
-
         </div>
-        <div id="detection_output" class="mx-4 my-2">
+        <div id="generate_params" style="display:none">
+            <div class="mx-2 my-2">
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="generate_base">기준 데이터셋:</label>
+                    <div class="col">
+                        <select id="generate_base" class="form-select">
+                            <option value="adult">Adult income dataset</option>
+                            <option value="telco">Telco Customer Churn</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="generate_field">추가 정보:</label>
+                    <div class="col">
+                        <select id="generate_field" class="form-select">
+                            <option value="ssn">주민번호</option>
+                            <option value="phone_number">전화번호</option>
+                            <option value="credit_card_number">신용카드번호</option>
+                            <option value="email">E-Mail</option>
+                            <option value="passport_number">여권번호</option>
+                            <option value="address">주소</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="generate_count">데이터 개수:</label>
+                    <div class="col"><input type="text" id="generate_count" class="form-control" value="10" /></div>
+                </div>
+                <button id="btn_exec_generate_run" class="btn btn-outline-primary mx-4">
+                    <div class="mb-1"><span class="bi bi-search"></span> 데이터 생성 후 탐지 실행</div>
+                </button>
+            </div>
+        </div>
+        <div id="detection_output_div" style="display:none">
+            <p id="detection_output" class="mx-4 my-2 border rounded p-2 bg-secondary bg-opacity-10" style="line-height: 200%;">
 
+            </p>
+        </div>
+        <div id="csv_grid_div">
+            <div id="csv_grid" class="ag-theme-alpine mx-4 my-2" style="height: 500px">
+
+            </div>
         </div>
     </LP-content>
 
@@ -30,4 +72,5 @@
         <LP-include-html src="fileupload.html"></LP-include-html>
         <LP-include-html src="messagebox.html"></LP-include-html>
     </LP-content>
+
 </LP-template>

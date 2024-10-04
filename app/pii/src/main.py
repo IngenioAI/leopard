@@ -1,5 +1,6 @@
 import os
 import argparse
+import csv
 import json
 
 from faker import Faker
@@ -22,10 +23,8 @@ def save_result(obj, filename):
     with open(f"/data/output/{filename}", "wt", encoding="UTF-8") as fp:
         json.dump(obj, fp, indent=4)
 
-def run_faker(params, args):
+def generate_fake_data(generation_type, generation_count):
     fake = Faker('ko_KR')
-    generation_type = params.get("generation_type", "address")
-    generation_count = params.get("generation_count", 10)
     if generation_type == "address":
         generated_data = [fake.address() for _ in range(generation_count)]
     elif generation_type == "name":
@@ -40,15 +39,60 @@ def run_faker(params, args):
         generated_data = [fake.email() for _ in range(generation_count)]
     elif generation_type == "passport_number":
         generated_data = [fake.passport_number() for _ in range(generation_count)]
+    else:
+        generated_data = []
+    return generated_data
 
+def run_faker(params, args):
+    generation_type = params.get("generation_type", "address")
+    generation_count = params.get("generation_count", 10)
+    generated_data = generate_fake_data(generation_type, generation_count)
     save_result({
             "generated_data": generated_data
         }, args.output)
 
 def run_presidio(params, args):
     action_type = params.get("action_type", "analyze")
-    text = params.get("text", None)
-    text_file = params.get("text_file", "")
+    if action_type == "generate_and_analyze":
+        base_dataset = params["generate_info"]["base"]
+        field_list = params["generate_info"]["field"]
+        count = params["generate_info"]["count"]
+        generated_data_list = []
+        for field in field_list:
+            generated_data = generate_fake_data(field, count)
+            if len(generated_data):
+                generated_data_list.append(generated_data)
+        csv_path = os.path.join("data", f"{base_dataset}.csv")
+        output_path = os.path.join("/upload", f"{base_dataset}_output.csv")
+        if not os.path.exists(csv_path):
+            save_result({
+                "error": "base data file not found"
+            }, args.output)
+            return
+        c = 0
+        with open(csv_path, newline='') as csvfile:
+            with open(output_path, 'w', newline='') as outfile:
+                csv_reader = csv.reader(csvfile, delimiter=',', quotechar='|')
+                csv_writer = csv.writer(outfile, delimiter=',', quotechar='|', quoting=csv.QUOTE_MINIMAL)
+                for row in csv_reader:
+                    if c ==0 :
+                        generated_header_list = []
+                        for i in range(len(generated_data_list)):
+                            generated_header_list.append(f"synth_feature_{i+1}")
+                        csv_writer.writerow(row[:1] + generated_header_list + row[1:])
+                    else:
+                        data = []
+                        for i in range(len(generated_data_list)):
+                            data.append(generated_data_list[i][c-1])
+                        csv_writer.writerow(row[:1] + data + row[1:])
+                    c += 1
+                    if c >= count:
+                        break
+        text_file = f"{base_dataset}_output.csv"
+    elif action_type == "analyze":
+        text = params.get("text", None)
+        text_file = params.get("text_file", "")
+
     entities = params.get("entities", None)
     if text_file != "":
         text_file_path = os.path.join("/data/input", text_file)
@@ -56,6 +100,11 @@ def run_presidio(params, args):
             text_file_path = os.path.join("/upload", text_file)
         with open(text_file_path, "rt", encoding="utf-8") as fp:
             text = fp.read()
+            text = text.replace("\r", "")
+        if len(text) >= 1000000:
+            text = text[:1000000]
+    if entities is None:
+        entities = ["주민번호", "전화번호", "신용카드번호", "EMAIL_ADDRESS", "여권번호", "건강보험번호", "운송장번호", "주소", "운전면허번호"]
 
     configuration = {
         "nlp_engine_name": "spacy",
@@ -81,7 +130,8 @@ def run_presidio(params, args):
 
         save_result({
                 "results": result_to_dict(results),
-                "anonymized_text": anonymized_result.text if anonymized_result is not None else ""
+                "anonymized_text": anonymized_result.text if anonymized_result is not None else "",
+                "text_content": text if action_type == "generate_and_analyze" else ""
             }, args.output)
 
     except ValueError as e:
