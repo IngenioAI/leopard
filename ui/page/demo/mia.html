@@ -1,0 +1,119 @@
+<LP-template use="demopage">
+
+    <LP-content name="head">
+        <script type="module" src="/js/control/context_menu.js"></script>
+        <script type="module" src="/js/control/list_group.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    </LP-content>
+
+    <LP-content name="main">
+        <h2 class="mb-2">모델 안정성 평가</h2>
+
+        <div id="model_div" class="my-2" style="display:none">
+            <div>
+                <span class="h4">모델 선택</span>
+                <button type="button" id="btn_model_reload" class="btn btn-outline-primary" style="--bs-btn-padding-y: 0; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">재선택</button>
+            </div>
+            <div class="list-group mx-2 my-2" id="model_list"></div>
+        </div>
+
+        <div id="model_train_div" style="display:none">
+            <div class="mx-4 my-4">
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="select_dataset">데이터셋:</label>
+                    <div class="col">
+                        <select id="select_dataset" class="form-select">
+                            <option value="cifar10">CIFAR10</option>
+                            <option value="cifar100">CIFAR100</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="select_model">모델:</label>
+                    <div class="col">
+                        <select id="select_model" class="form-select">
+                            <option value="resnet20">ResNet20</option>
+                            <option value="resnet50">ResNet50</option>
+                            <option value="densenet121">DenseNet121</option>
+                            <option value="vgg11">VGG11</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="select_defense">방어기법:</label>
+                    <div class="col">
+                        <select id="select_defense" class="form-select">
+                            <option value="none">None</option>
+                            <option value="ls">Label Smoothing</option>
+                            <option value="cm">Confidence Masking</option>
+                            <option value="dropout">Dropout</option>
+                            <option value="relaxloss">Relax Loss</option>
+                            <option value="dpsgd">DPSGD</option>
+                            <option value="es">Early Stopping</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="train_epochs">학습 에포크 수:</label>
+                    <div class="col"><input type="text" id="train_epochs" class="form-control" value="100" /></div>
+                </div>
+            </div>
+            <div class="mx-4">
+                <button id="btn_exec_train" class="btn btn-outline-primary mx-4">
+                    <div class="mb-1"><span class="bi bi-layer-forward"></span> 학습 실행</div>
+                </button>
+            </div>
+            <div id="train_output" style="display:none">
+                <div class="row mb-2 mx-4 my-2">
+                    <div class="col">
+                        <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+                            <div id="train_progress" class="progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div id="train_output_log" class="console_like my-2" style="min-height:350px"></div>
+                    </div>
+                    <div class="col">
+                        <div id="train_loss_graph" style="margin-left:40px; width: 720px; height:400px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="model_attack_div" style="display:none">
+            <div class="mx-4 my-4">
+                <div class="row mb-2">
+                    <label class="col-sm-2 col-form-label" for="select_attack">공격방식:</label>
+                    <div class="col">
+                        <select id="select_attack" class="form-select">
+                            <!-- <option value="lira">LiRA (Likelihood Ratio Attack)</option> -->
+                            <option value="population">Population Metric Attack</option>
+                            <option value="reference">Reference Metric Attack</option>
+                            <!-- <option value="shadow">Shadow Metric Attack</option> -->
+                            <option value="lira+shadow">LiRA (Likelihood Ratio Attack) + Shadow Metric Attack</option>
+                            <option value="custom">Threshold Attack + Logistic Regression Attack</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="mx-4">
+                <button id="btn_exec_attack" class="btn btn-outline-primary mx-4">
+                    <div class="mb-1"><span class="bi bi-layer-forward"></span> 공격 실행</div>
+                </button>
+            </div>
+            <div id="attack_output" style="display:none">
+                <div id="attack_output_log" class="console_like my-2" style="min-height:100px"></div>
+            </div>
+            <div id="attack_metric_view" style="display:none">
+            </div>
+            <div id="attack_graph" style="display:none">
+                <div id="attack_roc_graph" style="margin-left:40px; width: 720px; height:400px;">
+                </div>
+            </div>
+        </div>
+
+    </LP-content>
+    <LP-content name="dialog">
+        <LP-include-html src="messagebox.html"></LP-include-html>
+        <LP-include-html src="ask_messagebox.html"></LP-include-html>
+    </LP-content>
+</LP-template>

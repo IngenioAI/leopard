@@ -8,7 +8,7 @@ aconf = {
     'batch_size': 64,
     'epochs': 10,
     'n_shadows': 2,
-    'shpath': './attacks/shadows'
+    'shpath': '/apprun/shadows'
 }
 
 priv_meter = {
@@ -19,7 +19,7 @@ priv_meter = {
     'num_population_points': 10000,
     'fpr_tolerance_list': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0],
     'input_shape': (224, 224, 3),
-    'ref_models': './attacks/shadows/',
+    'ref_models': '/apprun/shadows/',
     'n_shadows': 2,
     'torch_loss': torch.nn.CrossEntropyLoss(reduction='none'),
     'tf_loss': tf.keras.losses.CategoricalCrossentropy()

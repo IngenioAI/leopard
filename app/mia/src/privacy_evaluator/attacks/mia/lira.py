@@ -108,7 +108,7 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
 
         save_progress({
             "status": "running",
-            "message": "Running LiRA attack with Gaussian"
+            "message": f"Running LiRA attack with Gaussian #{idx}"
         })
         attack_input = AttackInputData(
             loss_train=scores_in,
@@ -124,7 +124,7 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
 
         save_progress({
             "status": "running",
-            "message": "Running LiRA attack with offset"
+            "message": f"Running LiRA attack with offset #{idx}"
         })
 
         # Computing LiRA offset
@@ -145,7 +145,7 @@ def run_advanced_attack(model, num_class, tdata, is_torch):
 
         save_progress({
             "status": "running",
-            "message": "Running LiRA attack with baseline"
+            "message": f"Running LiRA attack with baseline #{idx}"
         })
 
         # Computing LiRA baseline

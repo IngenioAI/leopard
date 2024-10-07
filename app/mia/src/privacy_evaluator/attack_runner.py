@@ -66,5 +66,12 @@ def runner(args):
     elif attack == 'shadow':
         return run_shadow_metric(tdata, model, n_class, is_torch)
 
+    elif attack == "lira+shadow":
+        lira_metric = run_advanced_attack(model, n_class, tdata, is_torch)
+        shadow_metric = run_shadow_metric(tdata, model, n_class, is_torch)
+        return {
+            "lira_metric": lira_metric,
+            "shadow_metric": shadow_metric
+        }
     else:
         raise NotImplementedError('The other type of attacks not implemented!')

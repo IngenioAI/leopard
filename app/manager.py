@@ -108,7 +108,8 @@ class AppManager():
             if not app.is_running():
                 if app.container_id is not None:
                     print("container remains:", info['id'])
-                    app.logs()  # fetch and cache logs
+                    logs = app.logs()  # fetch and cache logs
+                    print(logs)
                     app.remove()
 
         # repeat timer if not canceled

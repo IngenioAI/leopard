@@ -413,6 +413,11 @@ class ResNet:
         torch.save(self.model, save_path)
         return save_path
 
+    def save_best(self):
+        save_path = f"{self.save_pref}/best_model.pt"
+        torch.save(self.model, save_path)
+        return save_path
+
     def load(self, load_path, verbose=False):
         state = torch.load(load_path, map_location=self.device)
         acc = state['acc']
@@ -564,6 +569,11 @@ class DPsgd:
         torch.save(self.model, save_path)
         return save_path
 
+    def save_best(self):
+        save_path = f"{self.save_pref}/best_model.pt"
+        torch.save(self.model, save_path)
+        return save_path
+
     def load(self, load_path, verbose=False):
         state = torch.load(load_path, map_location=self.device)
         acc = state['acc']
@@ -611,7 +621,7 @@ class DPsgd:
 def run(args, epoch_callback=None):
     device = f"cuda:0"
     cudnn.benchmark = True
-    save_dir = f"/model/{args.datasets}_{args.model_name}/{args.defense}"
+    save_dir = f"/model/{args.datasets}_{args.model_name}_{args.defense}"
     if not os.path.exists(save_dir):
         os.makedirs(save_dir)
 
@@ -700,8 +710,7 @@ def run(args, epoch_callback=None):
             val_loss_list.append(val_loss)
             if val_acc > best_acc:
                 best_acc = val_acc
-                save_path = model.save(epoch)
-                best_path = save_path
+                best_path = model.save_best()
                 count = 0
             elif args.defense == 'es' and args.early_stop > 0:
                 count += 1
@@ -709,10 +718,10 @@ def run(args, epoch_callback=None):
                     print(f"Early Stop at Epoch {epoch}")
                     break
             if epoch_callback is not None:
-                epoch_callback(epoch, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
+                epoch_callback(epoch+1, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
 
         #shutil.copyfile(best_path, f"{save_dir}/ep_{epoch}_best[{best_acc}].pt")
-        shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
+        #shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
     elif args.defense == 'dpsgd':
         model = DPsgd(device, save_dir, num_cls, args.epochs, args.model_name, lr=args.lr, weight_decay=args.weight_decay, momentum=args.momentum, input_dim=100, dropout = 0)
         best_acc = 0
@@ -723,8 +732,8 @@ def run(args, epoch_callback=None):
             #test_acc, test_loss = model.test(target_test_loader, f"epoch {epoch} test")
             if val_acc > best_acc:
                 best_acc = val_acc
-                save_path = model.save(epoch)
-                best_path = save_path
+                #save_path = model.save(epoch)
+                best_path = model.save_best()
                 count = 0
             # elif args.early_stop > 0:
             #     count += 1
@@ -736,17 +745,21 @@ def run(args, epoch_callback=None):
             val_acc_list.append(val_acc)
             val_loss_list.append(val_loss)
             if epoch_callback is not None:
-                epoch_callback(epoch, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
-        shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
+                epoch_callback(epoch+1, args.epochs, train_acc_list, train_loss_list, val_acc_list, val_loss_list)
+        #shutil.copyfile(best_path, f"{save_dir}/best_model.pt")
 
     return {
+        "stage": 4,
+        "status": "done",
+        "current_epoch": epoch+1,
+        "max_epochs": args.epochs,
         "defense": args.defense,
         "best_path": best_path,
         "best_acc": best_acc,
-        "train_acc_list": train_acc_list,
-        "train_loss_list": train_loss_list,
-        "val_acc_list": val_acc_list,
-        "val_loss_list": val_loss_list
+        "train_acc": train_acc_list,
+        "train_loss": train_loss_list,
+        "val_acc": val_acc_list,
+        "val_loss": val_loss_list
     }
 
 

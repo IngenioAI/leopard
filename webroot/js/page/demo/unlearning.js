@@ -31,7 +31,7 @@ function getModelInfo(name) {
 
 function createContextMenu(info) {
     const MENU_ID = {
-        RENAME: 0,
+        DETAIL_INFO: 0,
         DELETE: 1
     };
     const contextMenu = new ContextMenu([

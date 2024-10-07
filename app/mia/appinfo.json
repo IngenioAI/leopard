@@ -9,7 +9,7 @@
                 "base": "tensorflow/tensorflow:2.14.0-gpu",
                 "update": false,
                 "apt": "",
-                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
+                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0 fastapi uvicorn",
                 "additional_command": ""
             }
         },
@@ -114,7 +114,7 @@
                 "base": "tensorflow/tensorflow:2.14.0-gpu",
                 "update": false,
                 "apt": "",
-                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0",
+                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0 fastapi uvicorn",
                 "additional_command": ""
             }
         },
@@ -163,5 +163,34 @@
                 "default": "custom"
             }
         ]
+    },
+    {
+        "id": "mia_server",
+        "name": "모델 안정성 평가 (MIA) 관리 서버",
+        "type": "server",
+        "image": {
+            "tag": "leopard/mia:1.0.0",
+            "build": {
+                "base": "tensorflow/tensorflow:2.14.0-gpu",
+                "update": false,
+                "apt": "",
+                "pip": "Privacy_Meter==1.0.1 tensorflow_privacy==0.8.12 torch==2.1.2 torchvision==0.16.2 opacus==1.4.0 tensorflow==2.14.0 fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/mia/src/privacy_evaluator",
+            "main": "server.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/mia/input",
+            "output": "storage/0/app/mia/output",
+            "run_path": "storage/0/app/mia/run",
+            "binds": [
+                ["/dataset", "storage/0/app/mia/data"],
+                ["/model", "storage/0/app/mia/model"]
+            ],
+            "port": 12730
+        }
     }
 ]

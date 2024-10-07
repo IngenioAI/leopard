@@ -8,8 +8,9 @@ from utils import clear_progress, save_result, save_progress
 
 def epoch_callback(epoch, max_epochs, train_acc, train_loss, val_acc, val_loss):
     save_progress({
+        "stage": 2,
         "status": "running",
-        "epoch": epoch,
+        "current_epoch": epoch,
         "max_epochs": max_epochs,
         "train_acc": train_acc,
         "train_loss": train_loss,
@@ -39,16 +40,17 @@ def train(params):
 
 
 def main(args):
-    clear_progress()
+    clear_progress();
+    save_progress({
+        "status": "running",
+        "stage": 1
+    })
 
     with open(os.path.join("/data/input", args.input), "rt", encoding="utf-8") as fp:
         input_params = json.load(fp)
-
     ret = train(input_params)
+    save_progress(ret)
     save_result(ret, args.output)
-    save_progress({
-        "status": "done"
-    })
 
 
 def parse_arguments():
