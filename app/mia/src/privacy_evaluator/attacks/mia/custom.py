@@ -36,8 +36,12 @@ def run_custom_attacks(attack_input):
         AttackType.THRESHOLD_ENTROPY_ATTACK
     ]
     trained_attacks = [
-        AttackType.LOGISTIC_REGRESSION
+        AttackType.LOGISTIC_REGRESSION,
+        #AttackType.MULTI_LAYERED_PERCEPTRON,
+        #AttackType.RANDOM_FOREST,
+        #AttackType.K_NEAREST_NEIGHBORS
     ]
+
 
     print("\nRunning Metric Attacks .....")
     save_progress({
@@ -52,9 +56,9 @@ def run_custom_attacks(attack_input):
     #print(attacks_result.calculate_pd_dataframe())
     result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "attack type", "AUC"]]
     print(result_df)
-    metric_attack_result = {}
+    attack_result = {}
     for i in range(len(metric_attacks)):
-        metric_attack_result[result_df["attack type"][i]] = {
+        attack_result[result_df["attack type"][i]] = {
             "AUC": result_df["AUC"][i]
         }
 
@@ -68,12 +72,12 @@ def run_custom_attacks(attack_input):
                                      attack_types=trained_attacks)
     #print(attacks_result.summary(by_slices=True))
     pd.set_option("display.max_rows", 12, "display.max_columns", None)
-    result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "AUC"]]
+    result_df = attacks_result.calculate_pd_dataframe()[["slice feature", "attack type", "AUC"]]
     print(result_df)
-    trained_attack_result = {
-        "AUC": result_df["AUC"][0]
-    }
-    return {
-        "metric_attack": metric_attack_result,
-        "trained_attack": trained_attack_result
-    }
+
+    for i in range(len(trained_attacks)):
+        attack_result[result_df["attack type"][i]] = {
+            "AUC": result_df["AUC"][i]
+        }
+
+    return attack_result

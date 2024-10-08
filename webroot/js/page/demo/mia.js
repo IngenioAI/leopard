@@ -1,4 +1,4 @@
-import { getE, getV, clearE, addE, showE, hideE, addEvent } from "/js/dom_utils.js";
+import { getE, getV, clearE, addE, showE, hideE, addEvent, createE, createElem } from "/js/dom_utils.js";
 import { createListGroupItem } from "/js/control/list_group.js";
 import { ContextMenu } from "/js/control/context_menu.js";
 import { runApp, getAppProgress, getAppResult, removeApp } from "/js/service.js";
@@ -209,17 +209,18 @@ async function checkTrainProgress() {
 }
 
 async function execTrain() {
+    const defense_method = getV("select_defense");
     const res = await runApp("mia_train", {
         model_name: getV("select_model"),
         datasets: getV("select_dataset"),
-        defense: getV("select_defense"),
+        defense: defense_method,
         batch_size: 128,
         num_workers: 5,
         epochs: parseInt(getV("train_epochs")),
         shadow_num: 1,
         early_stop: 5,
         weight_decay: 1e-4,
-        lr: 0.001,
+        lr: defense_method == 'dpsgd' ? 0.1 : 0.001,
         momentum: 0.9,
         seed: 1000
     });
@@ -258,8 +259,14 @@ async function checkAttackProgress() {
         console.log(result);
         removeApp("mia_attack");
         showE("attack_graph");
-        if (currentAttack == 'population') {
+        if (currentAttack == 'population' || currentAttack == 'reference') {
             drawPopulationRocGraph(result);
+        }
+        else if (currentAttack == 'lira+shadow') {
+            showLiraShadowAttackTable(result);
+        }
+        else if (currentAttack == 'custom') {
+            showCustomAttackTable(result);
         }
     }
     else {
@@ -314,7 +321,8 @@ function drawPopulationRocGraph(info) {
             {
                 data: s_data,
                 smooth: true,
-                type: 'line'
+                type: 'line',
+                areaStyle: {}
             }
         ],
         tooltip: {
@@ -324,6 +332,78 @@ function drawPopulationRocGraph(info) {
         }
     };
     myChart.setOption(option);
+}
+
+function showCustomAttackTable(info) {
+    const viewDiv = getE("attack_metric_view");
+    const table = createE("table", "", { class: "table"});
+    const thead = createElem({
+        name: "thead",
+        children: [{
+            name: "tr",
+            children: [
+                { name: "th", text: "Attack Type", attributes: { class: "col"}},
+                { name: "th", text: "AUC", attributes: { class: "col"}},
+            ]
+        }]
+    });
+    addE(table, thead);
+    const tbody = createE("tbody");
+    for (let key of Object.keys(info)) {
+        const tr = createElem({
+            name: "tr",
+            children: [
+                { name: "td", text: key },
+                { name: "td", text: info[key].AUC }
+            ]
+        });
+        addE(tbody, tr);
+    }
+    addE(table, tbody);
+    addE(viewDiv, table);
+    showE(viewDiv);
+}
+
+function showLiraShadowAttackTable(info) {
+    const viewDiv = getE("attack_metric_view");
+    const table = createE("table", "", { class: "table"});
+    const thead = createElem({
+        name: "thead",
+        children: [{
+            name: "tr",
+            children: [
+                { name: "th", text: "Attack Type", attributes: { class: "col"}},
+                { name: "th", text: "Model", attributes: { class: "col"}},
+                { name: "th", text: "AUC", attributes: { class: "col"}},
+                { name: "th", text: "Advantage", attributes: { class: "col"}},
+            ]
+        }]
+    });
+    addE(table, thead);
+    const tbody = createE("tbody");
+    for (let shadowIndex = 0; shadowIndex < info.lira_metric.length; shadowIndex++) {
+        const obj = info.lira_metric[shadowIndex];
+        for (let key of Object.keys(obj)) {
+            const tr = createElem({
+                name: "tr",
+                children: [
+                    { name: "td", text: `LiRA Metric with ${key}`},
+                    { name: "td", text: `Shadow Model #${shadowIndex}` },
+                    { name: "td", text: obj[key].auc },
+                    { name: "td", text: obj[key].advantage }
+                ]
+            });
+            addE(tbody, tr);
+        }
+    }
+    addE(table, tbody);
+    addE(viewDiv, table);
+
+    showCustomAttackTable({
+        'Shadow Metric': { 'AUC': info.shadow_metric.roc_auc }
+    })
+
+    showE(viewDiv);
 }
 
 async function init() {
