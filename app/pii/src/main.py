@@ -104,7 +104,7 @@ def run_presidio(params, args):
         if len(text) >= 1000000:
             text = text[:1000000]
     if entities is None:
-        entities = ["주민번호", "전화번호", "신용카드번호", "EMAIL_ADDRESS", "여권번호", "건강보험번호", "운송장번호", "주소", "운전면허번호"]
+        entities = ["주민등록번호", "전화번호", "신용카드번호", "EMAIL_ADDRESS", "여권번호", "주소"]    # , "건강보험번호", "운송장번호", "운전면허번호"
 
     configuration = {
         "nlp_engine_name": "spacy",

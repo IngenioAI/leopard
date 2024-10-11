@@ -239,27 +239,28 @@ async function checkAttackProgress() {
     console.log(progressInfo);
     let msg = "";
     if (progressInfo.status == "running") {
-        msg = "멤버쉽 추론 공격을 실행 중입니다.<br>";
+        msg = "멤버쉽 추론 공격을 통한 평가를 실행 중입니다.<br>";
     }
     if (progressInfo.status == "done") {
-        msg = "멤버쉽 추론 공격을 완료했습니다.<br>";
+        msg = "멤버쉽 추론 공격을 통한 평가를 완료했습니다.<br>";
     }
     if (progressInfo.status == "none") {
-        msg = "멤버쉽 추론 공격이 완료되었습니다.<br>";
+        msg = "멤버쉽 추론 공격을 통한 평가가 완료되었습니다.<br>";
     }
     if (progressInfo.message) {
         msg += `${progressInfo.message.replaceAll("\n", "<br>")}<br>`;
     }
     if (progressInfo.epoch && progressInfo.max_epochs) {
-        msg += `에포크 실행중 ${progressInfo.epoch}/${progressInfo.max_epochs}<br>`;
+        msg += `학습 에포크 실행중 ${progressInfo.epoch}/${progressInfo.max_epochs}<br>`;
     }
     getE("attack_output_log").innerHTML = msg;
     if (progressInfo.status != "running") {
         const result = await getAppResult("mia_attack");
         console.log(result);
         removeApp("mia_attack");
-        showE("attack_graph");
         if (currentAttack == 'population' || currentAttack == 'reference') {
+            clearE("attack_output_log")
+            showE("attack_graph");
             drawPopulationRocGraph(result);
         }
         else if (currentAttack == 'lira+shadow') {
@@ -286,8 +287,11 @@ async function execAttack() {
     });
     console.log(res);
 
+    clearE("attack_output_log");
+
     showE("attack_output");
     hideE("attack_graph");
+    hideE("attack_metric_view");
 
     setTimeout(checkAttackProgress, 1000);
 }
@@ -334,8 +338,10 @@ function drawPopulationRocGraph(info) {
     myChart.setOption(option);
 }
 
-function showCustomAttackTable(info) {
+function showCustomAttackTable(info, clearPrevious=true) {
     const viewDiv = getE("attack_metric_view");
+    if (clearPrevious)
+        clearE(viewDiv);
     const table = createE("table", "", { class: "table"});
     const thead = createElem({
         name: "thead",
@@ -364,8 +370,10 @@ function showCustomAttackTable(info) {
     showE(viewDiv);
 }
 
-function showLiraShadowAttackTable(info) {
+function showLiraShadowAttackTable(info, clearPrevious=true) {
     const viewDiv = getE("attack_metric_view");
+    if (clearPrevious)
+        clearE(viewDiv);
     const table = createE("table", "", { class: "table"});
     const thead = createElem({
         name: "thead",
@@ -401,7 +409,7 @@ function showLiraShadowAttackTable(info) {
 
     showCustomAttackTable({
         'Shadow Metric': { 'AUC': info.shadow_metric.roc_auc }
-    })
+    }, clearPrevious=false)
 
     showE(viewDiv);
 }
