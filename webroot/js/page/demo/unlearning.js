@@ -148,6 +148,15 @@ async function updateModelList() {
     if (res.success) {
         clearE(modelListDiv);
         modelInfoList = res.list_model;
+        modelInfoList.sort((a, b) => {
+            if (a.name < b.name) {
+                return -1
+            }
+            else if (a.name > b.name) {
+                return 1;
+            }
+            return 0;
+        });
         for (const modelInfo of modelInfoList) {
             addE(modelListDiv, createModelItem(modelInfo, onClickModelItem));
         }

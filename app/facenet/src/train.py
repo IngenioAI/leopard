@@ -7,6 +7,9 @@ import json
 import torch
 import time
 
+import numpy as np
+import random
+
 from copy import deepcopy
 
 from torchvision import transforms
@@ -18,6 +21,15 @@ from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
 
 from utils import save_result, clear_progress, save_progress
+
+def fix_seed(seed=42):
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed) # if use multi-GPU
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    np.random.seed(seed)
+    random.seed(seed)
 
 def load_data(data_path, batch_size):
     save_progress({
@@ -70,10 +82,10 @@ def load_unlearning_data(data_path, forget_class_idx, batch_size):
     return train_forget_loader, test_forget_loader, test_retain_loader, train_set.class_to_idx
 
 class PGD():
-    def __init__(self, model=None, eps=8/255, alpha=2/255, iters=10, denorm=True):
+    def __init__(self, model=None, eps=8, alpha=2, iters=10, denorm=True):
         self.model = model
-        self.eps = eps
-        self.alpha = alpha
+        self.eps = eps/255
+        self.alpha = alpha/255
         self.iters = iters
         self.denorm = denorm
         self.device = next(model.parameters()).device
@@ -140,8 +152,8 @@ class FaceNet():
         self.model = InceptionResnetV1(
             pretrained=None if resume_train else 'vggface2',
             classify=True,
-            num_classes=self.num_classes,
-            dropout_prob=0.2
+            num_classes=self.num_classes
+#           ,dropout_prob=dropout
         )
 
         if self.freeze:
@@ -199,7 +211,6 @@ class FaceNet():
         total_start = time.time()
         loss_fn = torch.nn.CrossEntropyLoss()
         optimizer = optim.SGD(self.model.parameters(), lr=lr, momentum=momentum, weight_decay=weight_decay)
-        #scheduler = MultiStepLR(optimizer, [5, 10])
         acc_list = []
         loss_list = []
         for i in range(epochs):
@@ -258,11 +269,11 @@ class FaceNet():
 
         original_model = self.model.to(self.device)
         unlearn_model = deepcopy(original_model).to(self.device)
-        attack = PGD(model=original_model.to(self.device), eps=128/255, alpha=100/255, iters=10, denorm=True)
+        attack = PGD(model=original_model.to(self.device), eps=32, alpha=1, iters=10, denorm=True)
         attack.set_normalization([0.5, 0.5, 0.5], [0.5, 0.5, 0.5])
 
         criterion = torch.nn.CrossEntropyLoss()
-        optimizer = torch.optim.SGD(unlearn_model.parameters(), lr=1e-3, momentum=0.9, weight_decay=1e-4)
+        optimizer = torch.optim.SGD(unlearn_model.parameters(), lr=6e-4, momentum=0.9, weight_decay=1e-4)
 
         loss_list = []
         for epoch in range(epochs):
@@ -272,7 +283,7 @@ class FaceNet():
             unlearn_model.train()
             for images, labels in train_forget_loader:
                 images = images.to(self.device)
-                adv_images, adv_labels = attack(images, labels, return_adv_labels=True)
+                _, adv_labels = attack(images, labels, return_adv_labels=True)
 
                 nearest_label.append(adv_labels.tolist())
                 nums_filpped += (labels != adv_labels).sum().item()
@@ -365,7 +376,7 @@ def train(input_params):
         batch_size = input_params.get("batch_size", 32)
 
         if mode == "train":
-            max_epochs = input_params.get("epochs", 8)
+            max_epochs = input_params.get("epochs", 16)
             train_loader, test_loader, class_to_idx = load_data(data_path, batch_size)
             num_classes = len(class_to_idx.items())
             model = FaceNet(model_path, num_classes=num_classes, resume_train=resume_train)
@@ -441,4 +452,5 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
+    fix_seed()
     main(parse_arguments())
