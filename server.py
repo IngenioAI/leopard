@@ -73,7 +73,7 @@ async def get_ui_secure_page(file_path: str, req: Request):
 
 @app.get("/", tags=["UI"])
 async def get_index_file():
-    return RedirectResponse(url="/ui/index.html", status_code=HTTP_303_SEE_OTHER)
+    return RedirectResponse(url="/ui/demo/index.html", status_code=HTTP_303_SEE_OTHER)
 
 
 @app.get("/api/dataset/list", tags=["Dataset"])

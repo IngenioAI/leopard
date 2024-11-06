@@ -70,7 +70,7 @@ class FaceNetServer():
             device=self.device
         )
 
-    def face_recognize(self, image_path):
+    def face_recognize(self, image_path, is_test=False):
         trans = transforms.Compose([
             transforms.Resize((160, 160)),
             transforms.ToTensor(),
@@ -78,7 +78,12 @@ class FaceNetServer():
         ])
 
         img = PIL.Image.open(image_path)
-        boxes, probs, _ = self.mtcnn.detect(img, landmarks=True)
+        if is_test:
+            boxes = np.array([[0, 0, img.width, img.height]])
+            probs = np.array([[1.0]])
+        else:
+            boxes, probs, _ = self.mtcnn.detect(img, landmarks=True)
+
         faces = []
         if boxes is not None:
             for box in boxes:
@@ -109,6 +114,7 @@ async def run_app(req: Request):
     params = await req.json()
     print(params)
     mode = params.get("mode", "inference")
+    is_test = False
     if mode == "inference":
         if 'image_url' in params:
             image_url = params['image_url']
@@ -119,7 +125,8 @@ async def run_app(req: Request):
             image_path = os.path.join("/data/input", params['image_path'])
         elif 'test_data_path' in params:
             image_path = os.path.join("/dataset", params['test_data_path'])
-        boxes, probs, preds = app.model.face_recognize(image_path)
+            is_test = True
+        boxes, probs, preds = app.model.face_recognize(image_path, is_test)
         return JSONResponse({
             "boxes": boxes,
             "face_confidence": probs,
@@ -188,10 +195,14 @@ async def run_app(req: Request):
                 file_list.append(os.path.join(r[prefix_len:], file))
         print(len(file_list))
         selected_list = random.sample(file_list, count)
+        label_list = []
+        for sample_path in selected_list:
+            last_dir_name = sample_path.split("/")[-2]
+            label_list.append(last_dir_name)
         return JSONResponse({
             "success": True,
             "random_test_data_list": selected_list,
-            "labels": []
+            "labels": label_list
         })
 
 

@@ -16,12 +16,16 @@
         <script type="module" src="/js/control/context_menu.js"></script>
         <script type="module" src="/js/control/list_group.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+        <link rel="stylesheet" href="/adp/adp.css" />
+        <link rel="stylesheet" href="/adp/adp-hide.css" />
+        <script src="/adp/adp.js"></script>
+        <LP-include-html src="get-query-param.html"></LP-include-html>
     </LP-content>
 
     <LP-content name="main">
         <h2 class="mb-2">개인정보 삭제 (언러닝)</h2>
 
-        <div id="model_div" class="my-2" style="display:none">
+        <div id="model_div" class="my-2 adp-hide">
             <div>
                 <span class="h4">모델 선택</span>
                 <button type="button" id="btn_model_reload" class="btn btn-outline-primary" style="--bs-btn-padding-y: 0; --bs-btn-padding-x: .5rem; --bs-btn-font-size: .75rem;">재선택</button>
@@ -29,12 +33,12 @@
             <div class="list-group mx-2 my-2" id="model_list"></div>
         </div>
 
-        <div id="dataset_div" class="my-2" style="display:none">
+        <div id="dataset_div" class="my-2 adp-hide">
             <h4>데이터셋 선택</h4>
             <div class="list-group mx-2 my-2" id="dataset_list"></div>
         </div>
 
-        <div id="evaluation_div" class="my-2" style="display:none">
+        <div id="evaluation_div" class="my-2 adp-hide">
             <nav id="nav-menu-unlearn" style="display:none">
                 <div class="nav nav-tabs" id="nav-tab" role="tablist">
                     <button class="nav-link active" id="nav-meval-tab" data-bs-toggle="tab" data-bs-target="#nav-meval"
@@ -60,7 +64,7 @@
                     <div id="metrics_display_train" class="mx-2 my-2" style="display:none">
                         <div class="row row-cols-1 row-cols-md-4 mb-3 text-center">
                             <div class="col">
-                                <div class="card mb-4 rounded-3 shadow-sm border-success">
+                                <div class="card mb-4 rounded-3 shadow-sm border-success adp-hide" id="card_test_acc">
                                     <div class="card-header py-3 text-bg-success border-success">
                                         <h5 class="my-0 fw-normal">정확도</h5>
                                         <div>테스트 데이터</div>
@@ -77,7 +81,7 @@
                             <div class="col">
                                 <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">
                                     <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm">
+                                        <div class="card mb-4 rounded-3 shadow-sm adp-hide" id="card_before_all_acc">
                                             <div class="card-header py-3">
                                                 <h5 class="my-0 fw-normal">Unlearning 이전</h5>
                                                 <div>모든 데이터</div>
@@ -89,7 +93,7 @@
                                     </div>
                                     <div class="col"></div>
                                     <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm">
+                                        <div class="card mb-4 rounded-3 shadow-sm adp-hide" id="card_before_retain_acc">
                                             <div class="card-header py-3">
                                                 <h5 class="my-0 fw-normal">Unlearning 이전</h5>
                                                 <div>Forget 클래스를 제외한 모든 데이터</div>
@@ -100,7 +104,7 @@
                                         </div>
                                     </div>
                                     <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm border-success">
+                                        <div class="card mb-4 rounded-3 shadow-sm border-success adp-hide" id="card_after_acc">
                                             <div class="card-header py-3 text-bg-success border-success">
                                                 <h5 class="my-0 fw-normal">Unlearning 이후</h5>
                                                 <div>Forget 클래스를 제외한 모든 데이터</div>
@@ -111,7 +115,7 @@
                                         </div>
                                     </div>
                                     <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm">
+                                        <div class="card mb-4 rounded-3 shadow-sm adp-hide" id="card_before_forget_acc">
                                             <div class="card-header py-3">
                                                 <h5 class="my-0 fw-normal">Unlearning 이전</h5>
                                                 <div>Forget 클래스</div>
@@ -122,7 +126,7 @@
                                         </div>
                                     </div>
                                     <div class="col">
-                                        <div class="card mb-4 rounded-3 shadow-sm border-danger">
+                                        <div class="card mb-4 rounded-3 shadow-sm border-danger adp-hide" id="card_after_forget_acc">
                                             <div class="card-header py-3 text-bg-danger border-danger">
                                                 <h5 class="my-0 fw-normal">Unlearning 이후</h5>
                                                 <div>Forget 클래스</div>
@@ -182,6 +186,9 @@
                     <div class="mx-4">
                         <button id="btn_exec_unlearning" class="btn btn-outline-primary mx-4">
                             <div class="mb-1"><span class="bi bi-x-octagon"></span> 언러닝 실행</div>
+                        </button>
+                        <button id="btn_load_unlearning" class="btn btn-outline-primary" style="display:none">
+                            <div class="mb-1"><span class="bi bi-layers-half"></span> 언러닝 모델 선택</div>
                         </button>
                     </div>
                     <div id="unlearning_output" style="display:none">

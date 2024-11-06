@@ -47,6 +47,7 @@ function createContextMenu(info) {
                 if (answer.index == 0) {
                     await runApp("facenet", { mode: "remove_model", model_name: info.name});
                     updateModelList();
+                    ADP.hide(getE("evaluation_div"), "fade");
                 }
             }
 
@@ -90,12 +91,11 @@ function createModelItem(modelInfo, onclick) {
 
 async function onClickModelItem(name) {
     const modelList = getE("model_list");
-    clearE(modelList);
     if (name == "새로 학습") {
+        clearE(modelList);
         addE(modelList, createListItem(
             { name: "새로 학습", description: "새로운 모델을 학습합니다.", tag: "", class: "bi-play"}));
         const datasetDiv = getE("dataset_div");
-        datasetDiv.style = "display:block";
         const datasetList = getE("dataset_list");
         const res = await runApp("facenet", { mode: "list_dataset"});
         if (res.success) {
@@ -105,20 +105,25 @@ async function onClickModelItem(name) {
             addE(datasetList, createListItem(
                 { name: "새로 생성", description: "새로운 데이터셋을 생성합니다.", tag: "", class: "bi-play"}, onClickDatasetItem));
         }
+
+        ADP.show(datasetDiv, "slide-right");
     }
     else {
         const modelInfo = getModelInfo(name);
         console.log(modelInfo);
         currentModelInfo = modelInfo;
         if (modelInfo) {
+            clearE(modelList);
             addE(modelList, createModelItem(modelInfo));
-            getE("evaluation_div").style = "display:block";
+            ADP.show(getE("evaluation_div"), "fade");
             if (modelInfo.info.params.mode == "train") {
                 getE("metrics_display_train").style = "display:block";
                 getE("test_acc").innerText = `${(modelInfo.info.metrics.test_acc *100).toFixed(2)}%`;
                 getE("nav-menu-normal").style = "display:block";
 
                 setV("unlearning_model_name", modelInfo.name + "_unlearn");
+
+                setTimeout(() => {ADP.show(getE("card_test_acc"), "flip-right")}, 500);
             }
             else {
                 getE("metrics_display_unlearn").style = "display:block";
@@ -129,7 +134,14 @@ async function onClickModelItem(name) {
                 getE("after_acc").innerText = `${(modelInfo.info.metrics.test_retain_acc *100).toFixed(2)}%`;
                 getE("before_forget_acc").innerText = `${(modelInfo.info.metrics.before_test_forget_acc *100).toFixed(2)}%`;
                 getE("after_forget_acc").innerText = `${(modelInfo.info.metrics.test_forget_acc *100).toFixed(2)}%`;
-                drawCompareGraph(modelInfo.info.metrics);
+
+                setTimeout(() => ADP.show(getE("card_before_all_acc"), "flip-right"), 500);
+                setTimeout(() => ADP.show(getE("card_before_retain_acc"), "flip-right"), 600);
+                setTimeout(() => ADP.show(getE("card_after_acc"), "flip-right"), 1500);
+                setTimeout(() => ADP.show(getE("card_before_forget_acc"), "flip-right"), 700);
+                setTimeout(() => ADP.show(getE("card_after_forget_acc"), "flip-right"), 1600);
+
+                setTimeout(() => drawCompareGraph(modelInfo.info.metrics), 2000);
             }
             const res = await runApp("facenet", { mode: 'load', model_name: modelInfo.name });
             if (!res.success) {
@@ -162,6 +174,7 @@ async function updateModelList() {
         }
         addE(modelListDiv, createListItem(
             { name: "새로 학습", description: "새로운 모델을 학습합니다.", tag: "", class: "bi-play"}, onClickModelItem));
+        ADP.show(getE("model_div"), "slide-up");
     }
     else {
         console.log(res);
@@ -414,6 +427,7 @@ async function checkUnlearnProgress() {
         const result = await getAppResult("facenet_train");
         console.log(result);
         removeApp("facenet_train");
+        getE("btn_load_unlearning").style = "display:inline";
     }
     else {
         setTimeout(checkUnlearnProgress, 1000);
@@ -425,6 +439,7 @@ function clearFaceUI() {
     canvas2.clear();
     info_canvas.clear();
     faceInfo = null;
+    clearE("image_view");
 }
 
 async function uploadTestData() {
@@ -437,10 +452,10 @@ async function uploadTestData() {
         count: 20
     });
     console.log(res);
-    clearE("image_view");
     getE("image_view").style = "display:block";
     let thumbnail_size = 160;
-    for (let data_path of res.random_test_data_list) {
+    for (let i= 0; i < res.random_test_data_list.length; i++) {
+        let data_path = res.random_test_data_list[i];
         const data_url = `/api/app/data/facenet/${data_path}`;
         const img = createElem({name: "div", attributes: { class: "m-2", style: `display:inline-block; width:${thumbnail_size}px; height:${thumbnail_size}px;`}, children: [
             { name: "img", attributes: {class: "img-thumbnail rounded", src: data_url,
@@ -451,9 +466,13 @@ async function uploadTestData() {
                         image = await loadImage(data_url);
                         clearFaceUI();
                         scale = canvas1.drawImageFit(image);
-                        recognizeFace('test_data', data_path, true);
+                        recognizeFace('test_data', data_path, true, res.labels[i]);
                     }
-                }}
+                }
+            },
+            {
+                name: "div", text: res.labels[i], attributes: { class: "px-2" }
+            }
         ]});
         addE("image_view", img)
     }
@@ -502,7 +521,7 @@ async function uploadFile() {
     }
 }
 
-async function recognizeFace(type, location, noFaceBox=false) {
+async function recognizeFace(type, location, noFaceBox=false, label=null) {
     if (type == 'file') {
         faceInfo = await runApp("facenet", { mode: 'inference', image_path: location });
     }
@@ -526,7 +545,7 @@ async function recognizeFace(type, location, noFaceBox=false) {
                 drawFaceBox(box, 3, 'lime');
             }
         }
-        showFaceInfo(0);
+        showFaceInfo(0, label);
         return faceInfo;
     }
     else {
@@ -566,7 +585,7 @@ function getLabelFromId(classId, labelInfo) {
     return "";
 }
 
-function showFaceInfo(faceIndex) {
+function showFaceInfo(faceIndex, label=null) {
     let infoX = image.width * scale;
     const rcBox = recalcFaceBox(faceInfo.boxes[faceIndex]);
     info_canvas.drawImage(image, rcBox[0], rcBox[1], rcBox[2], rcBox[3], infoX+50, 10, 100, rcBox[3] * 100 / rcBox[2])
@@ -577,9 +596,12 @@ function showFaceInfo(faceIndex) {
     const labelText = getLabelFromId(classId, faceInfo.label);
     const prediction = faceInfo.predictions[faceIndex];
     const confidence = faceInfo.face_confidence[faceIndex];
-    info_canvas.fillText(infoX, 30, `[${classId}] ${labelText}`);
-    info_canvas.fillText(infoX + 20, 60, `클래스 신뢰도: ${(prediction[classId]*100).toFixed(2)}%`)
-    info_canvas.fillText(infoX + 20, 90, `얼굴 검출 신뢰도: ${(confidence*100).toFixed(2)}%`)
+    info_canvas.fillText(infoX, 30, `예측: [${classId}] ${labelText}`);
+    info_canvas.fillText(infoX, 60, `클래스 신뢰도: ${(prediction[classId]*100).toFixed(2)}%`)
+    info_canvas.fillText(infoX, 90, `얼굴 검출 신뢰도: ${(confidence*100).toFixed(2)}%`)
+    if (label) {
+        info_canvas.fillText(infoX, 120, `정답: ${label}`)
+    }
 }
 
 function onMouseUp(e) {
@@ -615,15 +637,22 @@ function mouseScreenToCanvas(e) {
 }
 
 async function reloadModel() {
-    location.reload();
+    window.open(`/ui/demo/unlearning.html`, "_self");
+}
+
+async function loadUnlearning() {
+    const unlearningModelName = getV("unlearning_model_name")
+    window.open(`/ui/demo/unlearning.html?model=${unlearningModelName}`, "_self");
 }
 
 async function init() {
-    getE("model_div").style = "display:block";
+    const queryParam = getQueryParam();
+
     addEvent("btn_exec_test_data", "click", uploadTestData);
     addEvent("btn_exec_url", "click", uploadUrl);
     addEvent("btn_exec_upload", "click", uploadFile);
     addEvent("btn_exec_unlearning", "click", execUnlearning);
+    addEvent("btn_load_unlearning", "click", loadUnlearning);
     addEvent("btn_exec_train", "click", execTrain);
     addEvent("btn_exec_dataset_gen", "click", execDatasetGen);
     addEvent("btn_model_reload", "click", reloadModel);
@@ -638,7 +667,11 @@ async function init() {
 
     getE("info_canvas1").addEventListener('mouseup', onMouseUp, false);
 
-    updateModelList();
+    await updateModelList();
+
+    if (queryParam.model) {
+        onClickModelItem(queryParam.model);
+    }
 }
 
 init();

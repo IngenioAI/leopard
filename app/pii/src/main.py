@@ -92,6 +92,9 @@ def run_presidio(params, args):
     elif action_type == "analyze":
         text = params.get("text", None)
         text_file = params.get("text_file", "")
+    elif action_type == "anonymize":
+        text = params.get("text", None)
+        text_file = params.get("text_file", "")
 
     entities = params.get("entities", None)
     if text_file != "":
