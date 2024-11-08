@@ -222,7 +222,7 @@ async function checkTrainProgress() {
         }
         getE("train_output_log").innerHTML = msg;
     }
-    drawLossGraph(progressInfo);
+    drawLossGraph(progressInfo, 'train_loss_graph');
     if (progressInfo.status != "running") {
         const result = await getAppResult("facenet_train");
         console.log(result);
@@ -243,12 +243,12 @@ async function execTrain() {
     console.log(res);
 
     getE("train_output").style = "display:block";
-    setTimeout(checkTrainProgress, 1000);
+    setTimeout(checkTrainProgress, 2000);
 }
 
-async function drawLossGraph(progressInfo) {
+async function drawLossGraph(progressInfo, element) {
     if (progressInfo.max_epochs) {
-        const myChart = echarts.init(document.getElementById('train_loss_graph'));
+        const myChart = echarts.init(getE(element));
         const option = {
             animationDuration: 1000,
             animationDurationUpdate: 1000,
@@ -256,7 +256,6 @@ async function drawLossGraph(progressInfo) {
                 name: 'epoch',
                 nameLocation: 'middle',
                 type: 'category',
-                //data: Array.from(new Array(progressInfo.max_epochs), (val, ind) => `${ind+1}`),
                 data: Array.from(new Array(progressInfo.current_epoch), (val, ind) => `${ind+1}`),
             },
             yAxis: [
@@ -383,6 +382,7 @@ async function drawCompareGraph(metrics) {
 }
 
 async function execUnlearning() {
+    clearE("unlearn_output_log");
     const res = await runApp("facenet_train", {
         mode: "unlearn",
         model_name: currentModelInfo.name,
@@ -394,7 +394,7 @@ async function execUnlearning() {
     console.log(res);
 
     getE("unlearning_output").style = "display:block";
-    setTimeout(checkUnlearnProgress, 1000);
+    setTimeout(checkUnlearnProgress, 2000);
 }
 
 async function checkUnlearnProgress() {
@@ -412,7 +412,8 @@ async function checkUnlearnProgress() {
         if (progressInfo.stage >= 2) {
             msg += "언러닝 과정을 실행하고 있습니다.<br>";
             if (progressInfo.current_epoch) {
-                msg += `언러닝 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs}`;
+                msg += `언러닝 에포크 실행 ${progressInfo.current_epoch} / ${progressInfo.max_epochs}<br>`;
+                msg += `  Loss: ${progressInfo.loss[progressInfo.current_epoch-1]}, Accuracy: ${progressInfo.acc[progressInfo.current_epoch-1]}<br>`
             }
         }
         if (progressInfo.stage >= 3) {
@@ -423,6 +424,9 @@ async function checkUnlearnProgress() {
         }
         getE("unlearn_output_log").innerHTML = msg;
     }
+
+    drawLossGraph(progressInfo, 'unlearn_loss_graph');
+
     if (progressInfo.status != "running") {
         const result = await getAppResult("facenet_train");
         console.log(result);

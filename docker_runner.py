@@ -130,6 +130,9 @@ class DockerRunner():
             command_list = command
         else:
             print("Unsupported command type (string or list):", command)
+            return False, {
+                "error_reason": f"Unsupported command type (string or list): {command}"
+            }
 
         try:
             use_gpu = options["use_gpu"] if options is not None and "use_gpu" in options else True
@@ -141,6 +144,7 @@ class DockerRunner():
                                                         device_requests=[
                                                             docker.types.DeviceRequest(count=-1, capabilities=[['gpu']])] if use_gpu else [],
                                                         binds=binds,
+                                                        shm_size="1G",
                                                         port_bindings={port_number: port_number} if port_number is not None else {}
                                                     ))
             self.client.start(container.get('Id'))

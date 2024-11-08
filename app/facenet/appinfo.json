@@ -4,12 +4,12 @@
         "name": "FaceNet 얼굴인식",
         "type": "server",
         "image": {
-            "tag": "leopard/facenet:1.0.0",
+            "tag": "leopard/facenet:2.0.0",
             "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
                 "update": false,
                 "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
                 "additional_command": ""
             }
         },
@@ -29,12 +29,12 @@
         "name": "FaceNet 학습/언러닝",
         "type": "script",
         "image": {
-            "tag": "leopard/facenet:1.0.0",
+            "tag": "leopard/facenet:2.0.0",
             "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
                 "update": false,
                 "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
                 "additional_command": ""
             }
         },
@@ -102,12 +102,12 @@
         "name": "VGGFace2 데이터 생성",
         "type": "script",
         "image": {
-            "tag": "leopard/facenet:1.0.0",
+            "tag": "leopard/facenet:2.0.0",
             "build": {
-                "base": "pytorch/pytorch:1.11.0-cuda11.3-cudnn8-devel",
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
                 "update": false,
                 "apt": "",
-                "pip": "facenet-pytorch==1.0.1 fastapi uvicorn",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
                 "additional_command": ""
             }
         },

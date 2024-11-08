@@ -44,14 +44,15 @@ def load_data(data_path, batch_size):
     ])
     trainset = ImageFolder(os.path.join(data_path, 'train'), transform=trans)
     testset = ImageFolder(os.path.join(data_path, 'test'), transform=trans)
-    train_loader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(dataset=trainset, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    test_loader = DataLoader(dataset=testset, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
     return train_loader, test_loader, trainset.class_to_idx
 
 def split_class_data(dataset, forget_class_idx):
-    forget_index = [i for i, (_, target) in enumerate(dataset) if target == forget_class_idx]
-    retain_index = [i for i, (_, target) in enumerate(dataset) if target != forget_class_idx]
-    return forget_index, retain_index
+    targets = torch.tensor(dataset.targets)
+    forget_indices = (targets == forget_class_idx).nonzero(as_tuple=True)[0].tolist()
+    remain_indices = (targets != forget_class_idx).nonzero(as_tuple=True)[0].tolist()
+    return forget_indices, remain_indices
 
 def load_unlearning_data(data_path, forget_class_idx, batch_size):
     save_progress({
@@ -67,17 +68,36 @@ def load_unlearning_data(data_path, forget_class_idx, batch_size):
     train_set = ImageFolder(os.path.join(data_path, 'train'), transform=trans)
     test_set = ImageFolder(os.path.join(data_path, 'test'), transform=trans)
 
-    train_forget_index, train_retain_index = split_class_data(train_set, forget_class_idx)
-    test_forget_index, test_retain_index = split_class_data(test_set, forget_class_idx)
+    indices_path = '/apprun/dataset_indices'
+    train_indices_path = os.path.join(indices_path, f'train_indices_{forget_class_idx}.pt')
+    test_indices_path = os.path.join(indices_path, f'test_indices_{forget_class_idx}.pt')
+    if os.path.exists(train_indices_path) and os.path.exists(test_indices_path):
+        print(f"Load indices from {train_indices_path} and {test_indices_path}")
+        train_indices = torch.load(train_indices_path)
+        test_indices = torch.load(test_indices_path)
+        train_forget_indices = train_indices['forget']
+        train_remain_indices = train_indices['remain']
+        test_forget_indices = test_indices['forget']
+        test_remain_indices = test_indices['remain']
+    else:
+        train_forget_indices, train_remain_indices = split_class_data(train_set, forget_class_idx)
+        test_forget_indices, test_remain_indices = split_class_data(test_set, forget_class_idx)
+        train_indices = {'forget': train_forget_indices, 'remain': train_remain_indices}
+        test_indices = {'forget': test_forget_indices, 'remain': test_remain_indices}
+        os.makedirs(indices_path, exist_ok=True)
+        torch.save(train_indices, train_indices_path)
+        torch.save(test_indices, test_indices_path)
 
-    train_forget_set = Subset(train_set, train_forget_index)
+    train_forget_set = Subset(train_set, train_forget_indices)
+    #train_retain_set = Subset(train_set, train_remain_indices)
 
-    test_forget_set = Subset(test_set, test_forget_index)
-    test_retain_set = Subset(test_set, test_retain_index)
+    test_forget_set = Subset(test_set, test_forget_indices)
+    test_retain_set = Subset(test_set, test_remain_indices)
 
-    train_forget_loader = DataLoader(dataset=train_forget_set, batch_size=batch_size, shuffle=True)
-    test_forget_loader = DataLoader(dataset=test_forget_set, batch_size=batch_size, shuffle=False)
-    test_retain_loader = DataLoader(dataset=test_retain_set, batch_size=batch_size, shuffle=False)
+    train_forget_loader = DataLoader(dataset=train_forget_set, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    #train_retain_loader = DataLoader(dataset=train_retain_set, batch_size=batch_size, shuffle=True, num_workers=4, pin_memory=True)
+    test_forget_loader = DataLoader(dataset=test_forget_set, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
+    test_retain_loader = DataLoader(dataset=test_retain_set, batch_size=batch_size, shuffle=False, num_workers=4, pin_memory=True)
 
     return train_forget_loader, test_forget_loader, test_retain_loader, train_set.class_to_idx
 
@@ -276,6 +296,7 @@ class FaceNet():
         optimizer = torch.optim.SGD(unlearn_model.parameters(), lr=6e-4, momentum=0.9, weight_decay=1e-4)
 
         loss_list = []
+        acc_list = []
         for epoch in range(epochs):
             start = time.time()
             nearest_label = []
@@ -299,7 +320,8 @@ class FaceNet():
                 correct += pred.eq(labels.view_as(pred)).sum().item()
                 total += labels.size(0)
                 losses += loss.item() * labels.size(0)
-                loss_list.append(losses)
+            loss_list.append(losses/total)
+            acc_list.append(correct/total)
             torch.cuda.synchronize()
             save_progress({
                 "status": "running",
@@ -307,7 +329,8 @@ class FaceNet():
                 "message": f"Unlearning epoch {epoch+1}/{epochs}",
                 "current_epoch": epoch+1,
                 "max_epochs": epochs,
-                "loss": loss_list
+                "loss": loss_list,
+                "acc": acc_list
             })
             print(f'Epoch {epoch} | Time {time.time()-start:.3f} | Loss {losses / total:.4f} | Acc {correct/total:.4f} | Flipped {nums_filpped/total:.4f}')
 
@@ -326,7 +349,8 @@ class FaceNet():
             "message": "Model Save",
             "current_epoch": epochs,
             "max_epochs": epochs,
-            "loss": loss_list
+            "loss": loss_list,
+            "acc": acc_list
         })
         return test_forget_loss, test_forget_acc, test_retain_loss, test_retain_acc, before_test_forget_acc, before_test_retain_acc
 
@@ -373,10 +397,10 @@ def train(input_params):
         model_path = os.path.join("/model", model_name, "model.pth")
         data_path = os.path.join("/dataset", input_params["dataset"])
         resume_train = input_params.get("resume_train", False)
-        batch_size = input_params.get("batch_size", 32)
+        batch_size = input_params.get("batch_size", 128)
 
         if mode == "train":
-            max_epochs = input_params.get("epochs", 16)
+            max_epochs = input_params.get("epochs", 8)
             train_loader, test_loader, class_to_idx = load_data(data_path, batch_size)
             num_classes = len(class_to_idx.items())
             model = FaceNet(model_path, num_classes=num_classes, resume_train=resume_train)
@@ -394,7 +418,7 @@ def train(input_params):
                 "test_acc": test_acc
             }
         elif mode == "unlearn":
-            max_epochs = input_params.get("unlearn_epochs", 2)
+            max_epochs = input_params.get("unlearn_epochs", 8)
             forget_class_index = input_params["forget_class_index"]
             train_forget_loader, test_forget_loader, test_retain_loader, class_to_idx = load_unlearning_data(data_path, forget_class_index, batch_size)
             unlearn_model_name = input_params.get("unlearn_model_name", None)
@@ -435,8 +459,6 @@ def train(input_params):
         }]
 
 def main(args):
-    clear_progress()
-
     with open(os.path.join("/data/input", args.input), "rt", encoding="utf-8") as fp:
         input_params = json.load(fp)
 
@@ -452,5 +474,6 @@ def parse_arguments():
 
 
 if __name__ == '__main__':
+    clear_progress()
     fix_seed()
     main(parse_arguments())
