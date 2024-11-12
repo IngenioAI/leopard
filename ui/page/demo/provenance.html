@@ -1,0 +1,82 @@
+<LP-template use="demopage">
+
+    <LP-content name="head">
+        <style>
+            #mySvgId {
+                height: 90%;
+                width: 100%;
+            }
+        </style>
+        <script type="module" src="/js/control/context_menu.js"></script>
+        <script type="module" src="/js/control/list_group.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+        <link rel="stylesheet" href="/adp/adp.css" />
+        <link rel="stylesheet" href="/adp/adp-hide.css" />
+        <script src="/adp/adp.js"></script>
+        <LP-include-html src="code-highlight.html"></LP-include-html>
+        <script src="https://bumbu.me/svg-pan-zoom/dist/svg-pan-zoom.min.js"></script>
+        <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs"></script>
+        <LP-include-html src="get-query-param.html"></LP-include-html>
+    </LP-content>
+
+    <LP-content name="main">
+        <h2 class="mb-2">AI 프로비넌스</h2>
+
+        <div id="model_div" class="my-2">
+            <div>
+                <span class="h4">모델 선택</span>            </div>
+            <div class="list-group mx-2 my-2" id="model_list">
+                <div class="list-group-item list-group-item-action" aria-current="true">
+                    <div class="d-flex w-100 justify-content-between">
+                        <div class="w-100">
+                            <h5 class="mb-1"><span class="bi-layers"
+                                    style="padding-right: 0.2em"></span><span>model-demo</span></h5>
+                            <div class="d-flex w-100 justify-content-between"><small>Facenet
+                                    모델</small><small>dataset-demo</small></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav id="nav-menu-normal">
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-src-tab" data-bs-toggle="tab" data-bs-target="#nav-src"
+                    type="button" role="tab" aria-controls="nav-src" aria-selected="true">원본 소스</button>
+                <button class="nav-link" id="nav-srcinst-tab" data-bs-toggle="tab" data-bs-target="#nav-srcinst"
+                    type="button" role="tab" aria-controls="nav-srcinst" aria-selected="true">수정된 소스</button>
+                <button class="nav-link" id="nav-logfile-tab" data-bs-toggle="tab" data-bs-target="#nav-logfile"
+                    type="button" role="tab" aria-controls="nav-logfile" aria-selected="false">로그 파일</button>
+                <button class="nav-link" id="nav-graph-tab" data-bs-toggle="tab" data-bs-target="#nav-graph"
+                    type="button" role="tab" aria-controls="nav-graph" aria-selected="false">그래프</button>
+            </div>
+        </nav>
+
+        <div class="tab-content" id="nav-tabContent">
+            <div class="tab-pane fade show active" id="nav-src" role="tabpanel" aria-labelledby="nav-src-tab"
+                tabindex="0">
+                <div id="src_view"></div>
+            </div>
+            <div class="tab-pane fade" id="nav-srcinst" role="tabpanel" aria-labelledby="nav-srcinst-tab" tabindex="1">
+                <div id="srcinst_view"></div>
+            </div>
+            <div class="tab-pane fade" id="nav-logfile" role="tabpanel" aria-labelledby="nav-logfile-tab" tabindex="2">
+                <div id="logfile_view"></div>
+            </div>
+            <div class="tab-pane fade" id="nav-graph" role="tabpanel" aria-labelledby="nav-graph-tab" tabindex="3">
+                <div id="mermaid_test" style="height:680px">
+
+                </div>
+            </div>
+        </div>
+
+    </LP-content>
+
+    <LP-content name="dialog">
+        <LP-include-html src="input.html"></LP-include-html>
+        <LP-include-html src="fileupload.html"></LP-include-html>
+        <LP-include-html src="messagebox.html"></LP-include-html>
+        <LP-include-html src="ask_messagebox.html"></LP-include-html>
+    </LP-content>
+
+</LP-template>

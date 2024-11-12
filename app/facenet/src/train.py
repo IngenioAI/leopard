@@ -20,7 +20,18 @@ from torch.utils.data import DataLoader, Subset
 from torch import optim
 from torch.optim.lr_scheduler import MultiStepLR
 
-from utils import save_result, clear_progress, save_progress
+def clear_progress():
+    if os.path.exists("/apprun/progress.json"):
+        os.remove("/apprun/progress.json")
+
+def save_progress(obj):
+    with open("/apprun/progress.json", "wt", encoding="UTF-8") as fp:
+        json.dump(obj, fp, indent=4)
+
+
+def save_result(obj, filename):
+    with open(f"/data/output/{filename}", "wt", encoding="UTF-8") as fp:
+        json.dump(obj, fp, indent=4)
 
 def fix_seed(seed=42):
     torch.manual_seed(seed)

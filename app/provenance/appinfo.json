@@ -1,0 +1,111 @@
+[
+    {
+        "id": "provenance-inst",
+        "name": "Provenance 코드 설치기",
+        "type": "script",
+        "image": {
+            "tag": "leopard/facenet:2.0.0",
+            "build": {
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
+                "update": false,
+                "apt": "",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/provenance/src/python-inst",
+            "main": "main.py",
+            "command_params": [],
+            "input": "storage/0/app/provenance/input",
+            "output": "storage/0/app/provenance/output",
+            "binds": [
+                ["/model_src", "app/provenance/src/facenet"],
+                ["/src", "storage/0/app/provenance/src"]
+            ]
+        }
+    },
+    {
+        "id": "provenance-run",
+        "name": "Provenance 코드 실행기",
+        "type": "script",
+        "image": {
+            "tag": "leopard/facenet:2.0.0",
+            "build": {
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
+                "update": false,
+                "apt": "",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "storage/0/app/provenance/src",
+            "main": "train.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/provenance/input",
+            "output": "storage/0/app/provenance/output",
+            "run_path": "storage/0/app/provenance/run",
+            "binds": [
+                ["/dataset", "storage/0/app/facenet/data"],
+                ["/model", "storage/0/app/provenance/model"]
+            ]
+        },
+        "input_form_spec": [
+            {
+                "id": "mode",
+                "title": "동작 모드",
+                "type": "select",
+                "values": ["train", "unlearn"],
+                "default": "train"
+            },
+            {
+                "id": "model_name",
+                "title": "모델 이름",
+                "type": "text",
+                "default": "model-demo"
+            },
+            {
+                "id": "dataset",
+                "title": "데이터셋",
+                "type": "text",
+                "default": "dataset-demo"
+            },
+            {
+                "id": "epochs",
+                "title": "학습 에포크수",
+                "type": "number",
+                "default": 1
+            }
+        ]
+    },
+    {
+        "id": "provenance-visualizer",
+        "name": "Provenance 그래프 시각화",
+        "type": "script",
+        "image": {
+            "tag": "leopard/facenet:2.0.0",
+            "build": {
+                "base": "pytorch/pytorch:2.2.2-cuda12.1-cudnn8-runtime",
+                "update": false,
+                "apt": "",
+                "pip": "tqdm facenet-pytorch fastapi uvicorn",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/provenance/src/visualizer",
+            "main": "visualizer.py",
+            "command_params": [],
+            "input": "storage/0/app/provenance/input",
+            "output": "storage/0/app/provenance/mmd",
+            "binds": [
+                ["/dataset", "storage/0/app/facenet/data"],
+                ["/model", "storage/0/app/provenance/model"],
+                ["/log", "storage/0/app/provenance/src"],
+                ["/mmd", "storage/0/app/provenance/mmd"]
+            ]
+        }
+    }
+]

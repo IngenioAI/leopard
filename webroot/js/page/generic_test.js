@@ -88,7 +88,7 @@ async function run() {
     const res = await runApp(appInfo.id, data);
     if (res.success) {
         // run with no_wait
-        setTimeout(checkProgress, 1000);
+        setTimeout(checkProgress, 2000);
         showTab("progress");
         return;
     }
@@ -96,7 +96,7 @@ async function run() {
         const answer = await showAskMessageBox("이미 실행중인 모듈이 있습니다. 실행 중인 모듈에 연결하거나 기존 실행을 중지할 수 있습니다.", "실행 연결",
             ["기존 모듈 연결", "기존 모듈 중지", "취소"]);
         if (answer.index == 0) {
-            setTimeout(checkProgress, 1000);
+            setTimeout(checkProgress, 2000);
             showTab("progress");
             return;
         }
