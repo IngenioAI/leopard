@@ -65,8 +65,8 @@ class FaceNetServer():
             print("Trained model is NOT found:", self.model_path)
 
         self.mtcnn = MTCNN(
-            image_size=160, margin=0, min_face_size=20,
-            thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=True,
+            image_size=160, margin=0, min_face_size=40,
+            thresholds=[0.6, 0.7, 0.7], factor=0.709, post_process=False,
             device=self.device
         )
 
@@ -87,6 +87,14 @@ class FaceNetServer():
         faces = []
         if boxes is not None:
             for box in boxes:
+                margin = 0.6
+                b_w = box[2] - box[0]
+                b_h = box[3] - box[1]
+                box[0] = max(box[0] - b_w * margin, 0)
+                box[1] = max(box[1] - b_h * margin, 0)
+                box[2] = min(box[2] + b_w * margin, img.width)
+                box[3] = min(box[3] + b_h * margin, img.height)
+                print(box)
                 face = img.crop(box)
                 faces.append(trans(face))
 

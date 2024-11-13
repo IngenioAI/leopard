@@ -45,10 +45,23 @@ function drawCsvGrid(results, fileContent) {
             for (let column = 0; column < ret.cellInfo[row].length; column++) {
                 const cell = ret.cellInfo[row][column];
                 if (cell[0] <= info.start && cell[1] >= info.end) {
+                    let cellColor = "#FFFF77";
+                    if (info.entity_type == "주민등록번호") {
+                        cellColor = "#FF7777";
+                    }
+                    for (let decoCell of decoCells) {
+                        if (decoCell.column == column && decoCell.row == row) {
+                            if (info.entity_type == "주민등록번호") {
+                                decoCell.style = { backgroundColor: cellColor};
+                                decoCell.toolTip = `${info.entity_type}: ${(info.score*100).toFixed(1)}%`;
+                            }
+                            continue;
+                        }
+                    }
                     decoCells.push({
                         column: column,
                         row: row,
-                        style: { backgroundColor: "#FFFF00" },
+                        style: { backgroundColor: cellColor },
                         toolTip: `${info.entity_type}: ${(info.score*100).toFixed(1)}%`,
                     });
                 }

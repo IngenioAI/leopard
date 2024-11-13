@@ -563,8 +563,8 @@ function recalcFaceBox(box) {
     let y = box[1] >= 0 ? box[1] : 1;
     let w = box[2] - x;
     let h = box[3] - y;
-    const x_margin = w * 0.2;
-    const y_margin = h * 0.2;
+    const x_margin = w * 0.0;
+    const y_margin = h * 0.0;
     x = x - x_margin;
     y = y - y_margin;
     x = Math.max(0, x);
