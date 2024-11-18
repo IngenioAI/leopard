@@ -1,0 +1,65 @@
+[
+    {
+        "id": "mu-mia",
+        "name": "언러닝 MIA",
+        "type": "script",
+        "image": {
+            "tag": "leopard/mu-mia:1.0.0",
+            "build": {
+                "base": "tensorflow/tensorflow:2.14.0-gpu",
+                "update": true,
+                "upgrade": false,
+                "apt": "libgl1-mesa-glx libglib2.0-0 git",
+                "pip": "pandas opencv-python tqdm torch facenet-pytorch pytorch_lightning==1.1.0 tensorflow_privacy Privacy_Meter opacus matplotlib timm git+https://github.com/katsura-jp/pytorch-cosine-annealing-with-warmup@12d03c07553aedd3d9e9155e2b3e31ce8c64081a",
+                "additional_command": ""
+            }
+        },
+        "execution": {
+            "src": "app/mu-mia/src",
+            "main": "mia_driver.py",
+            "wait": false,
+            "command_params": [],
+            "input": "storage/0/app/mu-mia/input",
+            "output": "storage/0/app/mu-mia/output",
+            "run_path": "storage/0/app/mu-mia/run",
+            "binds": [
+                ["/miadata", "storage/0/app/mu-mia/data"]
+            ]
+        },
+        "input_form_spec": [
+            {
+                "id": "op_mode",
+                "title": "Module",
+                "type": "select",
+                "values": ["train", "attack-train", "attack-test", "unlearn-sample-generation", "unlearn", "mia-unlearn"],
+                "default": "mia-unlearn"
+            },
+            {
+                "id": "data_type",
+                "title": "Data Type",
+                "type": "select",
+                "values": ["kr_celeb", "cifar10", "cifar100", "attack-train", "kid34k"],
+                "default": "kr_celeb"
+            },
+            {
+                "id": "forget_class_idx",
+                "title": "Forget Class Index",
+                "type": "number",
+                "default": 9
+            },
+            {
+                "id": "n_classes",
+                "title": "클래스 개수",
+                "type": "number",
+                "default": 10
+            },
+            {
+                "id": "attack_type",
+                "title": "Attack Type",
+                "type": "select",
+                "values": ["nn", "samia", "nn_cls"],
+                "default": "nn_cls"
+            }
+        ]
+    }
+]

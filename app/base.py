@@ -17,7 +17,7 @@ class App():
 
     def build_image(self, wait=True):
         build_info = self.config['image']['build']
-        ret = self.docker.create_image(self.config['image']['tag'], build_info['base'], build_info['update'],
+        ret = self.docker.create_image(self.config['image']['tag'], build_info['base'], build_info['update'], build_info.get("upgrade", True),
                                        build_info['apt'], build_info['pip'],
                                        build_info['additional_command'] if 'additional_command' in build_info else None)
         if not ret:

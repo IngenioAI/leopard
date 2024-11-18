@@ -43,12 +43,15 @@ class DockerRunner():
         thread.start()
         self.threads[name]['status'] = 'running'
 
-    def create_image(self, name, base_image="python:3.8", update=True, apt_install=None, pip_install=None,
+    def create_image(self, name, base_image="python:3.8", update=True, upgrade=True, apt_install=None, pip_install=None,
                      additional_cmd=None):
         dockerfile_template = f'FROM {base_image}\n'
         if update:
             # dockerfile_template += "RUN apt-key del 7fa2af80 && apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/3bf863cc.pub && apt update && apt -y upgrade\n"
-            dockerfile_template += "RUN apt update && apt -y upgrade\n"
+            if upgrade:
+                dockerfile_template += "RUN apt update && apt -y upgrade\n"
+            else:
+                dockerfile_template += "RUN apt update\n"
         if apt_install is not None and apt_install != '':
             dockerfile_template += f'RUN apt install -y --allow-downgrades {apt_install}\n'
         if pip_install is not None and pip_install != '':

@@ -3,6 +3,7 @@ misc/
 storage/*
 data/*
 docker/
+app/mu-mia/src/kr_celeb_models/
 .coverage
 tests/data/model.json
 tests/data/dataset.json

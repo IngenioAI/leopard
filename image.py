@@ -12,6 +12,7 @@ class CreateImageItem(BaseModel):
     name: str
     baseImage: str
     update: Union[bool, None] = None
+    upgrade: Union[bool, None] = None
     aptInstall: Union[str, None] = None
     pipInstall: Union[str, None] = None
     additionalCommand: Union[str, None] = None
@@ -19,7 +20,7 @@ class CreateImageItem(BaseModel):
 
 @image_router.post("/create")
 async def create_image(data: CreateImageItem):
-    ret = docker_runner.create_image(data.name, data.baseImage, data.update, data.aptInstall, data.pipInstall,
+    ret = docker_runner.create_image(data.name, data.baseImage, data.update, data.upgrade, data.aptInstall, data.pipInstall,
                                          data.additionalCommand)
     return JSONResponseHandler({
         'success': ret
