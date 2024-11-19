@@ -94,7 +94,7 @@ def attack_test(conf):
     elif conf.data_type == 'kr_celeb':
         trg_model = InceptionResnetV1(
                     classify=True,
-                    pretrained='vggface2',
+                    pretrained=None,    # Attack test no need to load pretrained weights
                     num_classes=conf.n_classes
                     )
 

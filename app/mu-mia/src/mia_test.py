@@ -139,7 +139,7 @@ def cw_mu_test(conf):
     unlearned_model_path = f'{conf.save_dir}/target/VGGFace2_unlearn_model_forget{conf.forget_class_idx}.pth'
     trg_model = InceptionResnetV1(
                     classify=True,
-                    pretrained='vggface2',
+                    pretrained=None,    # test no need to load pretrained weight
                     num_classes=conf.n_classes
                     )
 
