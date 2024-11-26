@@ -1,0 +1,152 @@
+<LP-template use="demopage">
+
+    <LP-content name="head">
+        <style>
+        </style>
+        <link rel="stylesheet" href="/adp/adp.css" />
+        <link rel="stylesheet" href="/adp/adp-hide.css" />
+        <script src="/adp/adp.js"></script>
+    </LP-content>
+
+    <LP-content name="main">
+        <h2 class="mb-2">비식별화 데이터 성능 평가</h2>
+
+        <nav id="nav-menu-normal">
+            <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                <button class="nav-link active" id="nav-deepp-tab" data-bs-toggle="tab" data-bs-target="#nav-deepp"
+                    type="button" role="tab" aria-controls="nav-deepp" aria-selected="true">비식별화 테스트</button>
+                <button class="nav-link" id="nav-dpeval-tab" data-bs-toggle="tab" data-bs-target="#nav-dpeval"
+                    type="button" role="tab" aria-controls="nav-dpeval" aria-selected="true">성능 평가 결과</button>
+            </div>
+        </nav>
+
+        <div class="tab-content" id="tab-cotent-metric">
+            <div class="tab-pane fade show active" id="nav-deepp" role="tabpanel" aria-labelledby="nav-deepp-tab" tabindex="0">
+                <div class="mx-4 my-4">
+                    <button id="btn_exec_demo_data" class="btn btn-outline-primary">
+                        <div class="align-middle"><span class="bi bi-person-check-fill"></span> 데모 데이터</div>
+                    </button>
+                    <button id="btn_exec_upload" class="btn btn-outline-primary">
+                        <div class="align-middle"><span class="bi bi-upload"></span> 파일 업로드</div>
+                    </button>
+                </div>
+                <div id="view">
+                    <div class="row">
+                        <div class="col">
+                            <canvas id="canvas0">
+                            </canvas>
+                            <div id="emotion0"></div>
+                        </div>
+                        <div class="col d-flex align-items-center" height="100%">
+                            <div id="message_div" class="align-middle" style="display:none">
+                                <div id="process_spinner" style="display:none">
+                                    <div class="d-flex justify-content-center">
+                                        <div class="spinner-border" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div id="output_log" class="d-flex justify-content-center"></div>
+                            </div>
+                        </div>
+                        <div class="col">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <canvas id="canvas1">
+                            </canvas>
+                            <div id="emotion1"></div>
+                        </div>
+                        <div class="col">
+                            <canvas id="canvas2">
+                            </canvas>
+                            <div id="emotion2"></div>
+                        </div>
+                        <div class="col">
+                            <canvas id="canvas3">
+                            </canvas>
+                            <div id="emotion3"></div>
+                        </div>
+                        <div class="col">
+                            <canvas id="canvas4">
+                            </canvas>
+                            <div id="emotion4"></div>
+                        </div>
+                        <div class="col">
+                            <canvas id="canvas5">
+                            </canvas>
+                            <div id="emotion5"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tab-pane fade" id="nav-dpeval" role="tabpanel" aria-labelledby="nav-dpeval-tab" tabindex="0">
+                <div id="metrics_display" class="mx-2 my-4">
+                    <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">
+                        <div class="col">
+                            <div class="row row-cols-1 row-cols-md-2 mb-3 text-center">
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm adp-hide" id="card_class2_before_acc">
+                                        <div class="card-header py-3">
+                                            <h5 class="my-0 fw-normal">Class 2</h5>
+                                            <div>비식별화 전 정확도</div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h2 id="class2_before_acc" class="card-title pricing-card-title"></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm border-success adp-hide" id="card_class2_after_acc">
+                                        <div class="card-header py-3 text-bg-success border-success">
+                                            <h5 class="my-0 fw-normal">Class 2</h5>
+                                            <div>비식별화 후 정확도</div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h2 id="class2_after_acc" class="card-title pricing-card-title"></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm adp-hide" id="card_class8_before_acc">
+                                        <div class="card-header py-3">
+                                            <h5 class="my-0 fw-normal">Class 8</h5>
+                                            <div>비식별화 전 정확도</div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h2 id="class8_before_acc" class="card-title pricing-card-title"></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col">
+                                    <div class="card mb-4 rounded-3 shadow-sm border-success adp-hide" id="card_class8_after_acc">
+                                        <div class="card-header py-3 text-bg-success border-success">
+                                            <h5 class="my-0 fw-normal">Class 8</h5>
+                                            <div>비식별화 후 정확도</div>
+                                        </div>
+                                        <div class="card-body">
+                                            <h2 id="class8_after_acc" class="card-title pricing-card-title"></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div id="compare_graph" style="margin-top: 40px; margin-left:40px; width: 400px;height:500px;">
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </LP-content>
+
+    <LP-content name="dialog">
+        <LP-include-html src="fileupload.html"></LP-include-html>
+        <LP-include-html src="messagebox.html"></LP-include-html>
+    </LP-content>
+
+</LP-template>

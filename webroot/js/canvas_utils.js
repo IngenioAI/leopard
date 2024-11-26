@@ -24,7 +24,7 @@ class Canvas {
         context.drawImage(image, srcX, srcY, srcW, srcH, dstX, dstY, dstW, dstH);
     }
 
-    drawImageFit(image) {
+    drawImageFit(image, alignBottom=false) {
         const canvas = document.getElementById(this.canvasId);
         let scale = 100.0;
         if (canvas.width / image.width < scale) {
@@ -34,7 +34,13 @@ class Canvas {
             scale = canvas.height / image.height;
         }
         const context = canvas.getContext('2d');
-        context.drawImage(image, 0, 0, image.width * scale, image.height * scale);
+        if (alignBottom) {
+            const y = canvas.height -image.height * scale
+            context.drawImage(image, 0, y, image.width * scale, image.height * scale);
+        }
+        else {
+            context.drawImage(image, 0, 0, image.width * scale, image.height * scale);
+        }
         return scale;
     }
 
