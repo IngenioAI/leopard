@@ -7,13 +7,11 @@ import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 let canvasList =[];
 
 async function drawResultImages(result) {
-    // canvasList[0].fillText(80, 300-40, result.original_image_emotion);
     getE("emotion0").innerText = result.original_image_emotion;
     for (let i = 1; i <= 5; i++) {
         const url = createStorageFileURL('0', '/app/deepprivacy/output/' + result.outputs[i-1].filename);
         const image = await loadImage(url);
         canvasList[i].drawImageFit(image, true);
-        // canvasList[i].fillText(80, 280-40, result.outputs[i-1].emotion);
         getE("emotion"+i).innerText = result.outputs[i-1].emotion;
     }
 }
@@ -72,12 +70,12 @@ async function onShowEvalPage() {
     console.log(result)
 
     getE("class2_before_acc").innerText = `${result.class_2_before_acc.toFixed(2)}%`;
-    setTimeout(() => ADP.show(getE("card_class2_before_acc"), "flip-right"), 500);
+    setTimeout(() => ADP.show(getE("card_class2_before_acc"), "flip-right"), 100);
     getE("class2_after_acc").innerText = `${result.class_2_after_acc.toFixed(2)}%`;
     setTimeout(() => ADP.show(getE("card_class2_after_acc"), "flip-right"), 1000);
 
     getE("class8_before_acc").innerText = `${result.class_8_before_acc.toFixed(2)}%`;
-    setTimeout(() => ADP.show(getE("card_class8_before_acc"), "flip-right"), 500);
+    setTimeout(() => ADP.show(getE("card_class8_before_acc"), "flip-right"), 100);
 
     getE("class8_after_acc").innerText = `${result.class_8_after_acc.toFixed(2)}%`;
     setTimeout(() => ADP.show(getE("card_class8_after_acc"), "flip-right"), 1000);

@@ -24,10 +24,14 @@ from util.add_watermark import watermark_image
 from util.norm import SpecificNorm
 from util.reverse2original import reverse2wholeimage
 
+model_path = '/model'
+
 
 def config():
     opt = TestOptions().parse()
     opt.no_simswaplogo = True
+    opt.checkpoints_dir = f'{model_path}/checkpoints'
+    opt.Arc_path = f'{model_path}/arcface_model/arcface_checkpoint.tar'
     crop_size = opt.crop_size
     torch.nn.Module.dump_patches = True
     if crop_size == 512:
@@ -43,16 +47,15 @@ def config():
     mse = torch.nn.MSELoss().to(device)
     spNorm = SpecificNorm()
 
-    app = Face_detect_crop(name='antelope', root='./insightface_func/models')
+    app = Face_detect_crop(name='antelope', root=f'{model_path}/insightface_func/models')
     app.prepare(ctx_id=0, det_thresh=0.3, det_size=(640, 640), mode=mode)
     return app, opt, crop_size, model, mse, spNorm, logoclass
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'mps' if torch.backends.mps.is_available() else 'cpu')
 
-male_emb_dir = ['./embeddings/m/']
-female_emb_dir = ['./embeddings/w/']
-pic_dir = './data/sample/'
+male_emb_dir = [f'{model_path}/embeddings/m/']
+female_emb_dir = [f'{model_path}/embeddings/w/']
 target_emb_list = ['onlyGen']  # onlyGen, 'aihub', 'cel']  # ,'oldaihub']
 num = 2
 simswap, opt, crop_size, model, mse, spNorm, logoclass = config()
@@ -264,7 +267,7 @@ def generate(args):
             n_classes = 19
             net = BiSeNet(n_classes=n_classes)
             net.to(device)
-            save_pth = os.path.join('./parsing_model/checkpoint', '79999_iter.pth')
+            save_pth = os.path.join(f'{model_path}/parsing_model/checkpoint', '79999_iter.pth')
             net.load_state_dict(torch.load(save_pth))
             net.eval()
         else:

@@ -102,8 +102,8 @@ async function onClickModelItem(name) {
             for (const datasetInfo of res.list_dataset) {
                 addE(datasetList, createListItem({ name: datasetInfo, description: "dataset", tag: "VGGFace2", class: "bi-database" }, onClickDatasetItem));
             }
-            addE(datasetList, createListItem(
-                { name: "새로 생성", description: "새로운 데이터셋을 생성합니다.", tag: "", class: "bi-play"}, onClickDatasetItem));
+            //addE(datasetList, createListItem(
+            //    { name: "새로 생성", description: "새로운 데이터셋을 생성합니다.", tag: "", class: "bi-play"}, onClickDatasetItem));
         }
 
         ADP.show(datasetDiv, "slide-right");

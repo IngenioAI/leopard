@@ -24,23 +24,9 @@
             "output": "storage/0/app/deepprivacy/output",
             "run_path": "storage/0/app/deepprivacy/run",
             "binds": [
+                ["/model", "storage/0/app/deepprivacy/model"]
             ]
-        },
-        "#input_form_spec": [
-            {
-                "id": "sex",
-                "title": "sex",
-                "type": "select",
-                "values": ["M", "W"],
-                "default": "M"
-            },
-            {
-                "id": "is_demo",
-                "title": "is_demo",
-                "type": "bool",
-                "default": true
-            }
-        ]
+        }
     },
     {
         "id": "deepprivacy-eval",
