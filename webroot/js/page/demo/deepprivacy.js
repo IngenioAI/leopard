@@ -4,12 +4,12 @@ import { Canvas, loadImage } from "/js/canvas_utils.js";
 import { joinPath, createStorageFileURL } from "/js/storage_utils.js";
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 
-let canvasList =[];
+const canvasList =[];
 
 async function drawResultImages(result) {
     getE("emotion0").innerText = result.original_image_emotion;
     for (let i = 1; i <= 5; i++) {
-        const url = createStorageFileURL('0', '/app/deepprivacy/output/' + result.outputs[i-1].filename);
+        const url = createStorageFileURL('0', '/app/deepprivacy/output/' + result.outputs[i-1].filename, true);
         const image = await loadImage(url);
         canvasList[i].drawImageFit(image, true);
         getE("emotion"+i).innerText = result.outputs[i-1].emotion;
@@ -43,7 +43,7 @@ async function execDemoData() {
     });
     setTimeout(checkProgress, 1000);
 
-    const inputUrl = createStorageFileURL('0', '/app/deepprivacy/input/demo_sample.jpg')
+    const inputUrl = createStorageFileURL('0', '/app/deepprivacy/input/demo_sample.jpg', true)
     const image = await loadImage(inputUrl)
     canvasList[0].drawImageFit(image, true);
 }
@@ -59,7 +59,7 @@ async function execUpload() {
         });
         setTimeout(checkProgress, 1000);
 
-        const imageUrl = createStorageFileURL("0", joinPath("app/deepprivacy/input", imagePath));
+        const imageUrl = createStorageFileURL("0", joinPath("app/deepprivacy/input", imagePath), true);
         const image = await loadImage(imageUrl);
         canvasList[0].drawImageFit(image, true);
     }
@@ -82,7 +82,7 @@ async function onShowEvalPage() {
 }
 
 async function clearUI() {
-    for (let i=0; i < 6; i++) {
+    for (let i=0; i<6; i++) {
         canvasList[i].clear();
         clearE("emotion" + i);
     }
