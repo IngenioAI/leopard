@@ -36,16 +36,27 @@ async function checkProgress() {
     }
 }
 
+async function drawDemoInputImage() {
+    const inputUrl = createStorageFileURL('0', '/app/deepprivacy/input/demo_sample.jpg', true)
+    let image = null;
+    try {
+        image = await loadImage(inputUrl);
+    } catch {
+        setTimeout(drawDemoInputImage, 1000);
+        return;
+    }
+    if (image) {
+        canvasList[0].drawImageFit(image, true);
+    }
+}
+
 async function execDemoData() {
     clearUI();
     await runApp("deepprivacy", {
         "image_path": "demo_sample?"
     });
+    setTimeout(drawDemoInputImage, 1000);
     setTimeout(checkProgress, 1000);
-
-    const inputUrl = createStorageFileURL('0', '/app/deepprivacy/input/demo_sample.jpg', true)
-    const image = await loadImage(inputUrl)
-    canvasList[0].drawImageFit(image, true);
 }
 
 async function execUpload() {
