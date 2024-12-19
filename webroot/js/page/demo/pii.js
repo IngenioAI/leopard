@@ -8,6 +8,8 @@ import { csvToGrid } from "/js/csv_grid.js";
 import { showMessageBox } from "/js/dialog/messagebox.js";
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 
+let latestResult = null;
+
 async function useSynthData() {
     hideE("detection_output_div");
     hideE("csv_grid_div");
@@ -35,38 +37,44 @@ async function generateRun() {
 
     let fileContent = result.text_content;
     drawCsvGrid(result.results, fileContent);
+    latestResult = result;
 }
 
-function drawCsvGrid(results, fileContent) {
+function drawCsvGrid(results, fileContent, useCellColor=true) {
     const ret = CSV.parse(fileContent, '|', true);
-    const decoCells = [];
-    for (let info of results) {
-        for (let row = 0; row < ret.cellInfo.length; row++) {
-            for (let column = 0; column < ret.cellInfo[row].length; column++) {
-                const cell = ret.cellInfo[row][column];
-                if (cell[0] <= info.start && cell[1] >= info.end) {
-                    let cellColor = "#FFFF77";
-                    if (info.entity_type == "주민등록번호") {
-                        cellColor = "#FF7777";
-                    }
-                    for (let decoCell of decoCells) {
-                        if (decoCell.column == column && decoCell.row == row) {
-                            if (info.entity_type == "주민등록번호") {
-                                decoCell.style = { backgroundColor: cellColor};
-                                decoCell.toolTip = `${info.entity_type}: ${(info.score*100).toFixed(1)}%`;
-                            }
-                            continue;
+    let decoCells = [];
+    if (useCellColor) {
+        for (let info of results) {
+            for (let row = 0; row < ret.cellInfo.length; row++) {
+                for (let column = 0; column < ret.cellInfo[row].length; column++) {
+                    const cell = ret.cellInfo[row][column];
+                    if (cell[0] <= info.start && cell[1] >= info.end) {
+                        let cellColor = "#FFFF77";
+                        if (info.entity_type == "주민등록번호") {
+                            cellColor = "#FF7777";
                         }
+                        for (let decoCell of decoCells) {
+                            if (decoCell.column == column && decoCell.row == row) {
+                                if (info.entity_type == "주민등록번호") {
+                                    decoCell.style = { backgroundColor: cellColor};
+                                    decoCell.toolTip = `${info.entity_type}: ${(info.score*100).toFixed(1)}%`;
+                                }
+                                continue;
+                            }
+                        }
+                        decoCells.push({
+                            column: column,
+                            row: row,
+                            style: { backgroundColor: cellColor },
+                            toolTip: `${info.entity_type}: ${(info.score*100).toFixed(1)}%`,
+                        });
                     }
-                    decoCells.push({
-                        column: column,
-                        row: row,
-                        style: { backgroundColor: cellColor },
-                        toolTip: `${info.entity_type}: ${(info.score*100).toFixed(1)}%`,
-                    });
                 }
             }
         }
+    }
+    else {
+        decoCells = null;
     }
     csvToGrid("csv_grid", ret.data, decoCells);
 
@@ -120,10 +128,21 @@ async function uploadFile() {
     }
 }
 
+async function anonymizeRun() {
+    const result = await runApp('pii', {
+        module: "presidio",
+        action_type : 'anonymize',
+        text: latestResult.text_content
+    });
+    console.log(result);
+    drawCsvGrid(result.results, result.anonymized_text, false);
+}
+
 async function init() {
     addEvent("btn_exec_test_data", "click", useSynthData);
     addEvent("btn_exec_upload", "click", uploadFile);
     addEvent("btn_exec_generate_run", "click", generateRun);
+    addEvent("btn_exec_anonymize_run", "click", anonymizeRun);
 }
 
 init();

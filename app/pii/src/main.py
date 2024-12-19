@@ -86,7 +86,7 @@ def run_presidio(params, args):
                             data.append(generated_data_list[i][c-1])
                         csv_writer.writerow(row[:1] + data + row[1:])
                     c += 1
-                    if c >= count:
+                    if c > count:
                         break
         text_file = f"{base_dataset}_output.csv"
     elif action_type == "analyze":

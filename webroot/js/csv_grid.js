@@ -43,11 +43,13 @@ export function csvToGrid(gridId, csvData, decoCells=null) {
     }
     const rowData = [];
     for (let i = 1; i < csvLines.length; i++) {
-        const row = {};
-        for (let j = 0; j < headers.length; j++) {
-            row[headers[j]] = csvLines[i][j];
+        if (csvLines[i].length == headers.length) {
+            const row = {};
+            for (let j = 0; j < headers.length; j++) {
+                row[headers[j]] = csvLines[i][j];
+            }
+            rowData.push(row)
         }
-        rowData.push(row)
     }
     const gridOptions = {
         columnDefs: columnDefs,
