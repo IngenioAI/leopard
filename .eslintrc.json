@@ -12,7 +12,7 @@
         "sourceType": "module",
         "ecmaVersion": 2017
     },
-    "ignorePatterns": ["docker/"],
+    "ignorePatterns": ["docker/", "misc/"],
     "plugins": [],
     "settings": {},
     "rules": {},

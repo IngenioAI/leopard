@@ -1,4 +1,4 @@
-import { getE, getV, clearE, addE, showE, hideE, addEvent, createE, createElem } from "/js/dom_utils.js";
+import { getE, getV, clearE, showE, addEvent } from "/js/dom_utils.js";
 import { runApp, getAppProgress, getAppResult, removeApp } from "/js/service.js";
 
 let attackStage = 0;
@@ -37,7 +37,7 @@ async function checkAttackProgress() {
             setTimeout(() => ADP.show(getE("card_before_acc"), "flip-right"), 500);
 
             const attackType = getV("select_attack");
-            const mu_result = await runApp("mu-mia", {
+            await runApp("mu-mia", {
                 op_mode: "mia-unlearn",
                 data_type: "kr_celeb",
                 forget_class_idx: 9,
@@ -71,7 +71,7 @@ async function execAttack() {
     const attackType = getV("select_attack");
 
     attackStage = 0;
-    const result = await runApp("mu-mia", {
+    await runApp("mu-mia", {
         op_mode: "attack-test",
         data_type: "kr_celeb",
         forget_class_idx: 9,

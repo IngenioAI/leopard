@@ -1,5 +1,5 @@
-import { getE, getV, clearE, addE, showE, hideE, addEvent, createE, createElem } from "/js/dom_utils.js";
-import { runApp, getAppProgress, getAppResult, removeApp, getAppLogs } from "/js/service.js";
+import { getE, clearE, showE, hideE, addEvent } from "/js/dom_utils.js";
+import { runApp, getAppProgress, getAppResult, removeApp } from "/js/service.js";
 import { Canvas, loadImage } from "/js/canvas_utils.js";
 import { joinPath, createStorageFileURL } from "/js/storage_utils.js";
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
@@ -41,7 +41,7 @@ async function drawDemoInputImage() {
     let image = null;
     try {
         image = await loadImage(inputUrl);
-    } catch {
+    } catch (error) {
         setTimeout(drawDemoInputImage, 1000);
         return;
     }

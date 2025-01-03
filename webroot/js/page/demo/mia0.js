@@ -2,6 +2,7 @@ import { getE, getV, clearE, addE, showE, hideE, addEvent, createE, createElem }
 import { createListGroupItem } from "/js/control/list_group.js";
 import { ContextMenu } from "/js/control/context_menu.js";
 import { runApp, getAppProgress, getAppResult, removeApp } from "/js/service.js";
+import echarts from "https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js";
 
 import { showAskMessageBox } from "/js/dialog/ask_messagebox.js";
 

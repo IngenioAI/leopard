@@ -5,7 +5,6 @@ import { runApp, getStorageFileContent } from "/js/service.js";
 import { CSV } from "/js/csv.js";
 import { csvToGrid } from "/js/csv_grid.js";
 
-import { showMessageBox } from "/js/dialog/messagebox.js";
 import { showFileUploadDialogBox } from "/js/dialog/fileupload.js";
 
 let latestResult = null;
@@ -123,7 +122,8 @@ async function uploadFile() {
 
             const bootstrap = window.bootstrap;
             const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
-            const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            tooltipTriggerList.map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+            //const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
         }
     }
 }
